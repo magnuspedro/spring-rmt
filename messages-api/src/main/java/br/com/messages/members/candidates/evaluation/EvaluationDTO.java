@@ -1,11 +1,11 @@
 package br.com.messages.members.candidates.evaluation;
 
+import br.com.messages.members.metrics.QualityAttributeResultDTO;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import br.com.messages.members.metrics.QualityAttributeResultDTO;
 
 public class EvaluationDTO implements Serializable {
 

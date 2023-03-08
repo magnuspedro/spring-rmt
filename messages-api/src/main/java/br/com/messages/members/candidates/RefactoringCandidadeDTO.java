@@ -1,11 +1,9 @@
 package br.com.messages.members.candidates;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import br.com.messages.members.candidates.evaluation.EvaluationDTO;
 import br.com.messages.members.detectors.methods.Reference;
 import br.com.messages.patterns.DesignPattern;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 public class RefactoringCandidadeDTO implements RefactoringCandidate {
 

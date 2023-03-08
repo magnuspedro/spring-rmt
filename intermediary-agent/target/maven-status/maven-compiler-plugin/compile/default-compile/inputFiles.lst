@@ -10,17 +10,12 @@
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/managers/projects/exceptions/evaluation/ProjectEvaluationException.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/managers/members/MembersManagerImpl.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/managers/projects/exceptions/ManagerException.java
-/home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/datastore/MongoConfig.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/managers/projects/ProjectsPoolImpl.java
-/home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/files/FileRepository.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/managers/members/exceptions/pulses/PulseException.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/managers/projects/EvaluatonResponseHandler.java
-/home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/files/ReadOnlyFileRepository.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/managers/projects/EvaluationsManager.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/utils/Const.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/ws/core/IntermediaryAgentObjectMapperProvider.java
-/home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/files/collections/FileRepositoryCollections.java
-/home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/files/projects/ProjectsRepository.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/managers/projects/exceptions/registration/InvalidProjectIdException.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/managers/projects/exceptions/registration/InvalidProjectNameException.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/controllers/MainPanelController.java
@@ -28,5 +23,4 @@
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/members/AliveMember.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/managers/projects/ProjectsManagerImpl.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/managers/members/DetectorRequestsManager.java
-/home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/files/projects/ProjectsGridFsRepositoryImpl.java
 /home/magnus/Studies/SpringRMT/intermediary-agent/src/main/java/br/com/intermediary/intermediaryagent/managers/projects/EvaluationsManagerImpl.java

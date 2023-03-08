@@ -2,14 +2,15 @@ package br.com.messages.utils;
 
 import br.com.messages.members.candidates.RefactoringCandidate;
 import br.com.messages.members.detectors.methods.Reference;
-import jakarta.json.JsonObject;
-import jakarta.json.Json;
-import jakarta.json.JsonArrayBuilder;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 
 public class JsonUtils {
 
 	public static JsonObject toJson(RefactoringCandidate c) {
-		return Json.createObjectBuilder().add("id", c.getId()).add("reference", JsonUtils.toJson(c.getReference()))
+		return Json.createObjectBuilder().add("id", c.getId()).add("reference", toJson(c.getReference()))
 				.add("pkg", c.getPkg()).add("className", c.getClassName())
 				.add("eligiblePattern", c.getEligiblePattern().name()).build();
 	}

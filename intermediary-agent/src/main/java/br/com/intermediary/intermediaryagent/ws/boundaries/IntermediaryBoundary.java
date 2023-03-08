@@ -11,15 +11,15 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import br.com.messages.files.FileRepositoryCollections;
 import br.com.messages.members.api.intermediary.IntermediaryAgentCoreApi;
+import br.com.messages.projects.ProjectsRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import br.com.intermediary.intermediaryagent.files.collections.FileRepositoryCollections;
-import br.com.intermediary.intermediaryagent.files.projects.ProjectsRepository;
 import br.com.intermediary.intermediaryagent.managers.members.MembersManager;
 import br.com.intermediary.intermediaryagent.managers.projects.ProjectsManager;
 import br.com.messages.members.api.intermediary.IntermediaryAgentProjectsApi;
@@ -35,7 +35,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @RequiredArgsConstructor
 public class IntermediaryBoundary implements Serializable {
 
-	private static final String APPLICATION_JSON= "application/json";
 	private final FileRepositoryCollections PROJECTS_COLLECTION = FileRepositoryCollections.PROJECTS;
 
 	private final ProjectsManager projectsManager;

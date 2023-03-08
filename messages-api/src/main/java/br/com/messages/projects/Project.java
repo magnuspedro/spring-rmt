@@ -1,21 +1,23 @@
 package br.com.messages.projects;
 
+import br.com.messages.files.FileEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
+import lombok.experimental.SuperBuilder;
+import org.apache.commons.io.IOUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.apache.commons.io.IOUtils;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import br.com.messages.files.FileEntity;
-
+@SuperBuilder
 public class Project extends FileEntity {
 
 	private static final long serialVersionUID = 1L;
 
+	@Builder.Default
 	private ProjectPhase phase = ProjectPhase.ON_HOLD;
 
 	private final @JsonIgnore Supplier<InputStream> contentHandler;

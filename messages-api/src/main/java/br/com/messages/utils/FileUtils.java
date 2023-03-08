@@ -1,7 +1,6 @@
 package br.com.messages.utils;
 
-import jakarta.activation.MimetypesFileTypeMap;
-
+import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

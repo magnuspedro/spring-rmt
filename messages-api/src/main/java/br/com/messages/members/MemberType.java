@@ -5,7 +5,7 @@ public enum MemberType {
 
 	private final String description;
 
-	private MemberType(String description) {
+	MemberType(String description) {
 		this.description = description;
 	}
 

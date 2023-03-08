@@ -1,8 +1,8 @@
 package br.com.messages.pulses;
 
-import java.io.Serializable;
-
 import br.com.messages.members.MemberType;
+
+import java.io.Serializable;
 
 public class Pulse implements Serializable {
 

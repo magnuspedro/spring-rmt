@@ -1,10 +1,15 @@
 package br.com.messages.files;
 
-import java.io.Serializable;
-
+import lombok.Builder;
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.io.Serializable;
+
+@SuperBuilder
+@Getter
 public class FileEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -27,18 +32,6 @@ public class FileEntity implements Serializable {
 		this.id = id;
 		this.name = name;
 		this.contentType = contentType;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getContentType() {
-		return contentType;
 	}
 
 	@Override

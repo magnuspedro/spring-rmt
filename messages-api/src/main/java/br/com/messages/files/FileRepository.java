@@ -1,7 +1,4 @@
-package br.com.intermediary.intermediaryagent.files;
-
-import br.com.intermediary.intermediaryagent.files.collections.FileRepositoryCollections;
-import br.com.messages.files.FileEntity;
+package br.com.messages.files;
 
 public interface FileRepository<T extends FileEntity> extends ReadOnlyFileRepository<T> {
 

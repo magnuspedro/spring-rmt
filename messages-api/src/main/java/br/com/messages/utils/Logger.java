@@ -6,7 +6,7 @@ public class Logger {
 	
 	private static Logger instance = null;
 	
-	private java.util.logging.Logger logger = java.util.logging.Logger.getGlobal();
+	private final java.util.logging.Logger logger = java.util.logging.Logger.getGlobal();
 	
 	private Logger() {
 		

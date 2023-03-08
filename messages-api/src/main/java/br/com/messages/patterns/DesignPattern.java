@@ -6,5 +6,5 @@ public enum DesignPattern {
 	ABSTRACT_FACTORY,
 	TEMPLATE_METHOD,
 	NULL_OBJECT,
-	SINGLETON;
+	SINGLETON
 }
