@@ -1,12 +1,12 @@
 package br.com.detection.detectionagent.methods;
 
-import br.com.detection.detectionagent.domain.files.FileRepositoryCollections;
 import br.com.detection.detectionagent.methods.dataExtractions.forks.DataExtractionFork;
-import br.com.detection.detectionagent.project.ProjectsRepository;
+import br.com.messages.files.FileRepositoryCollections;
 import br.com.messages.members.candidates.RefactoringCandidadeDTO;
 import br.com.messages.members.candidates.RefactoringCandidate;
 import br.com.messages.members.detectors.methods.Reference;
 import br.com.messages.projects.Project;
+import br.com.messages.projects.ProjectsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -23,9 +23,6 @@ public class DetectionMethodsManagerImpl implements DetectionMethodsManager {
 
 	private final Map<String, Collection<RefactoringCandidate>> candidatesOfProjects = new HashMap<>();
 
-	/*
-	 * Everything starts and ends here...
-	 */
 	@Override
 	public Collection<RefactoringCandidate> extractCandidates(String projectId) {
 
@@ -71,18 +68,14 @@ public class DetectionMethodsManagerImpl implements DetectionMethodsManager {
 
 	private boolean isCandidateProcessed(String projectId, RefactoringCandidadeDTO rc) {
 		final boolean processed = this.candidatesOfProjects.get(projectId).stream()
-				.anyMatch(c -> {
-					return c.getId().equals(rc.getId());
-				});
+				.anyMatch(c -> c.getId().equals(rc.getId()));
 
 		return processed;
 	}
 
 	private Optional<RefactoringCandidate> parseCandidateDTO(String projectId, RefactoringCandidadeDTO dto) {
 		final Optional<RefactoringCandidate> candidate = this.candidatesOfProjects.get(projectId).stream()
-				.filter(rc -> {
-					return dto.getId().equals(rc.getId());
-				}).findFirst();
+				.filter(rc -> dto.getId().equals(rc.getId())).findFirst();
 
 		return candidate;
 	}

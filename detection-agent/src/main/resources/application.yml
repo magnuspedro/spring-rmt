@@ -1,0 +1,21 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: archprome
+
+server:
+  port: 8081
+
+services:
+  intermediary: localhost:8080
+
+feign:
+  client:
+    config:
+      pulses-client:
+        loggerLevel: full
+
+logging:
+  level:
+    br.com.detection.detectionagent.ws.core.PulseClient: DEBUG

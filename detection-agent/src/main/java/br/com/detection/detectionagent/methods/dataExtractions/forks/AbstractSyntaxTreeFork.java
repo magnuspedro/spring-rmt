@@ -1,14 +1,15 @@
 package br.com.detection.detectionagent.methods.dataExtractions.forks;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
-import br.com.detection.detectionagent.domain.files.FileRepositoryCollections;
-import br.com.detection.detectionagent.project.ProjectsRepository;
 import br.com.detection.detectionagent.methods.dataExtractions.AbstractSyntaxTree;
+import br.com.messages.files.FileRepositoryCollections;
 import br.com.messages.members.candidates.RefactoringCandidate;
 import br.com.messages.members.detectors.methods.Reference;
 import br.com.messages.projects.Project;
+import br.com.messages.projects.ProjectsRepository;
 import com.github.javaparser.ast.CompilationUnit;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AbstractSyntaxTreeFork implements DataExtractionFork {
@@ -125,7 +127,7 @@ public class AbstractSyntaxTreeFork implements DataExtractionFork {
 	public Path getFile(Object parsedEntity) {
 		return this.bufferOfFiles.keySet().stream().filter(
 				k -> this.astHandler.unitsMatch((CompilationUnit) bufferOfFiles.get(k), (CompilationUnit) parsedEntity))
-				.findFirst().orElseThrow(() -> new IllegalArgumentException());
+				.findFirst().orElseThrow(IllegalArgumentException::new);
 	}
 
 	@Override
@@ -142,7 +144,7 @@ public class AbstractSyntaxTreeFork implements DataExtractionFork {
 		final Optional<Path> file = this.bufferOfFiles.keySet().stream()
 				.filter(f -> f.toAbsolutePath().toString().endsWith(String.format("/%s.java", name))).findFirst();
 
-		return file.isPresent() ? this.bufferOfFiles.get(file.get()) : null;
+		return file.map(this.bufferOfFiles::get).orElse(null);
 	}
 	/**
 	 * Delete a file.
@@ -154,15 +156,10 @@ public class AbstractSyntaxTreeFork implements DataExtractionFork {
 			org.apache.commons.io.FileUtils.forceDelete(p.toFile());
 		}
 	}
-	/**
-	 * Gets a project and update the BufferFile.
-	 * The bufferFile is a Map of Path and CompilationUnit.
-	 * @param project
-	 */
 	private void updatedBuffer(Project project) {
 		final Path tmp = Paths.get(project.getId());
 
-		Collection<Path> files = new ArrayList<>();
+		Collection<Path> files;
 		try (InputStream is = Optional.ofNullable(project.getStream())
 				.orElseGet(() -> this.projectsRepository.get(FileRepositoryCollections.PROJECTS, project.getId())
 						.orElseThrow(IllegalArgumentException::new).getStream())) {
@@ -175,9 +172,7 @@ public class AbstractSyntaxTreeFork implements DataExtractionFork {
 
 			ZipUtil.explode(tmp.toFile());
 
-			files = Files.find(tmp, 1000, (p, attr) -> {
-				return p.getFileName().toString().endsWith(".java");
-			}).collect(Collectors.toList());
+			files = Files.find(tmp, 1000, (p, attr) -> p.getFileName().toString().endsWith(".java")).collect(Collectors.toList());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -192,11 +187,8 @@ public class AbstractSyntaxTreeFork implements DataExtractionFork {
 			}
 		}
 
-		System.out.println("Classes sob avaliação = " + bufferOfFiles.values().size());
+		log.info("Classes sob avaliação = {}", bufferOfFiles.values().size());
 	}
-	/**
-	 * Clear the BufferFile.
-	 */
 	private void clearBuffer() {
 		this.bufferOfFiles.clear();
 	}

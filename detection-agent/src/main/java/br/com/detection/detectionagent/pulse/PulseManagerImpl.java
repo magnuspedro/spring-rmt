@@ -1,72 +1,60 @@
 package br.com.detection.detectionagent.pulse;
 
 import br.com.detection.detectionagent.domain.identity.Identity;
-import br.com.detection.detectionagent.ws.core.HttpRequestUtils;
+import br.com.detection.detectionagent.ws.core.PulseClient;
 import br.com.messages.members.Member;
 import br.com.messages.members.MemberType;
-import br.com.messages.members.RestPatterns;
-import br.com.messages.members.api.intermediary.IntermediaryAgentCoreApi;
-import br.com.messages.members.api.intermediary.IntermediaryAgentPulsesApi;
 import br.com.messages.pulses.Pulse;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.Response;
+import feign.FeignException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class PulseManagerImpl implements PulseManager {
 
-	private static final long serialVersionUID = 1L;
+    private final PulseClient pulseClient;
+    private static final long serialVersionUID = 1L;
 
-	private final Pulse pulse = new Pulse(Identity.ID, MemberType.PATTERNS_SPOTS_DETECTOR);
+    private final Pulse pulse = new Pulse(Identity.ID, MemberType.PATTERNS_SPOTS_DETECTOR);
 
-	@Scheduled(cron = "* * * * *")
-	public void sendPulse() {
+    @Scheduled(fixedDelay = 60000)
+    public void sendPulse() {
+        log.info("Detector - Sending pulse. Beggining registration...");
 
-		final String path = HttpRequestUtils.createPath(IntermediaryAgentCoreApi.AGENT_PATH,
-				IntermediaryAgentPulsesApi.ROOT, IntermediaryAgentPulsesApi.RENEW);
+        try {
+            pulseClient.sendPulse(pulse);
+            log.info("Detector - Pulse accepted.");
+        } catch (FeignException.FeignClientException e) {
+            if (e.status() == HttpStatus.PRECONDITION_FAILED.value()) {
+                registerAsMember();
+                return;
+            }
+            log.info("Detector - Client Error Response not identified - ", e);
+        }
+        catch(FeignException.FeignServerException e){
+            log.info("Detector - Server Error Response not identified - ", e);
+        }
+    }
 
-		System.out.println("Detector - Sending pulse. Beggining registration...");
+    public void registerAsMember() {
+        final Member member = Identity.getAsMember();
 
-		final Response response = HttpRequestUtils.getTarget(path).request(RestPatterns.PRODUCES_JSON)
-				.post(Entity.json(pulse), Response.class);
+        log.info("Detector - Membro {} não registrado. Iniciando registro...", member.getMemberId());
+        log.info("Member: {}", member);
 
-		if (Response.Status.PRECONDITION_FAILED.getStatusCode() == response.getStatus()) {
-			registerAsMember();
-		} else if (Response.Status.OK.getStatusCode() == response.getStatus()) {
-			System.out.println("Detector - Pulse accepted.");
-		} else {
-			System.out.println(
-					String.format("Detector - Response not identified - ", ToStringBuilder.reflectionToString(response)));
-		}
-	}
-
-	public void registerAsMember() {
-
-		try {
-			final Member member = Identity.getAsMember();
-
-			System.out.println(String.format("Detector - Membro %s não registrado. Iniciando registro...",
-					member.getMemberId()));
-
-			final String path = HttpRequestUtils.createPath(IntermediaryAgentCoreApi.AGENT_PATH,
-					IntermediaryAgentPulsesApi.ROOT, IntermediaryAgentPulsesApi.REGISTRATION);
-
-			System.out.println(ToStringBuilder.reflectionToString(member));
-
-			final Response response = HttpRequestUtils.getTarget(path).request(RestPatterns.PRODUCES_JSON)
-					.post(Entity.json(member), Response.class);
-
-			if (Response.Status.OK.getStatusCode() != response.getStatus()) {
-				System.out.println("Detector - Registration Response: " + ToStringBuilder.reflectionToString(response));
-				System.out.println(
-						"Detector - Registration Response Entity: " + ToStringBuilder.reflectionToString(response.getEntity()));
-			} else {
-				System.out.println("Detector - Registration Succeded!");
-			}
-		} catch (Exception e) {
-			System.out.println("Detector - Failed while registering - " + ToStringBuilder.reflectionToString(e));
-		}
-	}
+        try {
+            var response = pulseClient.register(member);
+            log.info("Detector - Registration Response: {}", response);
+            log.info("Detector - Registration Response Entity: {}", response.getBody());
+            log.info("Detector - Registration Succeeded!");
+        } catch (Exception e) {
+            log.error("Detector - Failed while registering - ", e);
+        }
+    }
 }

@@ -79,13 +79,12 @@ public abstract class Cinneide2000Verifier implements RefactoringCandidatesVerif
         return candidates;
     }
 
-    //TODO: Make this monster better
+    //TODO: Refactor
     private List<Cinneide2000Candidate> getUnique(List<Cinneide2000Candidate> candidates) {
         final HashSet<String> uniqueCandidates = new HashSet<>();
         final HashSet<Cinneide2000Candidate> realCandidates = new HashSet<>();
         if (!candidates.isEmpty()) {
             try {
-                System.out.println("Singleton Candidate");
                 for (Cinneide2000Candidate cinneide2000Candidate : candidates) {
                     if (!uniqueCandidates.add(cinneide2000Candidate.getClassName())) {
                         realCandidates.add(cinneide2000Candidate);

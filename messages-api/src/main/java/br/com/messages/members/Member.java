@@ -1,7 +1,10 @@
 package br.com.messages.members;
 
+import lombok.ToString;
+
 import java.io.Serializable;
 
+@ToString
 public class Member implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -14,10 +14,7 @@ import br.com.messages.members.api.intermediary.IntermediaryAgentPulsesApi;
 import br.com.messages.pulses.Pulse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @Slf4j
@@ -39,10 +36,10 @@ public class PulsesBoundary implements Serializable {
 	}
 
 	@PostMapping(path = IntermediaryAgentPulsesApi.RENEW, consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
-	public ResponseEntity renew(Pulse pulse) {
+	public ResponseEntity renew(@RequestBody  Pulse pulse) {
 
 		try {
-			log.info("Recebido pulso {}.", ToStringBuilder.reflectionToString(pulse));
+			log.info("Recebido pulso {}.", pulse);
 			
 			membersManager.renewAvailability(pulse);
 
@@ -53,10 +50,10 @@ public class PulsesBoundary implements Serializable {
 	}
 
 	@PostMapping(path = IntermediaryAgentPulsesApi.REGISTRATION, consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
-	public ResponseEntity register(Member member) {
+	public ResponseEntity register(@RequestBody Member member) {
 
 		try {
-			log.info(String.format("Membro %s registrado.", ToStringBuilder.reflectionToString(member)));
+			log.info("Membro {} registrado.", member);
 			
 			membersManager.register(member);
 

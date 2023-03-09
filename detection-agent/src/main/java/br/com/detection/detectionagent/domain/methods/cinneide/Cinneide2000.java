@@ -11,12 +11,14 @@ import br.com.detection.detectionagent.methods.dataExtractions.forks.DataHandler
 import br.com.messages.members.candidates.RefactoringCandidate;
 import br.com.messages.members.detectors.methods.Reference;
 import br.com.messages.patterns.DesignPattern;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 @Component
 public class Cinneide2000 implements DetectionMethod, AbstractSyntaxTreeDependent {
 
@@ -41,13 +43,9 @@ public class Cinneide2000 implements DetectionMethod, AbstractSyntaxTreeDependen
 	@Override
 	public Collection<RefactoringCandidate> extractCandidates(DataHandler dataHandler) {
 
-		final Collection<RefactoringCandidate> candidates = this.getVerifiers().flatMap(v -> {
-			return v.retrieveCandidatesFrom(this.toReference(), dataHandler).stream();
-		}).collect(Collectors.toList());
+		final Collection<RefactoringCandidate> candidates = this.getVerifiers().flatMap(v -> v.retrieveCandidatesFrom(this.toReference(), dataHandler).stream()).collect(Collectors.toList());
 
-		System.out.println("Printing Cinneide");
-		System.out.println(candidates);
-		System.out.println("=============================");
+		log.info("Candidates: {}", candidates);
 
 		return candidates;
 	}

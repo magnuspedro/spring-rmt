@@ -1,9 +1,11 @@
 package br.com.messages.pulses;
 
 import br.com.messages.members.MemberType;
+import lombok.ToString;
 
 import java.io.Serializable;
 
+@ToString
 public class Pulse implements Serializable {
 
 	private static final long serialVersionUID = 1L;
