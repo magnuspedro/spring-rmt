@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 
-@FeignClient(name = "pulses-client", url = "${services.intermediary}")
+@FeignClient(name = "pulse-client", url = "${services.intermediary}")
 public interface PulseClient {
 
     @PostMapping(path = IntermediaryAgentCoreApi.AGENT_PATH + IntermediaryAgentPulsesApi.ROOT + IntermediaryAgentPulsesApi.RENEW, produces = MediaType.APPLICATION_JSON_VALUE)

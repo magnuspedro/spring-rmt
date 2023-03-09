@@ -3,6 +3,12 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017
       database: archprome
+  cloud:
+    openfeign:
+      client:
+        config:
+          pulse-client:
+            logger-level: full
 
 server:
   port: 8081
@@ -10,12 +16,7 @@ server:
 services:
   intermediary: localhost:8080
 
-feign:
-  client:
-    config:
-      pulses-client:
-        loggerLevel: full
-
 logging:
   level:
     br.com.detection.detectionagent.ws.core.PulseClient: DEBUG
+
