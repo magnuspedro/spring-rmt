@@ -21,10 +21,10 @@ public class DetectionMethodsManagerImpl implements DetectionMethodsManager {
 
 	private final List<DataExtractionFork> dataExtractionForks;
 
-	private final Map<String, Collection<RefactoringCandidate>> candidatesOfProjects = new HashMap<>();
+	private final Map<String, List<RefactoringCandidate>> candidatesOfProjects = new HashMap<>();
 
 	@Override
-	public Collection<RefactoringCandidate> extractCandidates(String projectId) {
+	public List<RefactoringCandidate> extractCandidates(String projectId) {
 
 		final Project project = this.projectsRepository.get(FileRepositoryCollections.PROJECTS, projectId)
 				.orElseThrow(IllegalArgumentException::new);
@@ -34,7 +34,7 @@ public class DetectionMethodsManagerImpl implements DetectionMethodsManager {
 		}
 		this.candidatesOfProjects.get(project.getId()).clear();
 		this.candidatesOfProjects.get(project.getId()).addAll(this.dataExtractionForks.stream()
-				.flatMap(f -> f.findCandidates(project).stream()).collect(Collectors.toList()));
+				.flatMap(f -> f.findCandidates(project).stream()).toList());
 
 		return this.candidatesOfProjects.get(project.getId());
 	}

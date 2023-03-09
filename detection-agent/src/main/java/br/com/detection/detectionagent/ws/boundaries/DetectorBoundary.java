@@ -4,6 +4,7 @@ import br.com.detection.detectionagent.methods.DetectionMethodsManager;
 import br.com.detection.detectionagent.pulse.PulseManager;
 import br.com.messages.members.api.detectors.DetectionAgentApi;
 import br.com.messages.members.candidates.RefactoringCandidadeDTO;
+import br.com.messages.members.candidates.RefactoringCandidate;
 import br.com.messages.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 import static br.com.messages.members.api.detectors.DetectionAgentApi.DETECTION_PATH;
 import static br.com.messages.members.api.detectors.DetectionAgentApi.ROOT;
@@ -28,12 +30,8 @@ public class DetectorBoundary implements Serializable {
 
 
     @GetMapping(DetectionAgentApi.START_DETECTION_WITH_PARAMS)
-    public JsonArray requestEvaluation(@PathVariable("projectId") String projectId) {
-        final JsonArrayBuilder builder = Json.createArrayBuilder();
-
-        detectionMethodsManager.extractCandidates(projectId).stream().map(JsonUtils::toJson).forEach(builder::add);
-
-        return builder.build();
+    public List<RefactoringCandidate> requestEvaluation(@PathVariable("projectId") String projectId) {
+        return detectionMethodsManager.extractCandidates(projectId);
     }
 
     @PostMapping(DetectionAgentApi.REFACTOR_WITH_PARAMS)

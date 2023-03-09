@@ -5,15 +5,11 @@ import br.com.messages.members.candidates.RefactoringCandidate;
 import br.com.messages.members.detectors.methods.Reference;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface DetectionMethodsManager {
 
-	/**
-	 * Extract the refactoring candidates.
-	 * @param projectId
-	 * @return return the a Map of Collections of refactoring candidates.
-	 */
-	Collection<RefactoringCandidate> extractCandidates(String projectId);
+	List<RefactoringCandidate> extractCandidates(String projectId);
 
 	String refactor(String projectId, Collection<RefactoringCandidadeDTO> eligiblePatterns);
 	
