@@ -1,7 +1,6 @@
 package br.com.metrics.metricsagent.domain.metrics.report;
 
 import br.com.messages.utils.Logger;
-import br.com.metrics.domain.metrics.processor.*;
 import br.com.metrics.metricsagent.domain.metrics.processor.*;
 import com.google.common.collect.Lists;
 import org.eclipse.jdt.core.JavaCore;

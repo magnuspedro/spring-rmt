@@ -25,6 +25,7 @@
 /home/magnus/Studies/SpringRMT/messages-api/src/main/java/br/com/messages/addresses/IntermediaryAgentAddress.java
 /home/magnus/Studies/SpringRMT/messages-api/src/main/java/br/com/messages/members/api/intermediary/IntermediaryAgentProjectsApi.java
 /home/magnus/Studies/SpringRMT/messages-api/src/main/java/br/com/messages/members/detectors/methods/Reference.java
+/home/magnus/Studies/SpringRMT/messages-api/src/main/java/br/com/messages/projects/ProjectsReadonlyRepository.java
 /home/magnus/Studies/SpringRMT/messages-api/src/main/java/br/com/messages/projects/ProjectsRepositoryImpl.java
 /home/magnus/Studies/SpringRMT/messages-api/src/main/java/br/com/messages/members/api/intermediary/IntermediaryAgentCoreApi.java
 /home/magnus/Studies/SpringRMT/messages-api/src/main/java/br/com/messages/files/FileRepository.java

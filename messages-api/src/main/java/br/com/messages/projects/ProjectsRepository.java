@@ -5,7 +5,7 @@ import java.util.Optional;
 import br.com.messages.files.FileRepository;
 import br.com.messages.files.FileRepositoryCollections;
 
-public interface ProjectsRepository extends FileRepository<Project> {
+public interface ProjectsRepository extends ProjectsReadonlyRepository, FileRepository<Project> {
 
 	Optional<Project> get(FileRepositoryCollections collection, String id);
 

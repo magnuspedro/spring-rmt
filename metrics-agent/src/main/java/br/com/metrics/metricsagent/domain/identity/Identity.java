@@ -11,7 +11,7 @@ public class Identity {
 
 	public static final String HOST = "localhost";
 
-	public static final String PORT = "8080";
+	public static final String PORT = "8082";
 
 	public static Member getAsMember() {
 		return new Member(Identity.ID, Identity.HOST, Identity.PORT, MemberType.PATTERNS_METRICS_EVALUATOR);

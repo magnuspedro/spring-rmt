@@ -2,72 +2,58 @@ package br.com.metrics.metricsagent.pulse;
 
 import br.com.messages.members.Member;
 import br.com.messages.members.MemberType;
-import br.com.messages.members.RestPatterns;
-import br.com.messages.members.api.intermediary.IntermediaryAgentCoreApi;
-import br.com.messages.members.api.intermediary.IntermediaryAgentPulsesApi;
 import br.com.messages.pulses.Pulse;
 import br.com.metrics.metricsagent.domain.identity.Identity;
-import br.com.metrics.metricsagent.ws.core.HttpRequestUtils;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.Response;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import br.com.metrics.metricsagent.ws.core.PulseClient;
+import feign.FeignException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class PulseManagerImpl implements PulseManager {
 
-	private static final long serialVersionUID = 1L;
+    private final PulseClient pulseClient;
 
-	private final Pulse pulse = new Pulse(Identity.ID, MemberType.PATTERNS_METRICS_EVALUATOR);
+    private final Pulse pulse = new Pulse(Identity.ID, MemberType.PATTERNS_METRICS_EVALUATOR);
 
-	@Scheduled(cron = "* * * * *")
-	public void sendPulse() {
+    @Scheduled(fixedRate = 60000)
+    public void sendPulse() {
+        log.info("Metrics - Sending pulse. Beggining registration...");
 
-		final String path = HttpRequestUtils.createPath(IntermediaryAgentCoreApi.AGENT_PATH,
-				IntermediaryAgentPulsesApi.ROOT, IntermediaryAgentPulsesApi.RENEW);
+        try {
+            pulseClient.sendPulse(pulse);
+            log.info("Metrics - Pulse accepted.");
+        } catch (FeignException.FeignClientException e) {
+            if (e.status() == HttpStatus.PRECONDITION_FAILED.value()) {
+                registerAsMember();
+                return;
+            }
 
-		System.out.println("Metrics - Sending pulse. Beggining registration...");
+            log.error("Metrics - Response not identified - ", e);
 
-		final Response response = HttpRequestUtils.getTarget(path).request(RestPatterns.PRODUCES_JSON)
-				.post(Entity.json(pulse), Response.class);
+        } catch (FeignException.FeignServerException e) {
+            log.error("Metrics - Response not identified - ", e);
+        }
+    }
 
-		if (Response.Status.PRECONDITION_FAILED.getStatusCode() == response.getStatus()) {
-			registerAsMember();
-		} else if (Response.Status.OK.getStatusCode() == response.getStatus()) {
-			System.out.println("Metrics - Pulse accepted.");
-		} else {
-			System.out.println(
-					String.format("Metrics - Response not identified - ", ToStringBuilder.reflectionToString(response)));
-		}
-	}
+    public void registerAsMember() {
+        final Member member = Identity.getAsMember();
 
-	public void registerAsMember() {
+        log.info("Metrics - Membro {} não registrado. Iniciando registro...", member.getMemberId());
+        log.info("Member: {}", member);
 
-		try {
-			final Member member = Identity.getAsMember();
+        try {
+            var response = pulseClient.register(member);
+            log.info("Metrics - Registration Response: {}", response);
+            log.info("Metrics - Registration Response Entity: {}", response.getBody());
+        } catch (Exception e) {
 
-			System.out.println(String.format("Metrics - Membro %s não registrado. Iniciando registro...",
-					member.getMemberId()));
-
-			final String path = HttpRequestUtils.createPath(IntermediaryAgentCoreApi.AGENT_PATH,
-					IntermediaryAgentPulsesApi.ROOT, IntermediaryAgentPulsesApi.REGISTRATION);
-
-			System.out.println(ToStringBuilder.reflectionToString(member));
-
-			final Response response = HttpRequestUtils.getTarget(path).request(RestPatterns.PRODUCES_JSON)
-					.post(Entity.json(member), Response.class);
-
-			if (Response.Status.OK.getStatusCode() != response.getStatus()) {
-				System.out.println("Metrics - Registration Response: " + ToStringBuilder.reflectionToString(response));
-				System.out.println(
-						"Metrics - Registration Response Entity: " + ToStringBuilder.reflectionToString(response.getEntity()));
-			} else {
-				System.out.println("Metrics - Registration Succeded!");
-			}
-		} catch (Exception e) {
-			System.out.println("Metrics - Failed while registering - " + ToStringBuilder.reflectionToString(e));
-		}
-	}
-
+            log.error("Metrics - Failed while registering - ", e);
+        }
+    }
 }

@@ -19,6 +19,7 @@ br/com/messages/projects/ProjectsRepositoryImpl.class
 br/com/messages/addresses/IntermediaryAgentAddress.class
 br/com/messages/members/clients/Registration.class
 br/com/messages/files/FileRepository.class
+br/com/messages/projects/ProjectsReadonlyRepository.class
 br/com/messages/files/FileEntity$FileEntityBuilderImpl.class
 br/com/messages/files/FileRepositoryCollections.class
 br/com/messages/patterns/DesignPattern.class
