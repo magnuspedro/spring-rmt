@@ -5,7 +5,6 @@ import java.io.Serializable;
 import br.com.messages.members.api.intermediary.IntermediaryAgentCoreApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import br.com.intermediary.intermediaryagent.managers.members.MembersManager;
 import br.com.intermediary.intermediaryagent.managers.members.exceptions.pulses.PulseException;

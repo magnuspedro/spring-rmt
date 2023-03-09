@@ -1,10 +1,7 @@
 package br.com.intermediary.intermediaryagent.managers.members;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -15,25 +12,24 @@ import br.com.messages.members.MemberType;
 import br.com.messages.members.detectors.methods.Reference;
 import br.com.messages.pulses.Pulse;
 import br.com.messages.requests.pulses.exceptions.PulseExceptionCode;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class MembersManagerImpl implements MembersManager {
+	private final Map<MemberType, List<AliveMember>> members;
 
-	private static final long serialVersionUID = 1L;
+	private final DetectorRequestsManager detectorRequests;
 
-	private Map<MemberType, List<AliveMember>> members = new HashMap<>();
-
-	private DetectorRequestsManager detectorRequests = new DetectorRequestsManager();
-
-	@Scheduled(cron = "* * * * *")
+	@Scheduled(fixedRate = 60000)
 	public void checkExpiredMembers() {
 		synchronized (members) {
 			final LocalDateTime current = LocalDateTime.now();
 
-			final List<AliveMember> dueMembers = members.values().stream().flatMap(col -> col.stream())
-					.filter(al -> al.isExpired(current)).collect(Collectors.toList());
+			final List<AliveMember> dueMembers = members.values().stream().flatMap(Collection::stream)
+					.filter(al -> al.isExpired(current)).toList();
 
 			for (MemberType mt : members.keySet()) {
 				members.get(mt).removeAll(dueMembers);

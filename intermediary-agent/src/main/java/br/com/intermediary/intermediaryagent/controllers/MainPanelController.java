@@ -1,6 +1,7 @@
 package br.com.intermediary.intermediaryagent.controllers;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ public class MainPanelController implements Serializable {
 	}
 
 	public List<Project> getProjects() {
-		return this.projectsPool.getAll().stream().collect(Collectors.toList());
+		return new ArrayList<>(this.projectsPool.getAll());
 	}
 
 	public boolean isADetectionMember(Member m) {

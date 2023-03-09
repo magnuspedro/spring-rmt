@@ -1,90 +1,74 @@
 package br.com.intermediary.intermediaryagent.managers.projects;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import br.com.intermediary.intermediaryagent.utils.HttpRequestUtils;
+import br.com.intermediary.intermediaryagent.ws.core.DetectionClient;
+import br.com.intermediary.intermediaryagent.ws.core.MetricClient;
 import br.com.messages.members.Member;
-import br.com.messages.members.api.detectors.DetectionAgentApi;
-import br.com.messages.members.api.metrics.MetricsAgentApi;
 import br.com.messages.members.candidates.RefactoringCandidadeDTO;
 import br.com.messages.members.metrics.QualityAttributeResultDTO;
 import br.com.messages.projects.Project;
-import br.com.messages.utils.CustomParametrizedType;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class ProjectsManagerImpl implements ProjectsManager {
 
-	private static final long serialVersionUID = 1L;
+    private final ProjectsPool projectsPool;
 
-	private final ProjectsPool projectsPool;
+    private final DetectionClient detectionClient;
 
-	@Override
-	public void register(Project project) {
-		projectsPool.register(project);
-	}
+    private final MetricClient metricClient;
 
-	@Override
-	public Collection<Project> getProjects() {
-		return projectsPool.getAll();
-	}
+    @Override
+    public void register(Project project) {
+        projectsPool.register(project);
+    }
 
-	@Override
-	public List<RefactoringCandidadeDTO> evaluate(Supplier<Member> detector, String projectId) {
+    @Override
+    public Collection<Project> getProjects() {
+        return projectsPool.getAll();
+    }
 
-		checkId(projectId);
+    @Override
+    public List<RefactoringCandidadeDTO> evaluate(Supplier<Member> detector, String projectId) {
+        checkId(projectId);
+        var uri = URI.create("http://%s:%s".formatted(detector.get().getHost(), detector.get().getPort()));
 
-		final String path = HttpRequestUtils.createPath(DetectionAgentApi.DETECTION_PATH, DetectionAgentApi.ROOT,
-				DetectionAgentApi.START_DETECTION, projectId.trim());
+        return detectionClient.detect(uri, projectId);
+    }
 
-		return HttpRequestUtils.getTarget(detector.get().getHost(), detector.get().getPort(), path).request()
-				.get(new GenericType<>(
-						new CustomParametrizedType(List.class, RefactoringCandidadeDTO.class)));
-	}
+    @Override
+    public String refactor(Supplier<Member> detector, String projectId, List<RefactoringCandidadeDTO> candidates) {
+        checkId(projectId);
+        var uri = URI.create("http://%s:%s".formatted(detector.get().getHost(), detector.get().getPort()));
 
-	@Override
-	public String refactor(Supplier<Member> detector, String projectId, List<RefactoringCandidadeDTO> candidates) {
+        return detectionClient.refactor(uri, projectId, candidates);
+    }
 
-		checkId(projectId);
+    @Override
+    public List<QualityAttributeResultDTO> evaluate(Supplier<Member> metrics, String projectId, String refactoredProjId) {
+        checkId(projectId);
+        checkId(refactoredProjId);
+        var uri = URI.create("http://%s:%s".formatted(metrics.get().getHost(), metrics.get().getPort()));
 
-		final String path = HttpRequestUtils.createPath(DetectionAgentApi.DETECTION_PATH, DetectionAgentApi.ROOT,
-				DetectionAgentApi.REFACTOR, projectId.trim());
+        return metricClient.evaluate(uri, projectId, refactoredProjId);
+    }
 
-		return HttpRequestUtils.getTarget(detector.get().getHost(), detector.get().getPort(), path).request()
-				.post(Entity.entity(candidates, MediaType.APPLICATION_JSON), String.class);
-	}
+    @Override
+    public Optional<Project> getProjectById(String id) {
+        return projectsPool.getById(id);
+    }
 
-	@Override
-	public Collection<QualityAttributeResultDTO> evaluate(Supplier<Member> metrics, String projectId,
-			String refactoredProjId) {
-
-		checkId(projectId);
-		checkId(refactoredProjId);
-
-		final String path = HttpRequestUtils.createPath(MetricsAgentApi.METRICS_PATH, MetricsAgentApi.ROOT, projectId);
-
-		return HttpRequestUtils.getTarget(metrics.get().getHost(), metrics.get().getPort(), path.concat("/"+refactoredProjId)).request()
-				.get(new GenericType<List<QualityAttributeResultDTO>>(
-						new CustomParametrizedType(List.class, QualityAttributeResultDTO.class)));
-	}
-
-	@Override
-	public Optional<Project> getProjectById(String id) {
-		return projectsPool.getById(id);
-	}
-
-	private void checkId(String id) {
-		if (id == null || id.trim().isEmpty()) {
-			throw new IllegalArgumentException();
-		}
-	}
-
+    private void checkId(String id) {
+        if (StringUtils.isBlank(id)) {
+            throw new IllegalArgumentException();
+        }
+    }
 }

@@ -3,3 +3,18 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017
       database: archprome
+  cloud:
+    openfeign:
+      client:
+        config:
+          detection-client:
+            logger-level: full
+          metric-client:
+            logger-level: full
+logging:
+  level:
+    br.com.intermediary.intermediaryagent.ws.core.DetectionClient: DEBUG
+    br.com.intermediary.intermediaryagent.ws.core.MetricClient: DEBUG
+services:
+  metrics: localhost
+  detection: localhost
