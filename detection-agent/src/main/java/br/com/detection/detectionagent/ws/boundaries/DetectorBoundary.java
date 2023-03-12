@@ -5,13 +5,10 @@ import br.com.detection.detectionagent.pulse.PulseManager;
 import br.com.messages.members.api.detectors.DetectionAgentApi;
 import br.com.messages.members.candidates.RefactoringCandidadeDTO;
 import br.com.messages.members.candidates.RefactoringCandidate;
-import br.com.messages.utils.JsonUtils;
+import br.com.messages.members.detectors.methods.Reference;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -41,12 +38,8 @@ public class DetectorBoundary implements Serializable {
     }
 
     @GetMapping(DetectionAgentApi.RETRIEVE_REFERENCES)
-    public JsonArray getReferences() {
-        final JsonArrayBuilder builder = Json.createArrayBuilder();
-
-        this.detectionMethodsManager.getReferences().stream().map(JsonUtils::toJson).forEach(builder::add);
-
-        return builder.build();
+    public List<Reference> getReferences() {
+      return this.detectionMethodsManager.getReferences();
     }
 
     @PostMapping(DetectionAgentApi.FORCE_REGISTRATION)

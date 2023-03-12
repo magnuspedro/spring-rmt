@@ -13,7 +13,7 @@ public interface DetectionMethodsManager {
 
 	String refactor(String projectId, Collection<RefactoringCandidadeDTO> eligiblePatterns);
 	
-	Collection<Reference> getReferences();
+	List<Reference> getReferences();
 	
 
 }
