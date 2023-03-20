@@ -9,18 +9,8 @@ import java.util.Collection;
 
 public interface DataExtractionFork extends DataHandler {
 
-	/**
-	 * Retrieve the project and  call the extractCandidates
-	 * to find out if there is any
-	 * @param project
-	 * @return A collection of refactoring Candidates
-	 */
 	Collection<RefactoringCandidate> findCandidates(Project project);
 
-	/**
-	 * Get a AST
-	 * @return A AST
-	 */
 	DataExtractionApproach getExtractionApproach();
 
 	String refactor(Project project, RefactoringCandidate candidate);

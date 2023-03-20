@@ -11,6 +11,7 @@ import com.github.javaparser.ast.nodeTypes.NodeWithCondition;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Component
 public class AstHandler {
 
 	public Collection<FieldDeclaration> getDeclaredFields(Node node) {
@@ -413,12 +415,6 @@ public class AstHandler {
 				.collect(Collectors.toList());
 	}
 	
-	/**
-	 * Get instances from the files
-	 * @param cu A parserObject
-	 * @param dataHandler To get the files by name and compare
-	 * @return A collection of ObjectCreationExpr
-	 */
 	public static Collection<ObjectCreationExpr> getInstance(CompilationUnit cu, DataHandler dataHandler) {
 		List<ObjectCreationExpr> instance = new ArrayList<>();
 		cu.findAll(ObjectCreationExpr.class).stream().forEach(f -> {

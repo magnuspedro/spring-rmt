@@ -120,7 +120,7 @@ public class AbstractSyntaxTreeFork implements DataExtractionFork {
 
 	@Override
 	public Collection<Object> getParsedFiles() {
-		return this.ast.parseAll(bufferOfFiles.keySet().toArray(new Path[bufferOfFiles.keySet().size()]));
+		return this.ast.parseAll(bufferOfFiles.keySet().toArray(new Path[0]));
 	}
 
 	@Override
@@ -146,11 +146,6 @@ public class AbstractSyntaxTreeFork implements DataExtractionFork {
 
 		return file.map(this.bufferOfFiles::get).orElse(null);
 	}
-	/**
-	 * Delete a file.
-	 * @param p File path
-	 * @throws IOException
-	 */
 	private void removeFile(Path p) throws IOException {
 		if (Files.exists(p)) {
 			org.apache.commons.io.FileUtils.forceDelete(p.toFile());
