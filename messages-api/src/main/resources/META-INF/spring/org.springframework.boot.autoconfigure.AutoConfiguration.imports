@@ -1,1 +1,2 @@
-br.com.messages.configuration.DataStoreConfiguration
+br.com.messages.configuration.AwsConfiguration
+br.com.messages.configuration.RedisConfiguration

@@ -21,11 +21,23 @@
         <spring.cloud-version>2022.0.1</spring.cloud-version>
         <logback-jackson.version>0.1.5</logback-jackson.version>
         <logback-json-classic.version>0.1.5</logback-json-classic.version>
+        <awssdk.version>2.20.27</awssdk.version>
+        <spring-cloud-aws-dependencies.version>2.4.4</spring-cloud-aws-dependencies.version>
+        <jedis.version>2.6.1</jedis.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>${jedis.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.awspring.cloud</groupId>
+            <artifactId>spring-cloud-aws-messaging</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -81,6 +93,7 @@
             <artifactId>logback-jackson</artifactId>
             <version>${logback-jackson.version}</version>
         </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -89,6 +102,20 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring.cloud-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.awspring.cloud</groupId>
+                <artifactId>spring-cloud-aws-dependencies</artifactId>
+                <version>${spring-cloud-aws-dependencies.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${awssdk.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

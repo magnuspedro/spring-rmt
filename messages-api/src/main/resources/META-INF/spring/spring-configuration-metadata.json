@@ -1,0 +1,39 @@
+{
+  "groups": [
+    {
+      "name": "redis",
+      "type": "br.com.messages.configuration.RedisProperties",
+      "sourceType": "br.com.messages.configuration.RedisProperties"
+    },
+
+    {
+      "name": "redis.host",
+      "type": "br.com.messages.configuration.RedisProperties",
+      "sourceType": "br.com.messages.configuration.RedisProperties",
+    },
+
+    {
+      "name": "redis.port",
+      "type": "br.com.messages.configuration.RedisProperties",
+      "sourceType": "br.com.messages.configuration.RedisProperties"
+    },
+
+    {
+      "name": "s3",
+      "type": "br.com.messages.configuration.BucketProperties",
+      "sourceType": "br.com.messages.configuration.BucketProperties"
+    },
+
+    {
+      "name": "s3.project-bucket",
+      "type": "br.com.messages.configuration.BucketProperties",
+      "sourceType": "br.com.messages.configuration.BucketProperties"
+    },
+
+    {
+      "name": "s3.refactoring-project-bucket",
+      "type": "br.com.messages.configuration.BucketProperties",
+      "sourceType": "br.com.messages.configuration.BucketProperties"
+    }
+  ]
+}
