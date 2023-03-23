@@ -2,7 +2,7 @@ package br.com.intermediary.intermediaryagent.gateway;
 
 import br.com.intermediary.intermediaryagent.configuration.SqsProperties;
 import br.com.messages.projects.Project;
-import io.awspring.cloud.messaging.core.QueueMessagingTemplate;
+import io.awspring.cloud.sqs.operations.SqsTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class SendProjectImpl implements SendProject {
-    private final QueueMessagingTemplate queueMessagingTemplate;
+    private final SqsTemplate sqsTemplate;
 
     private final SqsProperties sqsProperties;
 
@@ -19,6 +19,7 @@ public class SendProjectImpl implements SendProject {
     public void send(Project project) {
         log.info("Sending message {} to Queue {}", project.getId(), sqsProperties.detectPattern());
 
-        queueMessagingTemplate.convertAndSend(sqsProperties.detectPattern(), project.getId());
+        sqsTemplate.sendAsync(to -> to.queue(sqsProperties.detectPattern())
+                .payload(project.getId()));
     }
 }

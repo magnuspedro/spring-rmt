@@ -15,7 +15,7 @@
     <properties>
         <java.version>1.8</java.version>
         <awssdk.version>2.20.27</awssdk.version>
-        <spring-cloud-aws-dependencies.version>2.4.4</spring-cloud-aws-dependencies.version>
+        <spring-cloud-aws-dependencies.version>3.0.0-RC1</spring-cloud-aws-dependencies.version>
         <jedis.version>2.6.1</jedis.version>
         <spring.cloud-version>2022.0.1</spring.cloud-version>
     </properties>
@@ -35,7 +35,15 @@
         </dependency>
         <dependency>
             <groupId>io.awspring.cloud</groupId>
-            <artifactId>spring-cloud-aws-messaging</artifactId>
+            <artifactId>spring-cloud-aws-starter-s3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.awspring.cloud</groupId>
+            <artifactId>spring-cloud-aws-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.awspring.cloud</groupId>
+            <artifactId>spring-cloud-aws-starter-sqs</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

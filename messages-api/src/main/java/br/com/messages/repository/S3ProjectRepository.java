@@ -1,15 +1,15 @@
 package br.com.messages.repository;
 
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectResult;
+import io.awspring.cloud.s3.ObjectMetadata;
+import io.awspring.cloud.s3.S3Resource;
+import lombok.SneakyThrows;
 
 import java.io.InputStream;
 
 public interface S3ProjectRepository {
 
-    PutObjectResult upload(String bucket, String fileName, InputStream inputStream, ObjectMetadata objectMetadata);
+    S3Resource upload(String bucket, String fileName, InputStream inputStream, ObjectMetadata objectMetadata);
 
-    PutObjectResult upload(String bucket, String fileName, InputStream inputStream);
-
-    byte[] download(String bucket, String key);
+    @SneakyThrows
+    byte[] download(String bucket, String fileName);
 }

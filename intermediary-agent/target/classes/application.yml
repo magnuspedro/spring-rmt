@@ -1,9 +1,7 @@
 spring:
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017
-      database: archprome
   cloud:
+    aws:
+      endpoint: http://127.0.0.1:4566
     openfeign:
       client:
         config:
@@ -11,10 +9,24 @@ spring:
             logger-level: full
           metric-client:
             logger-level: full
+redis:
+  host: localhost
+  port: 6379
+
 logging:
   level:
-    br.com.intermediary.intermediaryagent.ws.core.DetectionClient: DEBUG
-    br.com.intermediary.intermediaryagent.ws.core.MetricClient: DEBUG
+    br.com.intermediary.intermediaryagent.gateway.core.DetectionClient: DEBUG
+    br.com.intermediary.intermediaryagent.gateway.core.MetricClient: DEBUG
+
+
 services:
   metrics: localhost
   detection: localhost
+
+
+s3:
+  project-bucket: projects
+  refactored-projects-bucket: refactored-projects
+
+sqs:
+  detect-pattern: detect-pattern

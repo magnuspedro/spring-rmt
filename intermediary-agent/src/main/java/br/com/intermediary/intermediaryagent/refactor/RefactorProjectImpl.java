@@ -5,12 +5,9 @@ import br.com.intermediary.intermediaryagent.repository.ProjectRepository;
 import br.com.messages.configuration.BucketProperties;
 import br.com.messages.projects.Project;
 import br.com.messages.repository.S3ProjectRepository;
-import com.amazonaws.services.s3.model.ObjectMetadata;
+import io.awspring.cloud.s3.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,11 +20,10 @@ public class RefactorProjectImpl implements RefactorProject {
 
     @Override
     public Project process(Project project) {
-        var metadata = new ObjectMetadata();
-        metadata.setContentType(project.getContentType());
-        metadata.setContentLength(project.getSize());
-        Optional.ofNullable(project.getName())
-                .ifPresent(p -> metadata.setUserMetadata(Map.of("FileName", p)));
+        var metadata = ObjectMetadata.builder()
+                .contentType(project.getContentType())
+                .metadata("FileName", project.getName())
+                .build();
 
 
         s3ProjectRepository.upload(bucket.getProjectBucket(), project.getId(), project.getInputStream(), metadata);

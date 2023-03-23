@@ -22,7 +22,7 @@
         <logback-jackson.version>0.1.5</logback-jackson.version>
         <logback-json-classic.version>0.1.5</logback-json-classic.version>
         <awssdk.version>2.20.27</awssdk.version>
-        <spring-cloud-aws-dependencies.version>2.4.4</spring-cloud-aws-dependencies.version>
+        <spring-cloud-aws-dependencies.version>3.0.0-RC1</spring-cloud-aws-dependencies.version>
         <jedis.version>2.6.1</jedis.version>
     </properties>
     <dependencies>
@@ -37,7 +37,19 @@
         </dependency>
         <dependency>
             <groupId>io.awspring.cloud</groupId>
-            <artifactId>spring-cloud-aws-messaging</artifactId>
+            <artifactId>spring-cloud-aws-starter-s3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.awspring.cloud</groupId>
+            <artifactId>spring-cloud-aws-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.awspring.cloud</groupId>
+            <artifactId>spring-cloud-aws-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.awspring.cloud</groupId>
+            <artifactId>spring-cloud-aws-starter-sqs</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

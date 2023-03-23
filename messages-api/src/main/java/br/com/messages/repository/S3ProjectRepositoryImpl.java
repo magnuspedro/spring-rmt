@@ -1,46 +1,28 @@
 package br.com.messages.repository;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.*;
-import com.amazonaws.util.IOUtils;
+import io.awspring.cloud.s3.ObjectMetadata;
+import io.awspring.cloud.s3.S3Resource;
+import io.awspring.cloud.s3.S3Template;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import lombok.SneakyThrows;
+import software.amazon.awssdk.utils.IoUtils;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 @RequiredArgsConstructor
 public class S3ProjectRepositoryImpl implements S3ProjectRepository {
 
-    private final AmazonS3 amazonS3;
+    private final S3Template s3Template;
 
     @Override
-    public PutObjectResult upload(String bucket, String fileName, InputStream inputStream, ObjectMetadata objectMetadata) {
-        try {
-          return  amazonS3.putObject(bucket, fileName, inputStream, objectMetadata);
-        } catch (AmazonServiceException e) {
-            throw new IllegalStateException("Failed to upload the file", e);
-        }
+    public S3Resource upload(String bucket, String fileName, InputStream inputStream, ObjectMetadata objectMetadata) {
+        return s3Template.upload(bucket, fileName, inputStream, objectMetadata);
     }
 
+    @SneakyThrows
     @Override
-    public PutObjectResult upload(String bucket, String fileName, InputStream inputStream) {
-        try {
-            return amazonS3.putObject(bucket, fileName, inputStream, null);
-        } catch (AmazonServiceException e) {
-            throw new IllegalStateException("Failed to upload the file", e);
-        }
-    }
-
-    @Override
-    public byte[] download(String bucket, String key) {
-        try {
-            S3Object object = amazonS3.getObject(new GetObjectRequest(bucket, key));
-            S3ObjectInputStream objectContent = object.getObjectContent();
-            return IOUtils.toByteArray(objectContent);
-        } catch (AmazonServiceException | IOException e) {
-            throw new IllegalStateException("Failed to download the file", e);
-        }
+    public byte[] download(String bucket, String fileName) {
+        S3Resource s3Resource = s3Template.download(bucket, fileName);
+        return IoUtils.toByteArray(s3Resource.getInputStream());
     }
 }

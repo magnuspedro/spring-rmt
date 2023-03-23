@@ -1,5 +1,9 @@
 spring:
   cloud:
+    aws:
+      credentials:
+        instance-profile: false
+      endpoint: http://127.0.0.1:4566
     openfeign:
       client:
         config:
@@ -16,11 +20,6 @@ logging:
     br.com.intermediary.intermediaryagent.gateway.core.DetectionClient: DEBUG
     br.com.intermediary.intermediaryagent.gateway.core.MetricClient: DEBUG
 
-
-cloud:
-  aws:
-    credentials:
-      instance-profile: true
 
 services:
   metrics: localhost
