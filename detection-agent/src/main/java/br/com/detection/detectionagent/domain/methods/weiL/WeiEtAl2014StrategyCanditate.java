@@ -1,6 +1,6 @@
 package br.com.detection.detectionagent.domain.methods.weiL;
 
-import br.com.messages.members.detectors.methods.Reference;
+import br.com.detection.detectionagent.file.JavaFile;
 import br.com.messages.patterns.DesignPattern;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;
@@ -11,7 +11,6 @@ import com.github.javaparser.ast.stmt.IfStmt;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,10 +18,10 @@ public class WeiEtAl2014StrategyCanditate extends WeiEtAl2014Canditate {
 
 	private final List<VariableDeclarator> variables;
 
-	public WeiEtAl2014StrategyCanditate(Reference reference, Path file, CompilationUnit compilationUnit,
-			PackageDeclaration packageDcl, ClassOrInterfaceDeclaration classDcl, MethodDeclaration methodDcl,
-			Collection<IfStmt> ifStatements, List<VariableDeclarator> variables) {
-		super(reference, file, compilationUnit, packageDcl, classDcl, methodDcl, ifStatements, DesignPattern.STRATEGY);
+	public WeiEtAl2014StrategyCanditate(JavaFile file, CompilationUnit compilationUnit,
+										PackageDeclaration packageDcl, ClassOrInterfaceDeclaration classDcl, MethodDeclaration methodDcl,
+										Collection<IfStmt> ifStatements, List<VariableDeclarator> variables) {
+		super(file, compilationUnit, packageDcl, classDcl, methodDcl, ifStatements, DesignPattern.STRATEGY);
 		this.variables = variables;
 	}
 

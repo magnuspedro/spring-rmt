@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -35,10 +36,10 @@ public class IntermediaryController implements Serializable {
 
         var project = Project.builder()
                 .id(id)
-                .inputStream(file.getInputStream())
                 .size(file.getSize())
                 .name(file.getOriginalFilename())
                 .contentType(file.getContentType())
+                .content(IoUtils.toByteArray(file.getInputStream()))
                 .build();
 
         refactorProject.process(project);

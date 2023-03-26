@@ -25,6 +25,7 @@ br/com/messages/projects/Project.class
 br/com/messages/utils/JsonUtils.class
 br/com/messages/members/detectors/methods/Reference.class
 br/com/messages/members/api/intermediary/IntermediaryAgentCoreApi.class
+br/com/messages/members/detectors/methods/Reference$ReferenceBuilder.class
 br/com/messages/members/metrics/QualityAttributeResultDTO.class
 br/com/messages/members/candidates/evaluation/EvaluationDTO.class
 br/com/messages/utils/CustomParametrizedType.class

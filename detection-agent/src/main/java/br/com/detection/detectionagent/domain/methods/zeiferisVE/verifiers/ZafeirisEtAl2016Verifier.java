@@ -5,23 +5,26 @@ import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl201
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions.ExtractMethodPreconditions;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions.SiblingPreconditions;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions.SuperInvocationPreconditions;
-import br.com.detection.detectionagent.methods.dataExtractions.forks.DataHandler;
-import br.com.messages.members.detectors.methods.Reference;
+import br.com.detection.detectionagent.file.JavaFile;
+import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethod;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.SuperExpr;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Component
+@RequiredArgsConstructor
 public class ZafeirisEtAl2016Verifier {
 
     private final AstHandler astHandler = new AstHandler();
@@ -32,47 +35,44 @@ public class ZafeirisEtAl2016Verifier {
 
     private final SiblingPreconditions siblingPreconditions = new SiblingPreconditions();
 
-    private Collection<CompilationUnit> getParsedClasses(DataHandler dataHandler) {
-        return dataHandler.getParsedFiles().stream().map(CompilationUnit.class::cast).collect(Collectors.toList());
-    }
 
-    public List<ZafeirisEtAl2016Canditate> retrieveCandidatesFrom(Reference reference, DataHandler dataHandler)
+    public List<ZafeirisEtAl2016Canditate> retrieveCandidatesFrom(List<JavaFile> javaFiles, ExtractionMethod extractMethod)
             throws MalformedURLException, FileNotFoundException {
 
-        final List<ZafeirisEtAl2016Canditate> candidates = this.retrieveCandidates(reference, dataHandler);
+        final List<ZafeirisEtAl2016Canditate> candidates = this.retrieveCandidates(javaFiles, extractMethod);
 
         for (MethodDeclaration overridenMethod : candidates.stream().map(ZafeirisEtAl2016Canditate::getOverridenMethod)
-                .collect(Collectors.toList())) {
+                .toList()) {
 
             final Collection<ZafeirisEtAl2016Canditate> canditadesOfSameOverridenMethod = candidates.stream()
                     .filter(c -> c.getOverridenMethod().equals(overridenMethod)).collect(Collectors.toList());
 
             if (siblingPreconditions.violates(canditadesOfSameOverridenMethod)) {
                 candidates.removeAll(candidates.stream().filter(c -> c.getOverridenMethod().equals(overridenMethod))
-                        .collect(Collectors.toList()));
+                        .toList());
             }
         }
         return candidates;
     }
 
-    private List<ZafeirisEtAl2016Canditate> retrieveCandidates(Reference reference, DataHandler dataHandler) {
+    private List<ZafeirisEtAl2016Canditate> retrieveCandidates(List<JavaFile> javaFiles, ExtractionMethod extractionMethod) {
         final List<ZafeirisEtAl2016Canditate> candidates = new ArrayList<>();
 
-        final Collection<CompilationUnit> allCUnits = this.getParsedClasses(dataHandler);
+        var cus = extractionMethod.parseAll(javaFiles).stream()
+                .map(CompilationUnit.class::cast)
+                .toList();
 
-        for (Path file : dataHandler.getFiles()) {
-            final CompilationUnit parsedClazz = (CompilationUnit) dataHandler.parseFile(file);
+        javaFiles.forEach(file -> {
 
-            final Optional<CompilationUnit> parent = this.astHandler.getParent(parsedClazz, allCUnits);
+            final Optional<CompilationUnit> parent = this.astHandler.getParent((CompilationUnit) file.getParsed(), cus);
 
-            this.retrieveCandidate(reference, file, parsedClazz, parent).ifPresent(candidates::add);
-
-        }
+            this.retrieveCandidate(file, (CompilationUnit) file.getParsed(), parent).ifPresent(candidates::add);
+        });
 
         return candidates;
     }
 
-    private Optional<ZafeirisEtAl2016Canditate> retrieveCandidate(Reference reference, Path file, CompilationUnit cUnit,
+    private Optional<ZafeirisEtAl2016Canditate> retrieveCandidate(JavaFile file, CompilationUnit cUnit,
                                                                   Optional<CompilationUnit> parent) {
 
         if (this.violatesClassPreconditions(cUnit, parent)) {
@@ -82,7 +82,7 @@ public class ZafeirisEtAl2016Verifier {
         final Collection<MethodDeclaration> methods = this.astHandler.getMethods(cUnit);
 
         for (MethodDeclaration method : methods.stream().filter(m -> !m.isConstructorDeclaration() && !m.isStatic())
-                .collect(Collectors.toList())) {
+                .toList()) {
 
             final Collection<SuperExpr> superCalls = this.astHandler.getSuperCalls(method);
 
@@ -104,19 +104,19 @@ public class ZafeirisEtAl2016Verifier {
                 continue;
             }
 
-            return Optional.of(this.createCandidate(reference, file, cUnit, overridenMethod, method, superCall));
+            return Optional.of(this.createCandidate(file, cUnit, overridenMethod, method, superCall));
 
         }
         return Optional.empty();
     }
 
-    private ZafeirisEtAl2016Canditate createCandidate(Reference reference, Path file, CompilationUnit cUnit,
+    private ZafeirisEtAl2016Canditate createCandidate(JavaFile file, CompilationUnit cUnit,
                                                       MethodDeclaration overridenMethod, MethodDeclaration method, SuperExpr superCall) {
         final PackageDeclaration pkgDcl = this.astHandler.getPackageDeclaration(cUnit);
 
         final ClassOrInterfaceDeclaration classDcl = this.astHandler.getClassOrInterfaceDeclaration(cUnit).get();
 
-        return new ZafeirisEtAl2016Canditate(reference, file, cUnit, pkgDcl, classDcl, overridenMethod, method,
+        return new ZafeirisEtAl2016Canditate(file, cUnit, pkgDcl, classDcl, overridenMethod, method,
                 superCall);
     }
 

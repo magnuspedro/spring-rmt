@@ -1,36 +1,34 @@
 package br.com.detection.detectionagent.methods.dataExtractions;
 
+import br.com.detection.detectionagent.file.JavaFile;
+import br.com.detection.detectionagent.methods.dataExtractions.forks.AbstractSyntaxTreeDependent;
 import com.github.javaparser.JavaParser;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-@Slf4j
-public class AbstractSyntaxTree implements DataExtractionApproach {
+
+@Component
+public class AbstractSyntaxTree implements ExtractionMethod {
 
     @Override
-    public Collection<Object> parseAll(Path... files) {
-        return Stream.of(files).map(this::parseSingle).filter(Optional::isPresent).map(Optional::get)
+    public List<Object> parseAll(List<JavaFile> files) {
+        return files.stream()
+                .map(this::parseSingle)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<Object> parseSingle(Path file) {
-        try (final FileInputStream fis = new FileInputStream(file.toFile())) {
-            return Optional.of(JavaParser.parse(fis));
-        } catch (Exception e) {
-            log.error("---------------------------------------------------------------");
-            log.error("Failed to parse file {}", Optional.ofNullable(file).map(Path::toFile).map(File::getName).orElse(null));
-            log.error("Exception:", e);
-            log.error("---------------------------------------------------------------");
-            return Optional.empty();
-        }
+    public Object parseSingle(JavaFile file) {
+        var parsed = JavaParser.parse(file.getInputStream());
+        file.setParsed(parsed);
+        return parsed;
+    }
+
+    @Override
+    public Boolean supports(Object object) {
+        return object instanceof AbstractSyntaxTreeDependent;
     }
 
 }

@@ -30,15 +30,15 @@ public class SiblingPreconditions {
 		for (ZafeirisEtAl2016Canditate.CandidateWithVariables candidate : candidatesWithVariables) {
 			boolean isPartOfAny = false;
 			for (int i = 0; i < hierarchies.size(); i++) {
-				if (hierarchies.get(i).isPartOf(candidate.getCandidate().getClassDeclaration())) {
+				if (hierarchies.get(i).isPartOf(candidate.candidate().getClassDeclaration())) {
 					isPartOfAny = true;
-					hierarchies.get(i).declarations.add(candidate.getCandidate().getClassDeclaration());
+					hierarchies.get(i).declarations.add(candidate.candidate().getClassDeclaration());
 				}
 			}
 
 			if (!isPartOfAny) {
 				hierarchies.add(new Hierarchy());
-				hierarchies.get(0).declarations.add(candidate.getCandidate().getClassDeclaration());
+				hierarchies.get(0).declarations.add(candidate.candidate().getClassDeclaration());
 			}
 		}
 
@@ -49,31 +49,31 @@ public class SiblingPreconditions {
 
 		boolean areEqual = true;
 		for (int i = 1; i < candidatesWithVariables.size() - 1; i++) {
-			if (candidatesWithVariables.get(i).getVariables().size() > 1) {
+			if (candidatesWithVariables.get(i).variables().size() > 1) {
 				throw new IllegalStateException();
-			} else if (candidatesWithVariables.get(i).getVariables().size() != candidatesWithVariables.get(i + 1)
-					.getVariables().size()) {
+			} else if (candidatesWithVariables.get(i).variables().size() != candidatesWithVariables.get(i + 1)
+					.variables().size()) {
 				areEqual &= false;
-			} else if (candidatesWithVariables.get(i).getVariables().size() == 0) {
+			} else if (candidatesWithVariables.get(i).variables().size() == 0) {
 				areEqual &= false;
 			} else {
 				areEqual &= this.astHandler.variablesAreEqual(
-						candidatesWithVariables.get(i).getVariables().stream().findFirst().get(),
-						candidatesWithVariables.get(i + 1).getVariables().stream().findFirst().get());
+						candidatesWithVariables.get(i).variables().stream().findFirst().get(),
+						candidatesWithVariables.get(i + 1).variables().stream().findFirst().get());
 			}
 		}
 		return areEqual;
 	}
 
 	private boolean beforeReturnIsUsedInSuper(List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables) {
-		if (candidatesWithVariables.stream().findFirst().get().getVariables().size() == 0) {
+		if (candidatesWithVariables.stream().findFirst().get().variables().size() == 0) {
 			return true;
 		}
 		boolean isUsed = true;
 		for (ZafeirisEtAl2016Canditate.CandidateWithVariables candidate : candidatesWithVariables) {
-			final VariableDeclarationExpr var = candidate.getVariables().stream().findFirst().get();
+			final VariableDeclarationExpr var = candidate.variables().stream().findFirst().get();
 
-			final MethodCallExpr methodCall = (MethodCallExpr) candidate.getCandidate().getSuperCall().getParentNode()
+			final MethodCallExpr methodCall = (MethodCallExpr) candidate.candidate().getSuperCall().getParentNode()
 					.get();
 
 			isUsed &= this.astHandler.variableIsPresentInMethodCall(var, methodCall);

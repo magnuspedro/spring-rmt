@@ -1,17 +1,17 @@
 package br.com.detection.detectionagent;
 
+import br.com.detection.detectionagent.configuration.SqsProperties;
+import br.com.messages.configuration.RedisProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@EnableScheduling
-@EnableFeignClients
+@EnableConfigurationProperties({SqsProperties.class, RedisProperties.class})
 public class DetectionAgentApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(DetectionAgentApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DetectionAgentApplication.class, args);
+    }
 
 }

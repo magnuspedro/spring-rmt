@@ -9,6 +9,7 @@ import io.awspring.cloud.s3.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+
 @Service
 @RequiredArgsConstructor
 public class RefactorProjectImpl implements RefactorProject {
@@ -19,14 +20,19 @@ public class RefactorProjectImpl implements RefactorProject {
     private final BucketProperties bucket;
 
     @Override
+
+
     public Project process(Project project) {
         var metadata = ObjectMetadata.builder()
                 .contentType(project.getContentType())
                 .metadata("FileName", project.getName())
                 .build();
 
+        project.setMetadata(metadata.getMetadata());
+        project.setBucket(bucket.getProjectBucket());
 
-        s3ProjectRepository.upload(bucket.getProjectBucket(), project.getId(), project.getInputStream(), metadata);
+
+        s3ProjectRepository.upload(bucket.getProjectBucket(), project.getId(), project.getContentInputStream(), metadata);
         projectRepository.save(project);
         sendProject.send(project);
 

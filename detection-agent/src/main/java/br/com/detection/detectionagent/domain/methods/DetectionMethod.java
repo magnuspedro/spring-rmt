@@ -1,22 +1,18 @@
 package br.com.detection.detectionagent.domain.methods;
 
-import br.com.detection.detectionagent.domain.methods.details.Author;
-import br.com.messages.members.detectors.methods.Reference;
+import br.com.detection.detectionagent.file.JavaFile;
+import br.com.messages.members.candidates.RefactoringCandidate;
 import br.com.messages.patterns.DesignPattern;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 public interface DetectionMethod {
 
-	Set<DesignPattern> getDesignPatterns();
+    Collection<RefactoringCandidate> extractCandidates(List<JavaFile> javaFiles);
 
-	String getTitle();
+    void refactor(List<JavaFile> javaFiles, RefactoringCandidate candidates);
 
-	int getYear();
-
-	List<Author> getAuthors();
-
-	Reference toReference();
-
+    Set<DesignPattern> getDesignPatterns();
 }

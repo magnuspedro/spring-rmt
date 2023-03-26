@@ -1,35 +1,37 @@
 package br.com.messages.projects;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.redis.core.RedisHash;
+import software.amazon.awssdk.utils.IoUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-@Getter
+@Data
 @Builder
-@ToString
 @RedisHash("project")
 public class Project {
     private @Id String id;
     private String name;
-    @Setter
     private String bucket;
     private List<ProjectStatus> status;
 
-    @Setter
-    @Transient
-    private Map<String,String> metadata;
-    @Transient
+    @JsonIgnore
+    private Map<String, String> metadata;
+    @JsonIgnore
     private Long size;
-    @Transient
+    @JsonIgnore
     private String contentType;
-    @Transient
-    private InputStream inputStream;
+    @JsonIgnore
+    private byte[] content;
+
+
+    @JsonIgnore
+    public InputStream getContentInputStream() {
+        return new ByteArrayInputStream(this.content);
+    }
 }

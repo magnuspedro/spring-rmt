@@ -4,27 +4,9 @@ spring:
       credentials:
         instance-profile: false
       endpoint: http://127.0.0.1:4566
-    openfeign:
-      client:
-        config:
-          detection-client:
-            logger-level: full
-          metric-client:
-            logger-level: full
 redis:
   host: localhost
   port: 6379
-
-logging:
-  level:
-    br.com.intermediary.intermediaryagent.gateway.core.DetectionClient: DEBUG
-    br.com.intermediary.intermediaryagent.gateway.core.MetricClient: DEBUG
-
-
-services:
-  metrics: localhost
-  detection: localhost
-
 
 s3:
   project-bucket: projects

@@ -51,10 +51,8 @@ public class AstHandler {
 
 	public Optional<ClassOrInterfaceType> getParentType(CompilationUnit cUnit) {
 		final Optional<ClassOrInterfaceDeclaration> declaration = this.getClassOrInterfaceDeclaration(cUnit);
-		return declaration.isPresent()
-				? declaration.get().getChildNodes().stream().filter(ClassOrInterfaceType.class::isInstance)
-						.map(ClassOrInterfaceType.class::cast).findFirst()
-				: Optional.empty();
+		return declaration.flatMap(classOrInterfaceDeclaration -> classOrInterfaceDeclaration.getChildNodes().stream().filter(ClassOrInterfaceType.class::isInstance)
+				.map(ClassOrInterfaceType.class::cast).findFirst());
 	}
 
 	public Optional<ClassOrInterfaceType> getParentType(ClassOrInterfaceDeclaration classDclr) {

@@ -5,7 +5,6 @@ import io.awspring.cloud.s3.S3Resource;
 import io.awspring.cloud.s3.S3Template;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.InputStream;
 
@@ -21,8 +20,8 @@ public class S3ProjectRepositoryImpl implements S3ProjectRepository {
 
     @SneakyThrows
     @Override
-    public byte[] download(String bucket, String fileName) {
+    public InputStream download(String bucket, String fileName) {
         S3Resource s3Resource = s3Template.download(bucket, fileName);
-        return IoUtils.toByteArray(s3Resource.getInputStream());
+        return s3Resource.getInputStream();
     }
 }
