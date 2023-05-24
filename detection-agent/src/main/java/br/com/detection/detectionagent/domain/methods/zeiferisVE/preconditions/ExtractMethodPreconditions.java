@@ -71,11 +71,8 @@ public class ExtractMethodPreconditions {
 
 		final Optional<BlockStmt> blockStmt = this.astHandler.getBlockStatement(m);
 
-		if (blockStmt.isPresent()) {
-			return this.astHandler.childHasDirectSuperCall(blockStmt.get(), superCall);
-		}
+		return blockStmt.filter(stmt -> this.astHandler.childHasDirectSuperCall(stmt, superCall)).isPresent();
 
-		return false;
 	}
 
 }
