@@ -20,8 +20,6 @@ public class RefactorProjectImpl implements RefactorProject {
     private final BucketProperties bucket;
 
     @Override
-
-
     public Project process(Project project) {
         var metadata = ObjectMetadata.builder()
                 .contentType(project.getContentType())
