@@ -121,7 +121,7 @@ public class ZafeirisEtAl2016Verifier {
     }
 
     private boolean violatesClassPreconditions(CompilationUnit cUnit, Optional<CompilationUnit> parent) {
-        return !parent.isPresent();
+        return parent.isEmpty();
 
     }
 

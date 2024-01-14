@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.4</version>
+        <version>3.2.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>br.com.detection</groupId>
@@ -17,11 +17,11 @@
         <messages-api.version>1.0.0</messages-api.version>
         <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
         <zt-zip.version>1.13</zt-zip.version>
-        <spring.cloud-version>2022.0.1</spring.cloud-version>
+        <spring.cloud-version>2023.0.0</spring.cloud-version>
         <logback-json-classic.version>0.1.5</logback-json-classic.version>
         <logback-jackson.version>0.1.5</logback-jackson.version>
         <awssdk.version>2.20.27</awssdk.version>
-        <spring-cloud-aws-dependencies.version>3.0.0-RC1</spring-cloud-aws-dependencies.version>
+        <spring-cloud-aws-dependencies.version>3.1.0</spring-cloud-aws-dependencies.version>
         <jedis.version>2.6.1</jedis.version>
     </properties>
     <dependencies>
@@ -50,6 +50,7 @@
             <groupId>io.awspring.cloud</groupId>
             <artifactId>spring-cloud-aws-starter-sqs</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
