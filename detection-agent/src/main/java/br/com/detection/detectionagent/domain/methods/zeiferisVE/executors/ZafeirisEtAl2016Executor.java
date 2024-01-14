@@ -43,7 +43,7 @@ public class ZafeirisEtAl2016Executor {
         var childCU = candidate.getCompilationUnit();
         var parentCU = this.updateParent(cus, childCU);
 
-        final MethodDeclaration newOverridenMethod = extractMethodOnOverridenMethod(javaFiles, candidate, parentCU);
+        final MethodDeclaration newOverridenMethod = extractMethodOnOverriddenMethod(javaFiles, candidate, parentCU);
 
         cus = this.getParsedClasses(javaFiles, extractMethod);
         childCU = this.updateChild(cus, candidate);
@@ -354,14 +354,14 @@ public class ZafeirisEtAl2016Executor {
         return newMethodCall;
     }
 
-    private MethodDeclaration extractMethodOnOverridenMethod(List<JavaFile> javaFiles,
-                                                             ZafeirisEtAl2016Canditate candidade, CompilationUnit parentCu) {
+    private MethodDeclaration extractMethodOnOverriddenMethod(List<JavaFile> javaFiles,
+                                                              ZafeirisEtAl2016Canditate candidate, CompilationUnit parentCu) {
 
         final ClassOrInterfaceDeclaration parentClassDclr = this.astHandler.getClassOrInterfaceDeclaration(parentCu)
                 .orElseThrow(IllegalArgumentException::new);
 
         final MethodDeclaration oldMethodDclr = this.astHandler.getMethods(parentCu).stream()
-                .filter(m -> this.astHandler.methodsParamsMatch(m, candidade.getOverridenMethod())).findFirst()
+                .filter(m -> this.astHandler.methodsParamsMatch(m, candidate.getOverridenMethod())).findFirst()
                 .orElseThrow(IllegalArgumentException::new);
 
         final String newMethodName = String.format("do%s%s",
@@ -372,9 +372,12 @@ public class ZafeirisEtAl2016Executor {
 
         final Collection<MethodDeclaration> methods = this.astHandler.getMethods(parentCu);
 
-        final MethodDeclaration newMethodDclr = methods.stream().filter(
-                        m -> this.astHandler.getSimpleName(m).filter(sn -> sn.asString().equals(newMethodName)).isPresent())
-                .findFirst().orElseThrow(IllegalArgumentException::new);
+        final MethodDeclaration newMethodDclr = methods.stream()
+                .filter(m -> this.astHandler.getSimpleName(m)
+                        .filter(sn -> sn.asString().equals(newMethodName))
+                        .isPresent())
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
 
         newMethodDclr.setBody(oldMethodDclr.getBody().orElseThrow(IllegalArgumentException::new));
         newMethodDclr.setType(oldMethodDclr.getType());

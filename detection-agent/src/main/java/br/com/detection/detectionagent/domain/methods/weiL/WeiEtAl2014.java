@@ -39,10 +39,6 @@ public class WeiEtAl2014 implements DetectionMethod, AbstractSyntaxTreeDependent
                 .toList();
     }
 
-    private Stream<WeiEtAl2014Verifier> getVerifiers() {
-        return Stream.of(new WeiEtAl2014FactoryVerifier(), new WeiEtAl2014StrategyVerifier());
-    }
-
     @Override
     public void refactor(List<JavaFile> javaFiles, RefactoringCandidate candidate) {
         var extractionMethod = this.extractionMethodFactory.build(this);

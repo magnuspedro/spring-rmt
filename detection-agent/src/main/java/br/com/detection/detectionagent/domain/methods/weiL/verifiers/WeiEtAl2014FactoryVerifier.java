@@ -118,14 +118,10 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
         } else if (methodCallExpr.isPresent()) {
 
             final boolean hasParam = methodCallExpr.get().getChildNodes().stream().filter(NameExpr.class::isInstance)
-                    .map(NameExpr.class::cast).anyMatch(n -> {
-                        return n.getNameAsString().equals(parameter.getNameAsString());
-                    });
+                    .map(NameExpr.class::cast).anyMatch(n -> n.getNameAsString().equals(parameter.getNameAsString()));
 
             final boolean isAnEqualsMethod = methodCallExpr.get().getChildNodes().stream()
-                    .filter(SimpleName.class::isInstance).map(SimpleName.class::cast).anyMatch(n -> {
-                        return n.asString().equals(parameter.getNameAsString());
-                    });
+                    .filter(SimpleName.class::isInstance).map(SimpleName.class::cast).anyMatch(n -> n.asString().equals(parameter.getNameAsString()));
 
             return hasParam && isAnEqualsMethod;
         }

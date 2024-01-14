@@ -80,9 +80,7 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
         } else if (methodCallExpr.isPresent()) {
 
             final boolean hasParam = methodCallExpr.get().getChildNodes().stream().filter(NameExpr.class::isInstance)
-                    .map(NameExpr.class::cast).anyMatch(n -> {
-                        return n.getNameAsString().equals(parameter.getNameAsString());
-                    });
+                    .map(NameExpr.class::cast).anyMatch(n -> n.getNameAsString().equals(parameter.getNameAsString()));
 
             final boolean isAnEqualsMethod = methodCallExpr.get().getNameAsString().equals("equals")
                     && methodCallExpr.get().getChildNodes().stream().filter(NameExpr.class::isInstance)

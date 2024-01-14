@@ -28,8 +28,7 @@ public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifi
 
         javaFiles.forEach(file -> {
             var cu = (CompilationUnit) file.getParsed();
-            var classOrInterface = this.astHandler
-                    .getClassOrInterfaceDeclaration(cu);
+            var classOrInterface = this.astHandler.getClassOrInterfaceDeclaration(cu);
 
             classOrInterface.ifPresent(classOrInterfaceDeclaration -> {
                 if (!classOrInterfaceDeclaration.isInterface()) {
@@ -46,7 +45,7 @@ public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifi
     }
 
     private boolean isMethodInvalid(MethodDeclaration method) {
-        return method.getParameters() == null || method.getParameters().size() == 0 || method.getParameters().size() > 1
+        return method.getParameters() == null || method.getParameters().isEmpty() || method.getParameters().size() > 1
                 || (method.getType() instanceof VoidType);
     }
 
