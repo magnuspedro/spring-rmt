@@ -6,13 +6,17 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Component
+@RequiredArgsConstructor
 public class SiblingPreconditions {
 
-	private final AstHandler astHandler = new AstHandler();
+	private final AstHandler astHandler;
 
 	public boolean violates(Collection<ZafeirisEtAl2016Canditate> canditadesOfSameOverridenMethod) {
 		final List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables = canditadesOfSameOverridenMethod.stream()

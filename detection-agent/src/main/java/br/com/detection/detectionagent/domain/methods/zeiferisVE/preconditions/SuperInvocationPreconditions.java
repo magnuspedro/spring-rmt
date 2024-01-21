@@ -6,6 +6,8 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.SuperExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -13,43 +15,41 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Component
+@RequiredArgsConstructor
 public class SuperInvocationPreconditions {
+    private static final String GET = "get";
+    private static final String SET = "set";
+    private static final Set<String> invalidMethodNames = Stream.of("toString", "equals", "hashCode", "clone", "finalize", "compareTo").collect(Collectors.toSet());
 
-	private Set<String> invalidMethodNames = Stream
-			.of("toString", "equals", "hashCode", "clone", "finalize", "compareTo").collect(Collectors.toSet());
+    private final AstHandler astParser;
 
-	private final AstHandler astParser = new AstHandler();
+    public boolean violatesAmountOfSuperCallsOrName(MethodDeclaration method, Collection<SuperExpr> superCalls) {
 
-	public SuperInvocationPreconditions() {
-	}
+        final String name = this.astParser.getSimpleName(method).map(SimpleName::asString).orElse("");
 
-	public boolean violatesAmountOfSuperCallsOrName(MethodDeclaration method, Collection<SuperExpr> superCalls) {
+        return superCalls.size() != 1 || invalidMethodNames.contains(name) && (name.startsWith(GET) || name.startsWith(SET));
+    }
 
-		final String name = this.astParser.getSimpleName(method).map(SimpleName::asString).orElse("");
+    public boolean isOverriddenMethodValid(MethodDeclaration overridenMethod, MethodDeclaration method) {
 
-		return superCalls.isEmpty() || superCalls.size() > 1
-				|| invalidMethodNames.contains(name) && (name.startsWith("get") || name.startsWith("set"));
-	}
+        final Optional<BlockStmt> blk = overridenMethod.getChildNodes().stream().filter(BlockStmt.class::isInstance)
+                .map(BlockStmt.class::cast).findFirst();
 
-	public boolean isOverriddenMethodValid(MethodDeclaration overridenMethod, MethodDeclaration method) {
+        return blk.isPresent() && blk.get().getChildNodes().size() > 1
+                && this.isOverridenMethodLessAccesible(overridenMethod, method);
+    }
 
-		final Optional<BlockStmt> blk = overridenMethod.getChildNodes().stream().filter(BlockStmt.class::isInstance)
-				.map(BlockStmt.class::cast).findFirst();
-
-		return blk.isPresent() && blk.get().getChildNodes().size() > 1
-				&& this.isOverridenMethodLessAccesible(overridenMethod, method);
-	}
-
-	private boolean isOverridenMethodLessAccesible(MethodDeclaration overridenMethod, MethodDeclaration method) {
-		if (overridenMethod.getModifiers().contains(Modifier.PUBLIC)) {
-			return true;
-		} else if (overridenMethod.getModifiers().contains(Modifier.PROTECTED)) {
-			return method.getModifiers().stream()
-					.anyMatch(m -> m.equals(Modifier.PROTECTED) || m.equals(Modifier.PRIVATE));
-		} else if (overridenMethod.getModifiers().contains(Modifier.PRIVATE)) {
-			return method.getModifiers().stream().anyMatch(m -> m.equals(Modifier.PRIVATE));
-		}
-		throw new IllegalStateException();
-	}
+    private boolean isOverridenMethodLessAccesible(MethodDeclaration overridenMethod, MethodDeclaration method) {
+        if (overridenMethod.getModifiers().contains(Modifier.PUBLIC)) {
+            return true;
+        } else if (overridenMethod.getModifiers().contains(Modifier.PROTECTED)) {
+            return method.getModifiers().stream()
+                    .anyMatch(m -> m.equals(Modifier.PROTECTED) || m.equals(Modifier.PRIVATE));
+        } else if (overridenMethod.getModifiers().contains(Modifier.PRIVATE)) {
+            return method.getModifiers().stream().anyMatch(m -> m.equals(Modifier.PRIVATE));
+        }
+        throw new IllegalStateException();
+    }
 
 }

@@ -27,13 +27,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ZafeirisEtAl2016Verifier {
 
-    private final AstHandler astHandler = new AstHandler();
-
-    private final SuperInvocationPreconditions superInvocationPreconditions = new SuperInvocationPreconditions();
-
-    private final ExtractMethodPreconditions extractMethodPreconditions = new ExtractMethodPreconditions();
-
-    private final SiblingPreconditions siblingPreconditions = new SiblingPreconditions();
+    private final AstHandler astHandler;
+    private final SuperInvocationPreconditions superInvocationPreconditions;
+    private final ExtractMethodPreconditions extractMethodPreconditions;
+    private final SiblingPreconditions siblingPreconditions;
 
 
     public List<ZafeirisEtAl2016Canditate> retrieveCandidatesFrom(List<JavaFile> javaFiles, ExtractionMethod extractMethod)
