@@ -129,4 +129,42 @@ class SuperInvocationPreconditionsTest {
 
         assertTrue(result);
     }
+
+    @Test
+    @DisplayName("Should return false for a overridden valid protected method")
+    public void shouldReturnFalseForAOverriddenValidProtectedMethod() {
+        var overriddenMethod = new MethodDeclaration(Modifier.PRIVATE.toEnumSet(),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new VoidType(),
+                new SimpleName("parentMethod"),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new BlockStmt(NodeList.nodeList(new IfStmt(), new ReturnStmt())));
+        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(), new VoidType(), "testMethod");
+
+        var result = superInvocationPreconditions.isOverriddenMethodValid(overriddenMethod, method);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should return fail for a overriden valid without child nodes")
+    public void shouldReturnFailForAOverridenValidWithoutChildNodes() {
+        var overriddenMethod = new MethodDeclaration(Modifier.PRIVATE.toEnumSet(),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new VoidType(),
+                new SimpleName("parentMethod"),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new BlockStmt(NodeList.nodeList()));
+        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(), new VoidType(), "testMethod");
+
+        var result = superInvocationPreconditions.isOverriddenMethodValid(overriddenMethod, method);
+
+        assertFalse(result);
+    }
+
+
 }
