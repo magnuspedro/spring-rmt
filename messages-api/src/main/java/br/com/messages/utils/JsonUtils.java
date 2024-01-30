@@ -17,9 +17,9 @@ public class JsonUtils {
 
 	public static JsonObject toJson(Reference r) {
 		final JsonArrayBuilder authors = Json.createArrayBuilder();
-		r.getAuthors().forEach(authors::add);
+		r.authors().forEach(authors::add);
 
-		return Json.createObjectBuilder().add("title", r.getTitle()).add("year", String.valueOf(r.getYear()))
+		return Json.createObjectBuilder().add("title", r.title()).add("year", String.valueOf(r.year()))
 				.add("authors", authors.build()).build();
 	}
 
