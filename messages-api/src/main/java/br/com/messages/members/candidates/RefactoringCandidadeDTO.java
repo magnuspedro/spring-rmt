@@ -74,8 +74,8 @@ public class RefactoringCandidadeDTO implements RefactoringCandidate {
 		if (object instanceof RefactoringCandidadeDTO) {
 			RefactoringCandidadeDTO another = (RefactoringCandidadeDTO) object;
 			return new EqualsBuilder().append(className, another.className).append(this.pkg, another.pkg)
-					.append(this.eligiblePattern, another.eligiblePattern).append(this.reference.getTitle(), another.reference.getTitle())
-					.append(this.reference.getYear(), another.reference.getYear()).isEquals();
+					.append(this.eligiblePattern, another.eligiblePattern).append(this.reference.title(), another.reference.title())
+					.append(this.reference.year(), another.reference.year()).isEquals();
 		}
 		return false;
 	}
