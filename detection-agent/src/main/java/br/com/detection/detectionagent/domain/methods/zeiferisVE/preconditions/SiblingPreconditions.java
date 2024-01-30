@@ -16,97 +16,106 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SiblingPreconditions {
 
-	private final AstHandler astHandler;
+    private final AstHandler astHandler;
 
-	public boolean violates(Collection<ZafeirisEtAl2016Canditate> canditadesOfSameOverridenMethod) {
-		final List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables = canditadesOfSameOverridenMethod.stream()
-				.map(ZafeirisEtAl2016Canditate::toCandidateWithVariables).collect(Collectors.toList());
+    public boolean violates(Collection<ZafeirisEtAl2016Canditate> canditadesOfSameOverridenMethod) {
+        final List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables = canditadesOfSameOverridenMethod.stream()
+                .map(ZafeirisEtAl2016Canditate::toCandidateWithVariables).collect(Collectors.toList());
 
-		return !beforeFragmentReturnIsSame(candidatesWithVariables)
-				&& !this.beforeReturnIsUsedInSuper(candidatesWithVariables)
-				&& this.isHierarchyShort(candidatesWithVariables);
-	}
+        return !beforeFragmentReturnIsSame(candidatesWithVariables)
+                && !this.beforeReturnIsUsedInSuper(candidatesWithVariables)
+                && this.isHierarchyShort(candidatesWithVariables);
+    }
 
-	private boolean isHierarchyShort(List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables) {
+    private boolean isHierarchyShort(List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables) {
 
-		final List<Hierarchy> hierarchies = new ArrayList<>();
+        final List<Hierarchy> hierarchies = new ArrayList<>();
 
-		for (ZafeirisEtAl2016Canditate.CandidateWithVariables candidate : candidatesWithVariables) {
-			boolean isPartOfAny = false;
-			for (int i = 0; i < hierarchies.size(); i++) {
-				if (hierarchies.get(i).isPartOf(candidate.candidate().getClassDeclaration())) {
-					isPartOfAny = true;
-					hierarchies.get(i).declarations.add(candidate.candidate().getClassDeclaration());
-				}
-			}
+        for (ZafeirisEtAl2016Canditate.CandidateWithVariables candidate : candidatesWithVariables) {
+            boolean isPartOfAny = false;
+            for (Hierarchy hierarchy : hierarchies) {
+                if (hierarchy.isPartOf(candidate.candidate().getClassDeclaration())) {
+                    isPartOfAny = true;
+                    hierarchy.declarations.add(candidate.candidate().getClassDeclaration());
+                }
+            }
 
-			if (!isPartOfAny) {
-				hierarchies.add(new Hierarchy());
-				hierarchies.get(0).declarations.add(candidate.candidate().getClassDeclaration());
-			}
-		}
+            if (!isPartOfAny) {
+                hierarchies.add(new Hierarchy());
+                hierarchies.get(0).declarations.add(candidate.candidate().getClassDeclaration());
+            }
+        }
 
-		return hierarchies.stream().anyMatch(h -> h.declarations.size() < 2);
-	}
+        return hierarchies.stream().anyMatch(h -> h.declarations.size() < 2);
+    }
 
-	private boolean beforeFragmentReturnIsSame(List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables) {
+    private boolean beforeFragmentReturnIsSame(List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables) {
 
-		boolean areEqual = true;
-		for (int i = 1; i < candidatesWithVariables.size() - 1; i++) {
-			if (candidatesWithVariables.get(i).variables().size() > 1) {
-				throw new IllegalStateException();
-			} else if (candidatesWithVariables.get(i).variables().size() != candidatesWithVariables.get(i + 1)
-					.variables().size()) {
-				areEqual &= false;
-			} else if (candidatesWithVariables.get(i).variables().size() == 0) {
-				areEqual &= false;
-			} else {
-				areEqual &= this.astHandler.variablesAreEqual(
-						candidatesWithVariables.get(i).variables().stream().findFirst().get(),
-						candidatesWithVariables.get(i + 1).variables().stream().findFirst().get());
-			}
-		}
-		return areEqual;
-	}
+        boolean areEqual = true;
 
-	private boolean beforeReturnIsUsedInSuper(List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables) {
-		if (candidatesWithVariables.stream().findFirst().get().variables().size() == 0) {
-			return true;
-		}
-		boolean isUsed = true;
-		for (ZafeirisEtAl2016Canditate.CandidateWithVariables candidate : candidatesWithVariables) {
-			final VariableDeclarationExpr var = candidate.variables().stream().findFirst().get();
+        for (int i = 1; i < candidatesWithVariables.size() - 1; i++) {
+            if (candidatesWithVariables.get(i).variables().size() > 1) {
+                throw new IllegalStateException();
+            } else if (candidatesWithVariables.get(i).variables().size() != candidatesWithVariables.get(i + 1).variables().size()) {
+                areEqual = false;
+            } else if (candidatesWithVariables.get(i).variables().isEmpty()) {
+                areEqual = false;
+            } else {
+                areEqual &= this.astHandler.variablesAreEqual(
+                        candidatesWithVariables.get(i).variables().stream().findFirst().get(),
+                        candidatesWithVariables.get(i + 1).variables().stream().findFirst().get());
+            }
+        }
+        return areEqual;
+    }
 
-			final MethodCallExpr methodCall = (MethodCallExpr) candidate.candidate().getSuperCall().getParentNode()
-					.get();
+    private boolean beforeReturnIsUsedInSuper(List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables) {
+        var isFirstCandidateWithoutVariables = candidatesWithVariables.stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No candidates with variables found"))
+                .variables()
+                .isEmpty();
 
-			isUsed &= this.astHandler.variableIsPresentInMethodCall(var, methodCall);
-		}
-		return isUsed;
-	}
+        if (isFirstCandidateWithoutVariables) {
+            return true;
+        }
 
-	private class Hierarchy {
-		final Set<ClassOrInterfaceDeclaration> declarations = new HashSet<>();
+        boolean isUsed = true;
+        for (ZafeirisEtAl2016Canditate.CandidateWithVariables candidate : candidatesWithVariables) {
+            final VariableDeclarationExpr var = candidate.variables().stream()
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("No variables found in candidate"));
 
-		boolean isPartOf(ClassOrInterfaceDeclaration dclr) {
-			return declarations.contains(dclr) && this.isChildOfAny(dclr) && this.isParentOfAny(dclr);
-		}
+            final MethodCallExpr methodCall = (MethodCallExpr) candidate
+                    .candidate()
+                    .getSuperCall()
+                    .getParentNode()
+                    .orElseThrow(() -> new IllegalArgumentException("No method call found in candidate"));
 
-		boolean isChildOfAny(ClassOrInterfaceDeclaration dclr) {
-			final Optional<ClassOrInterfaceType> parent = astHandler.getParentType(dclr);
-			if (!parent.isPresent()) {
-				return false;
-			}
-			return declarations.stream().map(astHandler::getSimpleName).map(Optional::get)
-					.anyMatch(n -> n.equals(astHandler.getSimpleName(parent.get()).get()));
-		}
+            isUsed &= this.astHandler.variableIsPresentInMethodCall(var, methodCall);
+        }
+        return isUsed;
+    }
 
-		boolean isParentOfAny(ClassOrInterfaceDeclaration dclr) {
-			return this.declarations.stream().map(astHandler::getParentType).filter(Optional::isPresent)
-					.map(Optional::get).map(astHandler::getSimpleName).map(Optional::get)
-					.anyMatch(n -> n.equals(astHandler.getSimpleName(dclr).get()));
-		}
+    private class Hierarchy {
+        final Set<ClassOrInterfaceDeclaration> declarations = new HashSet<>();
 
-	}
+        boolean isPartOf(ClassOrInterfaceDeclaration dclr) {
+            return declarations.contains(dclr) && this.isChildOfAny(dclr) && this.isParentOfAny(dclr);
+        }
+
+        boolean isChildOfAny(ClassOrInterfaceDeclaration dclr) {
+            final Optional<ClassOrInterfaceType> parent = astHandler.getParentType(dclr);
+            return parent.filter(classOrInterfaceType -> declarations.stream().map(astHandler::getSimpleName).map(Optional::get)
+                    .anyMatch(n -> n.equals(astHandler.getSimpleName(classOrInterfaceType).get()))).isPresent();
+        }
+
+        boolean isParentOfAny(ClassOrInterfaceDeclaration dclr) {
+            return this.declarations.stream().map(astHandler::getParentType).filter(Optional::isPresent)
+                    .map(Optional::get).map(astHandler::getSimpleName).map(Optional::get)
+                    .anyMatch(n -> n.equals(astHandler.getSimpleName(dclr).get()));
+        }
+
+    }
 
 }

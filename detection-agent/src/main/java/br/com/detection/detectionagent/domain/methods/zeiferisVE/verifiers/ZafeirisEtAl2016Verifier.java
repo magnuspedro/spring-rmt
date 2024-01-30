@@ -38,14 +38,14 @@ public class ZafeirisEtAl2016Verifier {
 
         final List<ZafeirisEtAl2016Canditate> candidates = this.retrieveCandidates(javaFiles, extractMethod);
 
-        for (MethodDeclaration overridenMethod : candidates.stream().map(ZafeirisEtAl2016Canditate::getOverridenMethod)
+        for (MethodDeclaration overriddenMethod : candidates.stream().map(ZafeirisEtAl2016Canditate::getOverridenMethod)
                 .toList()) {
 
-            final Collection<ZafeirisEtAl2016Canditate> canditadesOfSameOverridenMethod = candidates.stream()
-                    .filter(c -> c.getOverridenMethod().equals(overridenMethod)).collect(Collectors.toList());
+            final Collection<ZafeirisEtAl2016Canditate> candidatesOfSameOverriddenMethod = candidates.stream()
+                    .filter(c -> c.getOverridenMethod().equals(overriddenMethod)).collect(Collectors.toList());
 
-            if (siblingPreconditions.violates(canditadesOfSameOverridenMethod)) {
-                candidates.removeAll(candidates.stream().filter(c -> c.getOverridenMethod().equals(overridenMethod))
+            if (siblingPreconditions.violates(candidatesOfSameOverriddenMethod)) {
+                candidates.removeAll(candidates.stream().filter(c -> c.getOverridenMethod().equals(overriddenMethod))
                         .toList());
             }
         }
@@ -113,8 +113,15 @@ public class ZafeirisEtAl2016Verifier {
 
         final ClassOrInterfaceDeclaration classDcl = this.astHandler.getClassOrInterfaceDeclaration(cUnit).get();
 
-        return new ZafeirisEtAl2016Canditate(file, cUnit, pkgDcl, classDcl, overridenMethod, method,
-                superCall);
+        return ZafeirisEtAl2016Canditate.builder()
+                .file(file)
+                .compilationUnit(cUnit)
+                .packageDcl(pkgDcl)
+                .classDcl(classDcl)
+                .overridenMethod(overridenMethod)
+                .overridingMethod(method)
+                .superCall(superCall)
+                .build();
     }
 
     private boolean violatesClassPreconditions(CompilationUnit cUnit, Optional<CompilationUnit> parent) {

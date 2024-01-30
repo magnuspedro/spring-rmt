@@ -7,28 +7,31 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.Type;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
 public class FragmentsSplitter {
 
+    @Getter
     private final List<Node> beforeFragment = new ArrayList<>();
 
     private Node node = null;
 
+    @Getter
     private final List<Node> afterFragment = new ArrayList<>();
 
     private final AstHandler astHandler = new AstHandler();
 
     public FragmentsSplitter(MethodDeclaration m, SuperExpr superCall) {
-        final Optional<BlockStmt> blockStmt = astHandler.getBlockStatement(m);
+        final BlockStmt blockStmt = astHandler.getBlockStatement(m)
+                .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
 
         boolean superWasFound = false;
-        for (Node child : blockStmt.get().getChildNodes()) {
+        for (Node child : blockStmt.getChildNodes()) {
 
             if (this.astHandler.childHasDirectSuperCall(child, superCall)) {
                 superWasFound = true;
@@ -45,10 +48,11 @@ public class FragmentsSplitter {
     }
 
     public FragmentsSplitter(MethodDeclaration m, MethodCallExpr methodCall) {
-        final Optional<BlockStmt> blockStmt = astHandler.getBlockStatement(m);
+        final BlockStmt blockStmt = astHandler.getBlockStatement(m)
+                .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
 
         boolean methodCallWasFound = false;
-        for (Node child : blockStmt.get().getChildNodes()) {
+        for (Node child : blockStmt.getChildNodes()) {
 
             if (this.astHandler.nodeHasSameMethodCall(child, methodCall)) {
                 methodCallWasFound = true;
@@ -60,7 +64,7 @@ public class FragmentsSplitter {
         }
 
         if (this.node == null) {
-            log.warn("nulo");
+            log.warn("Node is Null");
         }
     }
 
@@ -72,14 +76,6 @@ public class FragmentsSplitter {
         }
     }
 
-    public List<Node> getBeforeFragment() {
-        return beforeFragment;
-    }
-
-    public List<Node> getAfterFragment() {
-        return afterFragment;
-    }
-
     public Node getSpecificNode() {
         return node;
     }
@@ -89,11 +85,11 @@ public class FragmentsSplitter {
     }
 
     public Collection<VariableDeclarationExpr> getBeforeVariablesUsedInSpecificNodeAndBeforeFragments() {
-        final Collection<VariableDeclarationExpr> variables = this.getBeforeFragment().stream().flatMap(n -> this.astHandler.extractVariableDclrFromNode(n).stream()).collect(Collectors.toList());
+        final Collection<VariableDeclarationExpr> variables = this.getBeforeFragment().stream().flatMap(n -> this.astHandler.extractVariableDclrFromNode(n).stream()).toList();
 
         final Optional<MethodCallExpr> methodCall = this.astHandler.getMethodCallExpr(node).stream().findFirst();
 
-        if (!methodCall.isPresent()) {
+        if (methodCall.isEmpty()) {
 
             log.info("Method call not found - {}", NodeConverter.toString(node));
 
@@ -121,15 +117,14 @@ public class FragmentsSplitter {
 
         if (this.node.getChildNodes().get(0) instanceof VariableDeclarationExpr) {
             return Optional.of(new SuperReturnVar((VariableDeclarationExpr) this.node.getChildNodes().get(0)));
-        } else if (this.node.getChildNodes().get(0) instanceof AssignExpr) {
-            final AssignExpr assignment = (AssignExpr) this.node.getChildNodes().get(0);
+        } else if (this.node.getChildNodes().get(0) instanceof AssignExpr assignment) {
             return Optional.of(new SuperReturnVar(assignment));
         }
         return Optional.empty();
     }
 
     private boolean afterFragmentContaisVariable(VariableDeclarationExpr var) {
-        return this.getAfterFragment().stream().filter(n -> this.astHandler.nodeHasSimpleName(this.astHandler.getVariableName(var), n)).count() > 0;
+        return this.getAfterFragment().stream().anyMatch(n -> this.astHandler.nodeHasSimpleName(this.astHandler.getVariableName(var), n));
     }
 
     private Type getTypeOfVar(NameExpr nameExpr) {
@@ -147,6 +142,7 @@ public class FragmentsSplitter {
                 .getType();
     }
 
+    @Getter
     public class SuperReturnVar {
 
         private final Type type;
@@ -165,14 +161,5 @@ public class FragmentsSplitter {
             this.name = nameExpr.getName();
         }
 
-        public Type getType() {
-            return type;
-        }
-
-        public SimpleName getName() {
-            return name;
-        }
-
     }
-
 }

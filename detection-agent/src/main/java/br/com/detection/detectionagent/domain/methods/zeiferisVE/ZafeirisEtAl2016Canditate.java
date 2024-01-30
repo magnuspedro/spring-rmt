@@ -10,6 +10,9 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.SuperExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -18,43 +21,38 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+@Builder
 @ToString
+@RequiredArgsConstructor
 public class ZafeirisEtAl2016Canditate implements RefactoringCandidate {
 
+    @Builder.Default
     private final String id = UUID.randomUUID().toString();
 
-    private final Reference reference;
+    @Builder.Default
+    private final Reference reference = Reference.builder()
+            .title("Automated refactoring of super-class method invocations to the Template Method design pattern")
+            .year(2016)
+            .authors(List.of("E. A. Giakoumakis", "N. A. Diamantidis", "Sotiris H. Poulias", "Vassilis E. Zafeiris"))
+            .build();
 
     private final JavaFile file;
 
+    @Getter
     private final CompilationUnit compilationUnit;
 
     private final PackageDeclaration packageDcl;
 
     private final ClassOrInterfaceDeclaration classDcl;
 
+    @Getter
     private final MethodDeclaration overridenMethod;
 
+    @Getter
     private final MethodDeclaration overridingMethod;
 
+    @Getter
     private final SuperExpr superCall;
-
-    public ZafeirisEtAl2016Canditate(JavaFile file, CompilationUnit compilationUnit,
-                                     PackageDeclaration packageDcl, ClassOrInterfaceDeclaration classDcl, MethodDeclaration overridenMethod,
-                                     MethodDeclaration overridingMethod, SuperExpr superCall) {
-        this.reference = Reference.builder()
-                .title("Automated refactoring of super-class method invocations to the Template Method design pattern")
-                .year(2016)
-                .authors(List.of("E. A. Giakoumakis", "N. A. Diamantidis", "Sotiris H. Poulias", "Vassilis E. Zafeiris"))
-                .build();
-        this.file = file;
-        this.compilationUnit = compilationUnit;
-        this.packageDcl = packageDcl;
-        this.classDcl = classDcl;
-        this.overridenMethod = overridenMethod;
-        this.overridingMethod = overridingMethod;
-        this.superCall = superCall;
-    }
 
     @Override
     public String getId() {
@@ -81,28 +79,12 @@ public class ZafeirisEtAl2016Canditate implements RefactoringCandidate {
         return DesignPattern.TEMPLATE_METHOD;
     }
 
-    public CompilationUnit getCompilationUnit() {
-        return compilationUnit;
-    }
-
-    public MethodDeclaration getOverridingMethod() {
-        return overridingMethod;
-    }
-
-    public MethodDeclaration getOverridenMethod() {
-        return overridenMethod;
-    }
-
     public PackageDeclaration getPackageDeclaration() {
         return packageDcl;
     }
 
     public ClassOrInterfaceDeclaration getClassDeclaration() {
         return classDcl;
-    }
-
-    public SuperExpr getSuperCall() {
-        return superCall;
     }
 
     public FragmentsSplitter toFragment() {

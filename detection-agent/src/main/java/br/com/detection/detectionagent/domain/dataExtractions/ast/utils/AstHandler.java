@@ -44,8 +44,19 @@ public class AstHandler {
         return node.getChildNodes().stream().filter(NameExpr.class::isInstance).map(NameExpr.class::cast).findFirst();
     }
 
+
+    public Optional<SimpleName> getVariableSimpleName(Node node) {
+        return node.getChildNodes().stream()
+                .flatMap(n -> n.getChildNodes().stream())
+                .filter(SimpleName.class::isInstance)
+                .map(SimpleName.class::cast)
+                .findFirst();
+    }
+
     public Optional<SimpleName> getSimpleName(Node node) {
-        return node.getChildNodes().stream().filter(SimpleName.class::isInstance).map(SimpleName.class::cast)
+        return node.getChildNodes().stream()
+                .filter(SimpleName.class::isInstance)
+                .map(SimpleName.class::cast)
                 .findFirst();
     }
 
@@ -97,7 +108,9 @@ public class AstHandler {
     }
 
     public Optional<BlockStmt> getBlockStatement(Node n) {
-        return n.getChildNodes().stream().filter(BlockStmt.class::isInstance).map(BlockStmt.class::cast).findFirst();
+        return Optional.ofNullable(n)
+                .map(Node::getChildNodes)
+                .flatMap(it -> it.stream().filter(BlockStmt.class::isInstance).map(BlockStmt.class::cast).findFirst());
     }
 
     public Optional<ExpressionStmt> getExpressionStatement(Node node) {
@@ -230,8 +243,13 @@ public class AstHandler {
     }
 
     public boolean variableIsPresentInMethodCall(VariableDeclarationExpr var, MethodCallExpr methodCall) {
-        for (SimpleName paramName : methodCall.getChildNodes().stream().filter(NameExpr.class::isInstance)
-                .map(NameExpr.class::cast).map(n -> n.getName()).collect(Collectors.toList())) {
+        var simpleNameList = methodCall.getChildNodes().stream()
+                .filter(NameExpr.class::isInstance)
+                .map(NameExpr.class::cast)
+                .map(NameExpr::getName)
+                .toList();
+
+        for (SimpleName paramName : simpleNameList) {
             if (this.getVariableName(var).equals(paramName)) {
                 return true;
             }
@@ -290,7 +308,7 @@ public class AstHandler {
     }
 
     public boolean variablesAreEqual(VariableDeclarationExpr var1, VariableDeclarationExpr var2) {
-        return this.getSimpleName(var1).equals(this.getSimpleName(var2));
+        return this.getVariableSimpleName(var1).equals(this.getVariableSimpleName(var2));
     }
 
     public boolean nodeHasSameMethodCall(Node node, MethodCallExpr methodCall) {
