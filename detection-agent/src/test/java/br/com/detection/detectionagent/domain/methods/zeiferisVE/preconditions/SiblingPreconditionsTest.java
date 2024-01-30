@@ -94,8 +94,8 @@ class SiblingPreconditionsTest {
     }
 
     @Test
-    @DisplayName("Should return true when variables size is zero")
-    public void shouldReturnTrueWhenVariablesSizeIsZero() {
+    @DisplayName("Should return true when all the conditions are met")
+    public void shouldReturnTrueWhenAllTheConditionsAreMet() {
         var superExpr = new SuperExpr();
         superExpr.setParentNode(new MethodCallExpr());
         var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
@@ -116,7 +116,6 @@ class SiblingPreconditionsTest {
                                 new NameExpr("primitive2")
                         )),
                         new ReturnStmt())));
-
         var method2 = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
@@ -165,5 +164,80 @@ class SiblingPreconditionsTest {
         var result = siblingPreconditions.violates(candidates);
 
         assertTrue(result);
+    }
+
+
+    @Test
+    @DisplayName("Should return false when variables have the same name")
+    public void shouldReturnFalseWhenVariablesHaveTheSameName() {
+        var superExpr = new SuperExpr();
+        superExpr.setParentNode(new MethodCallExpr());
+        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new VoidType(),
+                new SimpleName("parentMethod"),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new BlockStmt(NodeList.nodeList(new IfStmt(new VariableDeclarationExpr(new VarType(), "varIf"), new ReturnStmt(), null),
+                        new ExpressionStmt(new VariableDeclarationExpr(new VarType(), "var")),
+                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
+                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive2")),
+                        new ExpressionStmt(new MethodCallExpr("super", new SuperExpr(),
+                                new NameExpr("varIf"),
+                                new NameExpr("var5"),
+                                new NameExpr("primitive"),
+                                new NameExpr("primitive2")
+                        )),
+                        new ReturnStmt())));
+
+        var method2 = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new VoidType(),
+                new SimpleName("parentMethod"),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new BlockStmt(NodeList.nodeList(
+                        new ExpressionStmt(new VariableDeclarationExpr(new VarType(), "var")),
+                        new ExpressionStmt(new MethodCallExpr("super", new SuperExpr(),
+                                new NameExpr("var")
+                        )),
+                        new ReturnStmt())));
+        var method3 = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new VoidType(),
+                new SimpleName("parentMethod"),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new BlockStmt(NodeList.nodeList(
+                        new ExpressionStmt(new VariableDeclarationExpr(new VarType(), "var")),
+                        new ExpressionStmt(new MethodCallExpr("super", new SuperExpr(),
+                                new NameExpr("var")
+                        )),
+                        new ReturnStmt())));
+        var candidates = List.of(ZafeirisEtAl2016Canditate.builder()
+                        .id("1")
+                        .overridingMethod(method)
+                        .superCall(superExpr)
+                        .classDcl(new ClassOrInterfaceDeclaration())
+                        .build(),
+                ZafeirisEtAl2016Canditate.builder()
+                        .id("2")
+                        .overridingMethod(method2)
+                        .superCall(superExpr)
+                        .classDcl(new ClassOrInterfaceDeclaration())
+                        .build(),
+                ZafeirisEtAl2016Canditate.builder()
+                        .id("3")
+                        .overridingMethod(method3)
+                        .superCall(superExpr)
+                        .classDcl(new ClassOrInterfaceDeclaration())
+                        .build());
+
+        var result = siblingPreconditions.violates(candidates);
+
+        assertFalse(result);
     }
 }
