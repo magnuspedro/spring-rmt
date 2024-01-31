@@ -216,11 +216,12 @@ public class AstHandler {
     }
 
     public boolean nodeHasClazz(Node node, Class<?> clazz) {
-        if (node.getChildNodes() == null || node.getChildNodes().isEmpty()) {
-            return false;
-        }
         if (clazz.isInstance(node)) {
             return true;
+        }
+
+        if (node.getChildNodes() == null || node.getChildNodes().isEmpty()) {
+            return false;
         }
 
         return node.getChildNodes().stream().anyMatch(n -> this.nodeHasClazz(n, clazz));

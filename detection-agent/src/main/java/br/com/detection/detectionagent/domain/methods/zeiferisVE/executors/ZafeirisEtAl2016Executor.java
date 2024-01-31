@@ -205,7 +205,7 @@ public class ZafeirisEtAl2016Executor {
                 .forEach(methodCallExpr.getArguments()::add);
 
         final Collection<VariableDeclarationExpr> variables = fragmentsSplitter
-                .getBeforeVariablesUsedInSpecificNodeAndBeforeFragments();
+                .getVariablesOnBeforeFragmentsMethodCalss();
 
         if (variables.size() == 1) {
 
@@ -264,7 +264,7 @@ public class ZafeirisEtAl2016Executor {
         hookMethodDclr.setBody(new BlockStmt());
 
         final Collection<VariableDeclarationExpr> variableDeclarationExpressions = fragmentsSplitter
-                .getBeforeVariablesUsedInSpecificNodeAndBeforeFragments();
+                .getVariablesOnBeforeFragmentsMethodCalss();
 
         variableDeclarationExpressions.stream().findFirst().ifPresent(hookMethodDclr.getBody().get()::addStatement);
 

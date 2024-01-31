@@ -19,14 +19,16 @@ public class ExtractMethodPreconditions {
 
     private final AstHandler astHandler;
 
-    public boolean isValid(MethodDeclaration overrienMethod, MethodDeclaration m, SuperExpr superCall) {
+    public boolean isValid(MethodDeclaration overriddenMethod, MethodDeclaration m, SuperExpr superCall) {
         final FragmentsSplitter fragmentsSplitter = new FragmentsSplitter(m, superCall);
 
         return fragmentsSplitter.hasSpecificNode()
-                && this.superCallIsNotNested(m, superCall) && this.beforeFragmentThrowsNoException(fragmentsSplitter)
+                && this.superCallIsNotNested(m, superCall)
+                && this.beforeFragmentThrowsNoException(fragmentsSplitter)
                 && this.beforeFragmentHasNoReturn(fragmentsSplitter)
-                && !this.afterAndSuperUseMoreThanOneVariableOfBefore(fragmentsSplitter)
-                && this.methodsValuesMatch(overrienMethod, m) && this.fragmentsHaveMinSize(fragmentsSplitter);
+                && !this.hasMultipleVariablesInBeforeFragmentsMethodCalls(fragmentsSplitter)
+                && this.methodsValuesMatch(overriddenMethod, m)
+                && this.fragmentsHaveMinSize(fragmentsSplitter);
     }
 
     private boolean fragmentsHaveMinSize(FragmentsSplitter fragmentsSplitter) {
@@ -55,31 +57,27 @@ public class ExtractMethodPreconditions {
         return differentValuesCounter <= 1;
     }
 
-    private boolean afterAndSuperUseMoreThanOneVariableOfBefore(FragmentsSplitter fragmentsSplitter) {
-        final Collection<VariableDeclarationExpr> variables = fragmentsSplitter
-                .getBeforeVariablesUsedInSpecificNodeAndBeforeFragments();
+    private boolean hasMultipleVariablesInBeforeFragmentsMethodCalls(FragmentsSplitter fragmentsSplitter) {
+        final Collection<VariableDeclarationExpr> variables = fragmentsSplitter.getVariablesOnBeforeFragmentsMethodCalss();
         return variables.size() > 1 || (variables.size() == 1 && variables.stream().findFirst().get().getVariables().size() > 1);
     }
 
     private boolean beforeFragmentHasNoReturn(FragmentsSplitter fragmentsSplitter) {
         return fragmentsSplitter.getBeforeFragment().stream()
-                .allMatch(node -> !this.astHandler.nodeHasReturnStatement(node));
+                .noneMatch(this.astHandler::nodeHasReturnStatement);
     }
 
     private boolean beforeFragmentThrowsNoException(FragmentsSplitter fragmentsSplitter) {
         return fragmentsSplitter.getBeforeFragment().stream()
-                .allMatch(node -> !this.astHandler.nodeThrowsException(node));
+                .noneMatch(this.astHandler::nodeThrowsException);
     }
 
     private boolean superCallIsNotNested(MethodDeclaration m, SuperExpr superCall) {
 
         final Optional<BlockStmt> blockStmt = this.astHandler.getBlockStatement(m);
 
-        if (blockStmt.isPresent()) {
-            return this.astHandler.childHasDirectSuperCall(blockStmt.get(), superCall);
-        }
+        return blockStmt.filter(stmt -> this.astHandler.childHasDirectSuperCall(stmt, superCall)).isPresent();
 
-        return false;
     }
 
 }

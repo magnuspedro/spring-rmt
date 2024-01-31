@@ -43,7 +43,7 @@ public class FragmentsSplitter {
         }
 
         if (this.node == null) {
-            log.warn("nulo");
+            log.warn("Fragment Splitter node is null");
         }
     }
 
@@ -64,7 +64,7 @@ public class FragmentsSplitter {
         }
 
         if (this.node == null) {
-            log.warn("Node is Null");
+            log.warn("Fragment Splitter node is null");
         }
     }
 
@@ -84,7 +84,7 @@ public class FragmentsSplitter {
         return this.node != null;
     }
 
-    public Collection<VariableDeclarationExpr> getBeforeVariablesUsedInSpecificNodeAndBeforeFragments() {
+    public Collection<VariableDeclarationExpr> getVariablesOnBeforeFragmentsMethodCalss() {
         final Collection<VariableDeclarationExpr> variables = this.getBeforeFragment().stream().flatMap(n -> this.astHandler.extractVariableDclrFromNode(n).stream()).toList();
 
         final Optional<MethodCallExpr> methodCall = this.astHandler.getMethodCallExpr(node).stream().findFirst();

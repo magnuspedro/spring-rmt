@@ -93,7 +93,7 @@ public class ZafeirisEtAl2016Canditate implements RefactoringCandidate {
 
     public CandidateWithVariables toCandidateWithVariables() {
         return new CandidateWithVariables(this,
-                this.toFragment().getBeforeVariablesUsedInSpecificNodeAndBeforeFragments());
+                this.toFragment().getVariablesOnBeforeFragmentsMethodCalss());
     }
 
     public record CandidateWithVariables(ZafeirisEtAl2016Canditate candidate,
