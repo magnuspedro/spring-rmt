@@ -135,7 +135,7 @@ public class AstHandler {
         }
 
         superCalls.addAll(node.getChildNodes().stream().flatMap(cn -> this.getSuperCalls(cn).stream())
-                .collect(Collectors.toList()));
+                .toList());
 
         return superCalls;
     }
@@ -215,6 +215,7 @@ public class AstHandler {
         return nodeHasClazz(node, ThrowStmt.class);
     }
 
+    // Recursion order was changed, the node instance of was the second condition
     public boolean nodeHasClazz(Node node, Class<?> clazz) {
         if (clazz.isInstance(node)) {
             return true;
@@ -227,16 +228,16 @@ public class AstHandler {
         return node.getChildNodes().stream().anyMatch(n -> this.nodeHasClazz(n, clazz));
     }
 
+    // Recursion order was changed, the node instance of was the second condition
     public Collection<VariableDeclarationExpr> extractVariableDclrFromNode(Node node) {
-
-        if (node.getChildNodes() == null || node.getChildNodes().isEmpty()) {
-            return new ArrayList<>();
-        }
-
         if (node instanceof VariableDeclarationExpr) {
             final List<VariableDeclarationExpr> variables = new ArrayList<>();
             variables.add((VariableDeclarationExpr) node);
             return variables;
+        }
+
+        if (node.getChildNodes() == null || node.getChildNodes().isEmpty()) {
+            return new ArrayList<>();
         } else {
             return node.getChildNodes().stream().flatMap(cn -> this.extractVariableDclrFromNode(cn).stream())
                     .collect(Collectors.toList());

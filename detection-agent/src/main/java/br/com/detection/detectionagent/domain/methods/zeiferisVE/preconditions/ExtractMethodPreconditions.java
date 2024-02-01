@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -41,18 +42,20 @@ public class ExtractMethodPreconditions {
             return true;
         } else if ((m1.getParameters() == null && m2.getParameters() != null) || (m1.getParameters() != null && m2.getParameters() == null)) {
             return false;
+        } else if (m1.getParameters().size() != m2.getParameters().size()) {
+            return false;
         }
 
         int differentValuesCounter = 0;
         for (int i = 0; i < m1.getParameters().size(); i++) {
 
-            final Object v1 = m1.getParameters().get(i).getData(new DataKey<Object>() {
+            final Object v1 = m1.getParameters().get(i).getData(new DataKey<>() {
             });
 
-            final Object v2 = m2.getParameters().get(i).getData(new DataKey<Object>() {
+            final Object v2 = m2.getParameters().get(i).getData(new DataKey<>() {
             });
 
-            differentValuesCounter += v1 == null && v2 == null ? 0 : (v1.equals(v2) ? 0 : 1);
+            differentValuesCounter += v1 == null && v2 == null ? 0 : (Objects.equals(v1, v2) ? 0 : 1);
         }
         return differentValuesCounter <= 1;
     }
