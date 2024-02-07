@@ -23,8 +23,10 @@ import java.util.stream.Collectors;
 public class AstHandler {
 
     public Collection<FieldDeclaration> getDeclaredFields(Node node) {
-        return node.getChildNodes().stream().filter(FieldDeclaration.class::isInstance)
-                .map(FieldDeclaration.class::cast).collect(Collectors.toList());
+        return node.getChildNodes().stream()
+                .filter(FieldDeclaration.class::isInstance)
+                .map(FieldDeclaration.class::cast)
+                .collect(Collectors.toList());
     }
 
     public Optional<ObjectCreationExpr> getObjectCreationExpr(Node node) {
@@ -44,7 +46,6 @@ public class AstHandler {
         return node.getChildNodes().stream().filter(NameExpr.class::isInstance).map(NameExpr.class::cast).findFirst();
     }
 
-
     public Optional<SimpleName> getVariableSimpleName(Node node) {
         return node.getChildNodes().stream()
                 .flatMap(n -> n.getChildNodes().stream())
@@ -62,7 +63,8 @@ public class AstHandler {
 
     public Optional<ClassOrInterfaceType> getParentType(CompilationUnit cUnit) {
         final Optional<ClassOrInterfaceDeclaration> declaration = this.getClassOrInterfaceDeclaration(cUnit);
-        return declaration.flatMap(classOrInterfaceDeclaration -> classOrInterfaceDeclaration.getChildNodes().stream().filter(ClassOrInterfaceType.class::isInstance)
+        return declaration.flatMap(classOrInterfaceDeclaration -> classOrInterfaceDeclaration.getChildNodes().stream()
+                .filter(ClassOrInterfaceType.class::isInstance)
                 .map(ClassOrInterfaceType.class::cast).findFirst());
     }
 
@@ -141,7 +143,7 @@ public class AstHandler {
     }
 
     public MethodDeclaration retrieveOverridenMethod(CompilationUnit child, CompilationUnit parent,
-                                                     MethodDeclaration overridingMethod) {
+            MethodDeclaration overridingMethod) {
 
         final String childMethodName = this.getSimpleName(overridingMethod).get().asString();
 
@@ -190,7 +192,8 @@ public class AstHandler {
         }
 
         if (node instanceof MethodCallExpr && ((MethodCallExpr) node).getArguments() != null) {
-            boolean argumentsPresentSuper = ((MethodCallExpr) node).getArguments().stream().anyMatch(c -> this.childHasDirectSuperCall(c, superExpr));
+            boolean argumentsPresentSuper = ((MethodCallExpr) node).getArguments().stream()
+                    .anyMatch(c -> this.childHasDirectSuperCall(c, superExpr));
             if (argumentsPresentSuper) {
                 return true;
             }
@@ -342,7 +345,7 @@ public class AstHandler {
     }
 
     public boolean unitsMatch(CompilationUnit c1, Optional<ClassOrInterfaceDeclaration> classOrInterface2,
-                              Optional<PackageDeclaration> package2) {
+            Optional<PackageDeclaration> package2) {
         final String p1 = c1.getPackageDeclaration().map(PackageDeclaration::getNameAsString).orElse("");
         final String p2 = package2.map(PackageDeclaration::getNameAsString).orElse("");
 
@@ -438,7 +441,8 @@ public class AstHandler {
         cu.findAll(ObjectCreationExpr.class).stream().forEach(f -> {
             Type element = f.getType();
             if (element.isReferenceType()) {
-                if (dataHandler.getParsedFileByName(f.getType().toString()) != null && !f.getType().toString().contains("Exception")) {
+                if (dataHandler.getParsedFileByName(f.getType().toString()) != null
+                        && !f.getType().toString().contains("Exception")) {
                     instance.add(f);
                 }
             }
