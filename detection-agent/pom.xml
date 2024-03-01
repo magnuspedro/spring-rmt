@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.1</version>
+        <version>3.2.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>br.com.detection</groupId>
@@ -13,7 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>detection-agent</name>
     <properties>
-        <java.version>19</java.version>
+        <java.version>21</java.version>
         <messages-api.version>1.1.0</messages-api.version>
         <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
         <zt-zip.version>1.13</zt-zip.version>
