@@ -1,5 +1,7 @@
 package br.com.detection.detectionagent.domain.dataExtractions.ast.utils;
 
+import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.NullIfStmtException;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.NullNodeException;
 import br.com.detection.detectionagent.methods.dataExtractions.forks.DataHandler;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -23,21 +25,37 @@ import java.util.stream.Collectors;
 public class AstHandler {
 
     public Collection<FieldDeclaration> getDeclaredFields(Node node) {
-        return node.getChildNodes().stream()
+        return Optional.ofNullable(node)
+                .map(Node::getChildNodes)
+                .orElseThrow(NullNodeException::new)
+                .stream()
                 .filter(FieldDeclaration.class::isInstance)
                 .map(FieldDeclaration.class::cast)
                 .collect(Collectors.toList());
     }
 
     public Optional<ObjectCreationExpr> getObjectCreationExpr(Node node) {
-        return node.getChildNodes().stream().filter(ObjectCreationExpr.class::isInstance)
-                .map(ObjectCreationExpr.class::cast).findFirst();
+        return Optional.ofNullable(node)
+                .map(Node::getChildNodes)
+                .orElseThrow(NullNodeException::new)
+                .stream()
+                .filter(ObjectCreationExpr.class::isInstance)
+                .map(ObjectCreationExpr.class::cast)
+                .findFirst();
     }
 
     public Optional<ReturnStmt> getReturnStmt(IfStmt ifStmt) {
+        if (ifStmt == null) {
+            throw new NullIfStmtException();
+        }
+
         if (ifStmt.hasThenBlock()) {
-            return ifStmt.getThenStmt().getChildNodes().stream().filter(ReturnStmt.class::isInstance)
-                    .map(ReturnStmt.class::cast).findFirst();
+            return ifStmt.getThenStmt()
+                    .getChildNodes()
+                    .stream()
+                    .filter(ReturnStmt.class::isInstance)
+                    .map(ReturnStmt.class::cast)
+                    .findFirst();
         }
         return Optional.empty();
     }
@@ -143,7 +161,7 @@ public class AstHandler {
     }
 
     public MethodDeclaration retrieveOverridenMethod(CompilationUnit child, CompilationUnit parent,
-            MethodDeclaration overridingMethod) {
+                                                     MethodDeclaration overridingMethod) {
 
         final String childMethodName = this.getSimpleName(overridingMethod).get().asString();
 
@@ -345,7 +363,7 @@ public class AstHandler {
     }
 
     public boolean unitsMatch(CompilationUnit c1, Optional<ClassOrInterfaceDeclaration> classOrInterface2,
-            Optional<PackageDeclaration> package2) {
+                              Optional<PackageDeclaration> package2) {
         final String p1 = c1.getPackageDeclaration().map(PackageDeclaration::getNameAsString).orElse("");
         final String p2 = package2.map(PackageDeclaration::getNameAsString).orElse("");
 
