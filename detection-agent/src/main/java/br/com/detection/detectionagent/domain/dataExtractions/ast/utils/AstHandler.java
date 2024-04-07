@@ -148,7 +148,6 @@ public class AstHandler {
                 .filter(ClassOrInterfaceDeclaration.class::isInstance)
                 .map(ClassOrInterfaceDeclaration.class::cast)
                 .findFirst();
-
     }
 
     public Collection<MethodDeclaration> getMethods(CompilationUnit cUnit) {

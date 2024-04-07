@@ -324,4 +324,28 @@ class AstHandlerTest {
 
         assertEquals("br.com.detection.detectionagent.domain.dataExtractions.ast.utils", result.getNameAsString());
     }
+
+    @Test
+    @DisplayName("Should test get class or interface declaration with null")
+    public void shouldTestGetClassOrInterfaceDeclarationWithNull() {
+        CompilationUnit cu = null;
+
+        var result = assertThrows(NoClassOrInterfaceException.class,
+                () -> astHandler.getClassOrInterfaceDeclaration(cu));
+
+        assertEquals("No class or interface found in the compilation unit", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get class or interface declaration")
+    public void shouldTestGetClassOrInterfaceDeclaration() {
+        var clazz = new ClassOrInterfaceDeclaration();
+        var cu = new CompilationUnit();
+        cu.getTypes().add(clazz);
+
+        var result = astHandler.getClassOrInterfaceDeclaration(cu);
+
+        assertEquals(clazz, result.get());
+    }
+
 }
