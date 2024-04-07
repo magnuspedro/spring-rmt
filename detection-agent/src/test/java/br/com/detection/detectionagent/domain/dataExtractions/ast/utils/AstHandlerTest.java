@@ -348,4 +348,39 @@ class AstHandlerTest {
         assertEquals(clazz, result.get());
     }
 
+    @Test
+    @DisplayName("Should test get methods with null")
+    public void shouldTestGetMethodsWithNull() {
+        CompilationUnit cu = null;
+
+        var result = assertThrows(NullCompilationUnitException.class,
+                () -> astHandler.getMethods(cu));
+
+        assertEquals("Compilation unit cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get methods without methods")
+    public void shouldTestGetMethodsWithoutMethods() {
+        var cu = new CompilationUnit();
+
+        var result = astHandler.getMethods(cu);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get methods from compilation unit")
+    public void shouldTestGetMethodsFromCompilationUnit() {
+        var cu = new CompilationUnit();
+        var clazz = new ClassOrInterfaceDeclaration();
+        clazz.addMethod("method");
+        cu.getTypes().add(clazz);
+
+        var result = astHandler.getMethods(cu);
+
+        assertFalse(result.isEmpty());
+    }
+
+
 }

@@ -151,9 +151,15 @@ public class AstHandler {
     }
 
     public Collection<MethodDeclaration> getMethods(CompilationUnit cUnit) {
-        return cUnit.getChildNodes().stream().filter(n -> n instanceof ClassOrInterfaceDeclaration)
-                .flatMap(n -> n.getChildNodes().stream()).filter(cn -> cn instanceof MethodDeclaration)
-                .map(MethodDeclaration.class::cast).collect(Collectors.toList());
+        return Optional.ofNullable(cUnit)
+                .map(Node::getChildNodes)
+                .orElseThrow(NullCompilationUnitException::new)
+                .stream()
+                .filter(n -> n instanceof ClassOrInterfaceDeclaration)
+                .flatMap(n -> n.getChildNodes().stream())
+                .filter(cn -> cn instanceof MethodDeclaration)
+                .map(MethodDeclaration.class::cast)
+                .collect(Collectors.toList());
     }
 
     public Optional<BlockStmt> getBlockStatement(Node n) {
