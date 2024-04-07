@@ -12,6 +12,7 @@ import com.github.javaparser.ast.expr.BooleanLiteralExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
@@ -24,6 +25,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -395,10 +398,59 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get block statement")
     public void shouldTestGetBlockStatement() {
-         var node = new MethodDeclaration();
+        var node = new MethodDeclaration();
 
-         var result = astHandler.getBlockStatement(node);
+        var result = astHandler.getBlockStatement(node);
 
-         assertTrue(result.isPresent());
+        assertTrue(result.isPresent());
+    }
+
+    @Test
+    @DisplayName("Should test get expression statement with null")
+    public void shouldTestGetExpressionStatementWithNull() {
+        var result = astHandler.getExpressionStatement(null);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get expression statement for blockstmt")
+    public void shouldTestGetExpressionStatementForBlockstmt() {
+        var node = new BlockStmt();
+
+        var result = astHandler.getExpressionStatement(node);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get expression statement for class or interface declaration")
+    public void shouldTestGetExpressionStatementForClassOrInterfaceDeclaration() {
+        var node = new ClassOrInterfaceDeclaration();
+
+        var result = astHandler.getExpressionStatement(node);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get expression statement for expression statement")
+    public void shouldTestGetExpressionStatementForExpressionStatement() {
+        var node = new ExpressionStmt();
+
+        var result = astHandler.getExpressionStatement(node);
+
+        assertThat(result.get(), instanceOf(ExpressionStmt.class));
+    }
+
+    @Test
+    @DisplayName("Should test get expression statement for a parent node")
+    public void shouldTestGetExpressionStatementForAParentNode() {
+        var node = new IfStmt();
+        node.setParentNode(new ExpressionStmt());
+
+        var result = astHandler.getExpressionStatement(node);
+
+        assertThat(result.get(), instanceOf(ExpressionStmt.class));
     }
 }
