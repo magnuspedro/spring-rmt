@@ -165,7 +165,10 @@ public class AstHandler {
     public Optional<BlockStmt> getBlockStatement(Node n) {
         return Optional.ofNullable(n)
                 .map(Node::getChildNodes)
-                .flatMap(it -> it.stream().filter(BlockStmt.class::isInstance).map(BlockStmt.class::cast).findFirst());
+                .flatMap(it -> it.stream()
+                        .filter(BlockStmt.class::isInstance)
+                        .map(BlockStmt.class::cast)
+                        .findFirst());
     }
 
     public Optional<ExpressionStmt> getExpressionStatement(Node node) {

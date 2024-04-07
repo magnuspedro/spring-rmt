@@ -374,5 +374,31 @@ class AstHandlerTest {
         assertFalse(result.isEmpty());
     }
 
+    @Test
+    @DisplayName("Should test get block statement with null")
+    public void shouldTestGetBlockStatementWithNull() {
+        var result = astHandler.getBlockStatement(null);
 
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get block statement without block statement")
+    public void shouldTestGetBlockStatementWithoutBlockStatement() {
+        var node = new ClassOrInterfaceDeclaration();
+
+        var result = astHandler.getBlockStatement(node);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get block statement")
+    public void shouldTestGetBlockStatement() {
+         var node = new MethodDeclaration();
+
+         var result = astHandler.getBlockStatement(node);
+
+         assertTrue(result.isPresent());
+    }
 }
