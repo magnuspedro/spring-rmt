@@ -1,7 +1,6 @@
 package br.com.detection.detectionagent.domain.dataExtractions.ast.utils;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.NullIfStmtException;
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.NullNodeException;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.*;
 import br.com.detection.detectionagent.methods.dataExtractions.forks.DataHandler;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -61,12 +60,20 @@ public class AstHandler {
     }
 
     public Optional<NameExpr> getNameExpr(Node node) {
-        return node.getChildNodes().stream().filter(NameExpr.class::isInstance).map(NameExpr.class::cast).findFirst();
+        return Optional.ofNullable(node)
+                .map(Node::getChildNodes)
+                .orElseThrow(NullNameException::new)
+                .stream()
+                .filter(NameExpr.class::isInstance)
+                .map(NameExpr.class::cast)
+                .findFirst();
     }
 
     public Optional<SimpleName> getVariableSimpleName(Node node) {
-        return node.getChildNodes().stream()
-                .flatMap(n -> n.getChildNodes().stream())
+        return Optional.ofNullable(node)
+                .map(Node::getChildNodes)
+                .orElseThrow(NullNameException::new)
+                .stream()
                 .filter(SimpleName.class::isInstance)
                 .map(SimpleName.class::cast)
                 .findFirst();
@@ -80,15 +87,23 @@ public class AstHandler {
     }
 
     public Optional<ClassOrInterfaceType> getParentType(CompilationUnit cUnit) {
-        final Optional<ClassOrInterfaceDeclaration> declaration = this.getClassOrInterfaceDeclaration(cUnit);
-        return declaration.flatMap(classOrInterfaceDeclaration -> classOrInterfaceDeclaration.getChildNodes().stream()
-                .filter(ClassOrInterfaceType.class::isInstance)
-                .map(ClassOrInterfaceType.class::cast).findFirst());
+        return this.getClassOrInterfaceDeclaration(cUnit)
+                .flatMap(classOrInterfaceDeclaration -> classOrInterfaceDeclaration
+                        .getChildNodes()
+                        .stream()
+                        .filter(ClassOrInterfaceType.class::isInstance)
+                        .map(ClassOrInterfaceType.class::cast)
+                        .findFirst());
     }
 
     public Optional<ClassOrInterfaceType> getParentType(ClassOrInterfaceDeclaration classDclr) {
-        return classDclr.getChildNodes().stream().filter(ClassOrInterfaceType.class::isInstance)
-                .map(ClassOrInterfaceType.class::cast).findFirst();
+        return Optional.ofNullable(classDclr)
+                .map(Node::getParentNode)
+                .orElseThrow(NoClassOrInterfaceDeclarationException::new)
+                .stream()
+                .filter(ClassOrInterfaceType.class::isInstance)
+                .map(ClassOrInterfaceType.class::cast)
+                .findFirst();
     }
 
     public Optional<CompilationUnit> getParent(CompilationUnit cUnit, Collection<CompilationUnit> allClasses) {
@@ -96,28 +111,43 @@ public class AstHandler {
 
         if (parentDef.isPresent()) {
 
-            var typeName = this.getSimpleName(parentDef.get()).get();
+            var typeName = this.getSimpleName(parentDef.get())
+                    .orElseThrow(NullNameException::new);
 
             for (CompilationUnit parent : allClasses) {
-                final Optional<ClassOrInterfaceDeclaration> declaration = this.getClassOrInterfaceDeclaration(parent);
+                final var declaration = this.getClassOrInterfaceDeclaration(parent);
+                var isClassNameEqualsTypeName = declaration.map(dcl -> this.getSimpleName(dcl)
+                                .orElseThrow(NullNameException::new))
+                        .filter(typeName::equals)
+                        .isPresent();
 
-                if (declaration.map(dcl -> this.getSimpleName(dcl).get()).filter(typeName::equals).isPresent()) {
+                if (isClassNameEqualsTypeName) {
                     return Optional.of(parent);
                 }
-
             }
         }
         return Optional.empty();
     }
 
     public PackageDeclaration getPackageDeclaration(CompilationUnit cUnit) {
-        return cUnit.getChildNodes().stream().filter(PackageDeclaration.class::isInstance)
-                .map(PackageDeclaration.class::cast).findFirst().get();
+        return Optional.ofNullable(cUnit)
+                .map(Node::getChildNodes)
+                .orElseThrow(NullCompilationUnitException::new)
+                .stream()
+                .filter(PackageDeclaration.class::isInstance)
+                .map(PackageDeclaration.class::cast)
+                .findFirst()
+                .orElseThrow(NoPackageDeclarationException::new);
     }
 
     public Optional<ClassOrInterfaceDeclaration> getClassOrInterfaceDeclaration(CompilationUnit cUnit) {
-        return cUnit.getChildNodes().stream().filter(ClassOrInterfaceDeclaration.class::isInstance)
-                .map(ClassOrInterfaceDeclaration.class::cast).findFirst();
+        return Optional.ofNullable(cUnit)
+                .map(Node::getChildNodes)
+                .orElseThrow(NoClassOrInterfaceException::new)
+                .stream()
+                .filter(ClassOrInterfaceDeclaration.class::isInstance)
+                .map(ClassOrInterfaceDeclaration.class::cast)
+                .findFirst();
 
     }
 

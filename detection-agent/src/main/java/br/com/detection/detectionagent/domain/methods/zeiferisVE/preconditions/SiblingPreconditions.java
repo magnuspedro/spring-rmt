@@ -20,7 +20,8 @@ public class SiblingPreconditions {
 
     public boolean violates(Collection<ZafeirisEtAl2016Canditate> canditadesOfSameOverridenMethod) {
         final List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables = canditadesOfSameOverridenMethod.stream()
-                .map(ZafeirisEtAl2016Canditate::toCandidateWithVariables).collect(Collectors.toList());
+                .map(ZafeirisEtAl2016Canditate::toCandidateWithVariables)
+                .collect(Collectors.toList());
 
         return !beforeFragmentReturnIsSame(candidatesWithVariables)
                 && !this.beforeReturnIsUsedInSuper(candidatesWithVariables)
