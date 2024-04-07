@@ -402,7 +402,7 @@ class AstHandlerTest {
 
         var result = astHandler.getBlockStatement(node);
 
-        assertTrue(result.isPresent());
+        assertThat(result.get(), instanceOf(BlockStmt.class));
     }
 
     @Test
