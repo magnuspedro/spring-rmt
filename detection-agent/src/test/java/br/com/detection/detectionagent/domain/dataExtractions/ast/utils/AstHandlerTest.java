@@ -572,5 +572,57 @@ class AstHandlerTest {
         assertEquals("metodo", result.getNameAsString());
     }
 
+    @Test
+    @DisplayName("Should test methods params match for null")
+    public void shouldTestMethodsParamsMatchForNull() {
+        var result = assertThrows(NullMethodException.class,
+                () -> astHandler.methodsParamsMatch(null, null));
+
+        assertEquals("Method cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test methods params match for m1 null")
+    public void shouldTestMethodsParamsMatchForM1Null() {
+        var result = assertThrows(NullMethodException.class,
+                () -> astHandler.methodsParamsMatch(new MethodDeclaration(), null));
+
+        assertEquals("Method cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test methods params match for m2 null")
+    public void shouldTestMethodsParamsMatchForM2Null() {
+        var result = assertThrows(NullMethodException.class,
+                () -> astHandler.methodsParamsMatch(null, new MethodDeclaration()));
+
+        assertEquals("Method cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test methods params match for different methods")
+    public void shouldTestMethodsParamsMatchForDifferentMethods() {
+        var m1 = new MethodDeclaration();
+        m1.setParameters(NodeList.nodeList(new Parameter(PrimitiveType.intType(), "i")));
+        var m2 = new MethodDeclaration();
+
+        var result = astHandler.methodsParamsMatch(m1, m2);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test methods params match for same methods")
+    public void shouldTestMethodsParamsMatchForSameMethods() {
+        var m1 = new MethodDeclaration();
+        m1.setParameters(NodeList.nodeList(new Parameter(PrimitiveType.intType(), "i")));
+        var m2 = new MethodDeclaration();
+        m2.setParameters(NodeList.nodeList(new Parameter(PrimitiveType.intType(), "i")));
+
+        var result = astHandler.methodsParamsMatch(m1, m2);
+
+        assertTrue(result);
+    }
+
 
 }

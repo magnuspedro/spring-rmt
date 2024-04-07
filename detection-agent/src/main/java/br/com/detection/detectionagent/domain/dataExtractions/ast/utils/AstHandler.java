@@ -6,7 +6,10 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.PackageDeclaration;
-import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.nodeTypes.NodeWithCondition;
 import com.github.javaparser.ast.stmt.*;
@@ -225,6 +228,10 @@ public class AstHandler {
     }
 
     public boolean methodsParamsMatch(MethodDeclaration m1, MethodDeclaration m2) {
+        if (m1 == null || m2 == null) {
+            throw new NullMethodException();
+        }
+
         for (int i = 0; i < m1.getParameters().size(); i++) {
 
             if (!listHasPos(i, m2.getParameters())
@@ -233,24 +240,6 @@ public class AstHandler {
             }
         }
         return true;
-    }
-
-    public boolean methodHasParameterAndCreatesNew(NodeList<Parameter> methodParameters, IfStmt ifStmt) {
-        for (Parameter param : methodParameters) {
-            String condicao = ifStmt.getCondition().toString();
-            String thenIf = ifStmt.getThenStmt().toString();
-            return (thenIf.contains("new ") && condicao.contains(param.getName().toString()));
-        }
-        return false;
-    }
-
-    public boolean methodHasParameterAndHasNoInstantiation(NodeList<Parameter> methodParameters, IfStmt ifStmt) {
-        for (Parameter param : methodParameters) {
-            String condicao = ifStmt.getCondition().toString();
-            String thenIf = ifStmt.getThenStmt().toString();
-            return (!thenIf.contains("new ") && condicao.contains(param.getName().toString()));
-        }
-        return false;
     }
 
     public boolean childHasDirectSuperCall(Node node, SuperExpr superExpr) {
