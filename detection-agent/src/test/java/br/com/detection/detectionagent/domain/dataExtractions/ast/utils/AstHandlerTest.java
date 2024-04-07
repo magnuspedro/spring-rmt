@@ -244,10 +244,8 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test for get parent from compilation unit and all classes with null")
     public void shouldTestForGetParentFromCompilationUnitAndAllClassesWithNull() {
-        CompilationUnit cu = null;
-
         var result = assertThrows(NoClassOrInterfaceException.class,
-                () -> this.astHandler.getParent(cu, List.of()));
+                () -> this.astHandler.getParent(null, List.of()));
 
         assertEquals("No class or interface found in the compilation unit", result.getMessage());
     }
@@ -295,10 +293,8 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test for get package declaration null")
     public void shouldTestForGetPackageDeclarationNull() {
-        CompilationUnit cu = null;
-
         var result = assertThrows(NullCompilationUnitException.class,
-                () -> astHandler.getPackageDeclaration(cu));
+                () -> astHandler.getPackageDeclaration(null));
 
         assertEquals("Compilation unit cannot be null", result.getMessage());
     }
@@ -328,10 +324,8 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get class or interface declaration with null")
     public void shouldTestGetClassOrInterfaceDeclarationWithNull() {
-        CompilationUnit cu = null;
-
         var result = assertThrows(NoClassOrInterfaceException.class,
-                () -> astHandler.getClassOrInterfaceDeclaration(cu));
+                () -> astHandler.getClassOrInterfaceDeclaration(null));
 
         assertEquals("No class or interface found in the compilation unit", result.getMessage());
     }
@@ -351,10 +345,8 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get methods with null")
     public void shouldTestGetMethodsWithNull() {
-        CompilationUnit cu = null;
-
         var result = assertThrows(NullCompilationUnitException.class,
-                () -> astHandler.getMethods(cu));
+                () -> astHandler.getMethods(null));
 
         assertEquals("Compilation unit cannot be null", result.getMessage());
     }
