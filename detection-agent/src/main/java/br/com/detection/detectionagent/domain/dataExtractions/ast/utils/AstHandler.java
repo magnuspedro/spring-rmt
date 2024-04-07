@@ -202,7 +202,7 @@ public class AstHandler {
         return superCalls;
     }
 
-    public MethodDeclaration retrieveOverridenMethod(CompilationUnit child, CompilationUnit parent,
+    public MethodDeclaration retrieveOverridenMethod(CompilationUnit parent,
                                                      MethodDeclaration overridingMethod) {
 
         final String childMethodName = this.getSimpleName(overridingMethod).get().asString();
