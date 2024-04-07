@@ -4,10 +4,7 @@ import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptio
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.BooleanLiteralExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
@@ -193,8 +190,8 @@ class AstHandlerTest {
     @DisplayName("Should test for get simple name with null")
     public void shouldTestForGetSimpleNameWithNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> this.astHandler.getSimpleName(null));     
-        
+                () -> this.astHandler.getSimpleName(null));
+
         assertEquals("Node cannot be null", result.getMessage());
     }
 
@@ -203,10 +200,10 @@ class AstHandlerTest {
     public void shouldTetForGetSimpleName() {
         var clazz = new ClassOrInterfaceDeclaration();
 
-         var result = this.astHandler.getSimpleName(clazz);
+        var result = this.astHandler.getSimpleName(clazz);
 
-         assertThat(result.get(), instanceOf(SimpleName.class));
-         assertEquals("empty", result.get().toString());
+        assertThat(result.get(), instanceOf(SimpleName.class));
+        assertEquals("empty", result.get().toString());
     }
 
     @Test
@@ -506,4 +503,74 @@ class AstHandlerTest {
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
     }
+
+    @Test
+    @DisplayName("Should test retrieve overridden method for both parameters null")
+    public void shouldTestRetrieveOverriddenMethodForBothParametersNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.retrieveOverriddenMethod(null, null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test retrieve overridden method for overridden method null")
+    public void shouldTestRetrieveOverriddenMethodForOverriddenMethodNull() {
+        var cu = new CompilationUnit();
+
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.retrieveOverriddenMethod(cu, null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test retrieve overridden method for parent null")
+    public void shouldTestRetrieveOverriddenMethodForParentNull() {
+        var method = new MethodDeclaration();
+
+        var result = assertThrows(NullCompilationUnitException.class,
+                () -> astHandler.retrieveOverriddenMethod(null, method));
+
+        assertEquals("Compilation unit cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test retrieve overridden method for methods that do no match")
+    public void shouldTestRetrieveOverriddenMethodForMethodsThatDoNoMatch() {
+        var cu = new CompilationUnit();
+        var clazz = new ClassOrInterfaceDeclaration();
+        var method = new MethodDeclaration();
+        method.setName("metodo");
+        method.setParameters(NodeList.nodeList(new Parameter(PrimitiveType.intType(), "i")));
+        clazz.addMember(method);
+        cu.getTypes().add(clazz);
+        var overriddenMethod = new MethodDeclaration();
+
+        var result = astHandler.retrieveOverriddenMethod(cu, overriddenMethod);
+
+        assertNull(result);
+    }
+
+    @Test
+    @DisplayName("Should test retrieve overridden method for methods that match")
+    public void shouldTestRetrieveOverriddenMethodForMethodsThatMatch() {
+        var cu = new CompilationUnit();
+        var clazz = new ClassOrInterfaceDeclaration();
+        var method = new MethodDeclaration();
+        method.setName("metodo");
+        method.setParameters(NodeList.nodeList(new Parameter(PrimitiveType.intType(), "i")));
+        clazz.addMember(method);
+        cu.getTypes().add(clazz);
+        var overriddenMethod = new MethodDeclaration();
+        overriddenMethod.setName("metodo");
+        overriddenMethod.setParameters(NodeList.nodeList(new Parameter(PrimitiveType.intType(), "i")));
+
+        var result = astHandler.retrieveOverriddenMethod(cu, overriddenMethod);
+
+        assertNotNull(result);
+        assertEquals("metodo", result.getNameAsString());
+    }
+
+
 }
