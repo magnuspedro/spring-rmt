@@ -9,10 +9,7 @@ import com.github.javaparser.ast.expr.BooleanLiteralExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.SuperExpr;
-import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.stmt.IfStmt;
-import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import org.junit.jupiter.api.BeforeEach;
@@ -620,6 +617,75 @@ class AstHandlerTest {
         m2.setParameters(NodeList.nodeList(new Parameter(PrimitiveType.intType(), "i")));
 
         var result = astHandler.methodsParamsMatch(m1, m2);
+
+        assertTrue(result);
+    }
+
+    @Test
+    @DisplayName("Should test child has direct super call for null params")
+    public void shouldTestChildHasDirectSuperCallForNullParams() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.childHasDirectSuperCall(null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test child has direct super call for node with condition")
+    public void shouldTestChildHasDirectSuperCallForNodeWithCondition() {
+        var node = new IfStmt();
+
+        var result = astHandler.childHasDirectSuperCall(node);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test child has direct super call for node with try stmt")
+    public void shouldTestChildHasDirectSuperCallForNodeWithTryStmt() {
+        var node = new TryStmt();
+
+        var result = astHandler.childHasDirectSuperCall(node);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test child has direct super call for node with catch clause")
+    public void shouldTestChildHasDirectSuperCallForNodeWithCatchClause() {
+        var node = new CatchClause();
+
+        var result = astHandler.childHasDirectSuperCall(node);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test child has direct super call for node with without method call")
+    public void shouldTestChildHasDirectSuperCallForNodeWithWithoutMethodCall() {
+        var node = new BlockStmt();
+
+        var result = astHandler.childHasDirectSuperCall(node);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test child has direct super call for node with method call")
+    public void shouldTestChildHasDirectSuperCallForNodeWithMethodCall() {
+        var node = new ExpressionStmt(new SuperExpr());
+
+        var result = astHandler.childHasDirectSuperCall(node);
+
+        assertTrue(result);
+    }
+
+    @Test
+    @DisplayName("Should test child has direct super call for node with method call in child")
+    public void shouldTestChildHasDirectSuperCallForNodeWithMethodCallInChild() {
+        var node = new BlockStmt(NodeList.nodeList(new ExpressionStmt(new SuperExpr())));
+
+        var result = astHandler.childHasDirectSuperCall(node);
 
         assertTrue(result);
     }
