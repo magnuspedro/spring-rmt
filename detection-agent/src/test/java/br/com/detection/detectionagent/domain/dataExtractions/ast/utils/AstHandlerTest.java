@@ -11,6 +11,7 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.BooleanLiteralExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.SuperExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
@@ -452,5 +453,37 @@ class AstHandlerTest {
         var result = astHandler.getExpressionStatement(node);
 
         assertThat(result.get(), instanceOf(ExpressionStmt.class));
+    }
+
+    @Test
+    @DisplayName("Should test get super calls with null")
+    public void shouldTestGetSuperCallsWithNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.getSuperCalls(null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get super calls for SuperExpr")
+    public void shouldTestGetSuperCallsForSuperExpr() {
+        var node = new SuperExpr();
+
+        var result = astHandler.getSuperCalls(node);
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    @DisplayName("Should test get super calls for child")
+    public void shouldTestGetSuperCallsForChild() {
+        var node = new BlockStmt(NodeList.nodeList(new ExpressionStmt(new SuperExpr()),
+                new ExpressionStmt(new SuperExpr())));
+
+        var result = astHandler.getSuperCalls(node);
+
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
     }
 }

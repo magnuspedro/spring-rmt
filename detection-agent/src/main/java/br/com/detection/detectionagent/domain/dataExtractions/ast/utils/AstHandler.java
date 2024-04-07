@@ -184,6 +184,10 @@ public class AstHandler {
     public Collection<SuperExpr> getSuperCalls(Node node) {
         final List<SuperExpr> superCalls = new ArrayList<>();
 
+        if (node == null) {
+            throw new NullNodeException();
+        }
+
         if (node instanceof SuperExpr) {
             superCalls.add((SuperExpr) node);
         }
