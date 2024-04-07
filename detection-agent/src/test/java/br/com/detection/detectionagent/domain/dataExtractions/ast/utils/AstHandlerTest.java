@@ -143,10 +143,10 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get name expr for null")
     public void shouldTestGetNameExprForNull() {
-        var result = assertThrows(NullNameException.class,
+        var result = assertThrows(NullNodeException.class,
                 () -> this.astHandler.getNameExpr(null));
 
-        assertEquals("Name cannot be null", result.getMessage());
+        assertEquals("Node cannot be null", result.getMessage());
     }
 
     @Test
@@ -173,10 +173,10 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test for get variable simple name with null")
     public void shouldTestForGetVariableSimpleNameWithNull() {
-        var result = assertThrows(NullNameException.class,
+        var result = assertThrows(NullNodeException.class,
                 () -> this.astHandler.getVariableSimpleName(null));
 
-        assertEquals("Name cannot be null", result.getMessage());
+        assertEquals("Node cannot be null", result.getMessage());
     }
 
     @Test
@@ -187,6 +187,26 @@ class AstHandlerTest {
         var result = this.astHandler.getVariableSimpleName(node);
 
         assertEquals("i", result.get().toString());
+    }
+
+    @Test
+    @DisplayName("Should test for get simple name with null")
+    public void shouldTestForGetSimpleNameWithNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> this.astHandler.getSimpleName(null));     
+        
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should tet for get simple name")
+    public void shouldTetForGetSimpleName() {
+        var clazz = new ClassOrInterfaceDeclaration();
+
+         var result = this.astHandler.getSimpleName(clazz);
+
+         assertThat(result.get(), instanceOf(SimpleName.class));
+         assertEquals("empty", result.get().toString());
     }
 
     @Test

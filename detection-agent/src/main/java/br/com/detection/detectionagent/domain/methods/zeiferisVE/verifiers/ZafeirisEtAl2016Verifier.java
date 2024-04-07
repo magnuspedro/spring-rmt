@@ -89,7 +89,7 @@ public class ZafeirisEtAl2016Verifier {
 
             final SuperExpr superCall = superCalls.stream().findFirst().get();
 
-            final MethodDeclaration overridenMethod = this.astHandler.retrieveOverridenMethod(parent.get(),
+            final MethodDeclaration overridenMethod = this.astHandler.retrieveOverriddenMethod(parent.get(),
                     method);
 
             if (overridenMethod == null) {

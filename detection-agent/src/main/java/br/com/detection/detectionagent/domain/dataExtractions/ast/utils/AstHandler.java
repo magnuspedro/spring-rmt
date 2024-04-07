@@ -62,7 +62,7 @@ public class AstHandler {
     public Optional<NameExpr> getNameExpr(Node node) {
         return Optional.ofNullable(node)
                 .map(Node::getChildNodes)
-                .orElseThrow(NullNameException::new)
+                .orElseThrow(NullNodeException::new)
                 .stream()
                 .filter(NameExpr.class::isInstance)
                 .map(NameExpr.class::cast)
@@ -72,7 +72,7 @@ public class AstHandler {
     public Optional<SimpleName> getVariableSimpleName(Node node) {
         return Optional.ofNullable(node)
                 .map(Node::getChildNodes)
-                .orElseThrow(NullNameException::new)
+                .orElseThrow(NullNodeException::new)
                 .stream()
                 .filter(SimpleName.class::isInstance)
                 .map(SimpleName.class::cast)
@@ -80,7 +80,10 @@ public class AstHandler {
     }
 
     public Optional<SimpleName> getSimpleName(Node node) {
-        return node.getChildNodes().stream()
+        return Optional.ofNullable(node)
+                .map(Node::getChildNodes)
+                .orElseThrow(NullNodeException::new)
+                .stream()
                 .filter(SimpleName.class::isInstance)
                 .map(SimpleName.class::cast)
                 .findFirst();
@@ -112,12 +115,12 @@ public class AstHandler {
         if (parentDef.isPresent()) {
 
             var typeName = this.getSimpleName(parentDef.get())
-                    .orElseThrow(NullNameException::new);
+                    .orElseThrow(SimpleNameException::new);
 
             for (CompilationUnit parent : allClasses) {
                 final var declaration = this.getClassOrInterfaceDeclaration(parent);
                 var isClassNameEqualsTypeName = declaration.map(dcl -> this.getSimpleName(dcl)
-                                .orElseThrow(NullNameException::new))
+                                .orElseThrow(SimpleNameException::new))
                         .filter(typeName::equals)
                         .isPresent();
 
@@ -202,13 +205,17 @@ public class AstHandler {
         return superCalls;
     }
 
-    public MethodDeclaration retrieveOverridenMethod(CompilationUnit parent,
-                                                     MethodDeclaration overridingMethod) {
+    public MethodDeclaration retrieveOverriddenMethod(CompilationUnit parent,
+                                                      MethodDeclaration overridingMethod) {
 
-        final String childMethodName = this.getSimpleName(overridingMethod).get().asString();
+        final String childMethodName = this.getSimpleName(overridingMethod)
+                .orElseThrow(SimpleNameException::new)
+                .asString();
 
         for (MethodDeclaration parentMethod : this.getMethods(parent)) {
-            final String simpleName = this.getSimpleName(parentMethod).get().asString();
+            final String simpleName = this.getSimpleName(parentMethod)
+                    .orElseThrow(SimpleNameException::new)
+                    .asString();
 
             if (childMethodName.equals(simpleName) && this.methodsParamsMatch(overridingMethod, parentMethod)) {
                 return parentMethod;
