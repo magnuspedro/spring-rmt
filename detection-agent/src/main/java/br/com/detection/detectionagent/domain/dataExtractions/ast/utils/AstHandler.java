@@ -242,14 +242,19 @@ public class AstHandler {
         return true;
     }
 
-    public boolean childHasDirectSuperCall(Node node, SuperExpr superExpr) {
+    public boolean childHasDirectSuperCall(Node node) {
+        if (node == null) {
+            throw new NullNodeException();
+        }
         if (node instanceof NodeWithCondition || node instanceof TryStmt || node instanceof CatchClause) {
             return false;
         }
 
         if (node instanceof MethodCallExpr && ((MethodCallExpr) node).getArguments() != null) {
-            boolean argumentsPresentSuper = ((MethodCallExpr) node).getArguments().stream()
-                    .anyMatch(c -> this.childHasDirectSuperCall(c, superExpr));
+            boolean argumentsPresentSuper = ((MethodCallExpr) node)
+                    .getArguments()
+                    .stream()
+                    .anyMatch(this::childHasDirectSuperCall);
             if (argumentsPresentSuper) {
                 return true;
             }
@@ -263,7 +268,7 @@ public class AstHandler {
             return true;
         }
 
-        return node.getChildNodes().stream().anyMatch(c -> this.childHasDirectSuperCall(c, superExpr));
+        return node.getChildNodes().stream().anyMatch(this::childHasDirectSuperCall);
     }
 
     public boolean nodeHasReturnStatement(Node node) {

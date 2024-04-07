@@ -33,7 +33,7 @@ public class FragmentsSplitter {
         boolean superWasFound = false;
         for (Node child : blockStmt.getChildNodes()) {
 
-            if (this.astHandler.childHasDirectSuperCall(child, superCall)) {
+            if (this.astHandler.childHasDirectSuperCall(child)) {
                 superWasFound = true;
                 this.node = child;
                 continue;

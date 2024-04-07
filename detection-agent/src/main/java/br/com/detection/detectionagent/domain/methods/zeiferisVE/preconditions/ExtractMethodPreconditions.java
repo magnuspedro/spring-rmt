@@ -24,7 +24,7 @@ public class ExtractMethodPreconditions {
         final FragmentsSplitter fragmentsSplitter = new FragmentsSplitter(m, superCall);
 
         return fragmentsSplitter.hasSpecificNode()
-                && this.superCallIsNotNested(m, superCall)
+                && this.superCallIsNotNested(m)
                 && this.beforeFragmentThrowsNoException(fragmentsSplitter)
                 && this.beforeFragmentHasNoReturn(fragmentsSplitter)
                 && !this.hasMultipleVariablesInBeforeFragmentsMethodCalls(fragmentsSplitter)
@@ -75,11 +75,11 @@ public class ExtractMethodPreconditions {
                 .noneMatch(this.astHandler::nodeThrowsException);
     }
 
-    private boolean superCallIsNotNested(MethodDeclaration m, SuperExpr superCall) {
+    private boolean superCallIsNotNested(MethodDeclaration m) {
 
         final Optional<BlockStmt> blockStmt = this.astHandler.getBlockStatement(m);
 
-        return blockStmt.filter(stmt -> this.astHandler.childHasDirectSuperCall(stmt, superCall)).isPresent();
+        return blockStmt.filter(this.astHandler::childHasDirectSuperCall).isPresent();
 
     }
 
