@@ -280,7 +280,10 @@ public class AstHandler {
     }
 
     public boolean nodeHasClazz(Node node, Class<?> clazz) {
-        if (clazz.isInstance(node)) {
+        var nonNullClazz = Optional.ofNullable(clazz)
+                .orElseThrow(ClassExpectedException::new);
+
+        if (nonNullClazz.isInstance(node)) {
             return true;
         }
 
@@ -288,7 +291,7 @@ public class AstHandler {
             return false;
         }
 
-        return node.getChildNodes().stream().anyMatch(n -> this.nodeHasClazz(n, clazz));
+        return node.getChildNodes().stream().anyMatch(n -> this.nodeHasClazz(n, nonNullClazz));
     }
 
     // Recursion order was changed, the node instance of was the second condition
