@@ -741,4 +741,42 @@ class AstHandlerTest {
 
         assertTrue(result);
     }
+
+    @Test
+    @DisplayName("Should test for node has clazz with null")
+    public void shouldTestForNodeHasClazzWithNull() {
+        var result = assertThrows(ClassExpectedException.class,
+                () -> astHandler.nodeHasClazz(null, null));
+
+        assertEquals("Class is expected as a parameter", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test for node has clazz with null clazz")
+    public void shouldTestForNodeHasClazzWithNullClazz() {
+        var result = assertThrows(ClassExpectedException.class,
+                () -> astHandler.nodeHasClazz(new ClassOrInterfaceDeclaration(), null));
+
+        assertEquals("Class is expected as a parameter", result.getMessage());
+    }
+
+
+    @Test
+    @DisplayName("Should test for node has clazz with null node")
+    public void shouldTestForNodeHasClazzWithNullNode() {
+        var result = astHandler.nodeHasClazz(null, ClassOrInterfaceDeclaration.class);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test for node has clazz")
+    public void shouldTestForNodeHasClazz() {
+        var clazz = new ClassOrInterfaceDeclaration();
+
+        var result = astHandler.nodeHasClazz(clazz, ClassOrInterfaceDeclaration.class);
+
+        assertTrue(result);
+    }
+
 }
