@@ -788,9 +788,9 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test extract variable dclr from node with no variable declaration")
     public void shouldTestExtractVariableDclrFromNodeWithNoVariableDeclaration() {
-         var result = astHandler.extractVariableDclrFromNode(new BlockStmt());
+        var result = astHandler.extractVariableDclrFromNode(new BlockStmt());
 
-         assertTrue(result.isEmpty());
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -806,5 +806,44 @@ class AstHandlerTest {
         var result = astHandler.extractVariableDclrFromNode(blockStmt);
 
         assertEquals(1, result.size());
+    }
+
+    @Test
+    @DisplayName("Should test variable is present in method call with both parameters null")
+    public void shouldTestVariableIsPresentInMethodCallWithBothParametersNull() {
+        var result = assertThrows(MethodCallExpectedException.class,
+                () -> astHandler.variableIsPresentInMethodCall(null, null));
+
+        assertEquals("Method is expected as a parameter", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test variable is present in method call with null method call")
+    public void shouldTestVariableIsPresentInMethodCallWithNullMethodCall() {
+        var result = assertThrows(MethodCallExpectedException.class,
+                () -> astHandler.variableIsPresentInMethodCall(new VariableDeclarationExpr(), null));
+
+        assertEquals("Method is expected as a parameter", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test variable is present in method call with null variable declaration exp")
+    public void shouldTestVariableIsPresentInMethodCallWithNullVariableDeclarationExp() {
+        var result = astHandler.variableIsPresentInMethodCall(null, new MethodCallExpr());
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test variable is present in method call")
+    public void shouldTestVariableIsPresentInMethodCall() {
+        var variableDeclarationExpr = new VariableDeclarationExpr();
+        var variableDeclarator = new VariableDeclarator(PrimitiveType.intType(), "i");
+        variableDeclarationExpr.setVariables(NodeList.nodeList(variableDeclarator));
+        var methodCallExpr = new MethodCallExpr("method", new NameExpr("i"));
+
+        var result = astHandler.variableIsPresentInMethodCall(variableDeclarationExpr, methodCallExpr);
+
+        assertTrue(result);
     }
 }
