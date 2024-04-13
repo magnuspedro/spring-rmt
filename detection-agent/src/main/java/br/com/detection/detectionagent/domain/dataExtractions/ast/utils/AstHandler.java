@@ -314,7 +314,10 @@ public class AstHandler {
     }
 
     public boolean variableIsPresentInMethodCall(VariableDeclarationExpr var, MethodCallExpr methodCall) {
-        var simpleNameList = methodCall.getChildNodes().stream()
+        var simpleNameList = Optional.ofNullable(methodCall)
+                .map(MethodCallExpr::getChildNodes)
+                .orElseThrow(MethodCallExpectedException::new)
+                .stream()
                 .filter(NameExpr.class::isInstance)
                 .map(NameExpr.class::cast)
                 .map(NameExpr::getName)
