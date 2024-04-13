@@ -448,8 +448,14 @@ public class AstHandler {
 
     public boolean doesCompilationUnitsMatch(CompilationUnit c1, Optional<ClassOrInterfaceDeclaration> classOrInterface2,
                                              Optional<PackageDeclaration> package2) {
-        final String p1 = c1.getPackageDeclaration().map(PackageDeclaration::getNameAsString).orElse("");
-        final String p2 = package2.map(PackageDeclaration::getNameAsString).orElse("");
+
+        final String p1 = Optional.ofNullable(c1)
+                .flatMap(CompilationUnit::getPackageDeclaration)
+                .map(PackageDeclaration::getNameAsString)
+                .orElse("");
+        final String p2 = package2
+                .map(PackageDeclaration::getNameAsString)
+                .orElse("");
 
         final String type1 = this.getClassOrInterfaceDeclaration(c1).map(ClassOrInterfaceDeclaration::getNameAsString)
                 .orElse("");
@@ -462,7 +468,7 @@ public class AstHandler {
 
         final List<IfStmt> statements = new ArrayList<>();
 
-        if (!method.getBody().isPresent()) {
+        if (method.getBody().isEmpty()) {
             return statements;
         }
 

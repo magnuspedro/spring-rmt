@@ -1170,5 +1170,77 @@ class AstHandlerTest {
         assertTrue(result);
     }
 
+    @Test
+    @DisplayName("Should test does compilation unit match with both parameters null")
+    public void shouldTestDoesCompilationUnitMatchWithBothParametersNull() {
+        var result = assertThrows(NoClassOrInterfaceException.class,
+                () -> astHandler.doesCompilationUnitsMatch(null, null));
 
+        assertEquals("No class or interface found in the compilation unit", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test does compilation unit match for first parameter null")
+    public void shouldTestDoesCompilationUnitMatchForFirstParameterNull() {
+        var result = assertThrows(NoClassOrInterfaceException.class,
+                () -> astHandler.doesCompilationUnitsMatch(null, new CompilationUnit()));
+
+        assertEquals("No class or interface found in the compilation unit", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test does compilation unit match for second parameter null")
+    public void shouldTestDoesCompilationUnitMatchForSecondParameterNull() {
+        var result = assertThrows(NoClassOrInterfaceException.class,
+                () -> astHandler.doesCompilationUnitsMatch(new CompilationUnit(), null));
+
+        assertEquals("No class or interface found in the compilation unit", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test does compilation unit match for different name")
+    public void shouldTestDoesCompilationUnitMatchForDifferentName() {
+        var cu1 = new CompilationUnit();
+        cu1.setPackageDeclaration("br.com.test");
+        var cu2 = new CompilationUnit();
+
+        var result = astHandler.doesCompilationUnitsMatch(cu1, cu2);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test does compilation unit for different classes")
+    public void shouldTestDoesCompilationUnitForDifferentClasses() {
+        var cu1 = new CompilationUnit();
+        var clazz = new ClassOrInterfaceDeclaration();
+        clazz.setName("Class");
+        cu1.getTypes().add(clazz);
+        cu1.setPackageDeclaration("br.com.test");
+        var cu2 = new CompilationUnit();
+        cu2.setPackageDeclaration("br.com.test");
+
+        var result = astHandler.doesCompilationUnitsMatch(cu1, cu2);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test does compilation unit for sem classes")
+    public void shouldTestDoesCompilationUnitForSemClasses() {
+        var cu1 = new CompilationUnit();
+        var clazz = new ClassOrInterfaceDeclaration();
+        clazz.setName("Class");
+        cu1.getTypes().add(clazz);
+        cu1.setPackageDeclaration("br.com.test");
+        var cu2 = new CompilationUnit();
+        var clazz2 = new ClassOrInterfaceDeclaration();
+        clazz2.setName("Class");
+        cu2.getTypes().add(clazz2);
+        cu2.setPackageDeclaration("br.com.test");
+
+        var result = astHandler.doesCompilationUnitsMatch(cu1, cu2);
+
+        assertTrue(result);
+    }
 }
