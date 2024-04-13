@@ -918,4 +918,50 @@ class AstHandlerTest {
 
         assertTrue(result);
     }
+
+    @Test
+    @DisplayName("Should test get node by type with both parameters null")
+    public void shouldTestGetNodeByTypeWithBothParametersNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.getNodeByType(null, null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get node by type with type null")
+    public void shouldTestGetNodeByTypeWithTypeNull() {
+        var result = assertThrows(ClassExpectedException.class,
+                () -> astHandler.getNodeByType(new BlockStmt(), null));
+
+        assertEquals("Class is expected as a parameter", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get node by type with node null")
+    public void shouldTestGetNodeByTypeWithNodeNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.getNodeByType(null, ClassOrInterfaceDeclaration.class));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get node by type for node without type")
+    public void shouldTestGetNodeByTypeForNodeWithoutType() {
+        var result = astHandler.getNodeByType(new BlockStmt(),
+                ClassOrInterfaceDeclaration.class);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get node by type for node with existing type")
+    public void shouldTestGetNodeByTypeForNodeWithExistingType() {
+        var result = astHandler.getNodeByType(new ClassOrInterfaceDeclaration(),
+                SimpleName.class);
+
+        assertEquals(1, result.size());
+    }
+
 }
