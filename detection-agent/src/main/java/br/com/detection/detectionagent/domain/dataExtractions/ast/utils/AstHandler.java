@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class AstHandler {
@@ -72,13 +73,19 @@ public class AstHandler {
                 .findFirst();
     }
 
-    public Optional<SimpleName> getVariableSimpleName(Node node) {
-        return Optional.ofNullable(node)
+    public Optional<SimpleName> getVariableSimpleName(VariableDeclarationExpr node) {
+        Stream<VariableDeclarator> variableDeclarator = Optional.ofNullable(node)
                 .map(Node::getChildNodes)
                 .orElseThrow(NullNodeException::new)
                 .stream()
-                .filter(SimpleName.class::isInstance)
-                .map(SimpleName.class::cast)
+                .filter(VariableDeclarator.class::isInstance)
+                .map(VariableDeclarator.class::cast);
+
+        return variableDeclarator
+                .map(Node::getChildNodes)
+                .flatMap(it -> it.stream()
+                        .filter(SimpleName.class::isInstance)
+                        .map(SimpleName.class::cast))
                 .findFirst();
     }
 
@@ -405,7 +412,7 @@ public class AstHandler {
         return methodCalls;
     }
 
-    public boolean variablesAreEqual(VariableDeclarationExpr var1, VariableDeclarationExpr var2) {
+    public boolean doVariablesNameMatch(VariableDeclarationExpr var1, VariableDeclarationExpr var2) {
         return this.getVariableSimpleName(var1).equals(this.getVariableSimpleName(var2));
     }
 

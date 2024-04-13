@@ -62,7 +62,7 @@ public class SiblingPreconditions {
             } else if (candidatesWithVariables.get(i).variables().isEmpty()) {
                 areEqual = false;
             } else {
-                areEqual &= this.astHandler.variablesAreEqual(
+                areEqual &= this.astHandler.doVariablesNameMatch(
                         candidatesWithVariables.get(i).variables().stream().findFirst().get(),
                         candidatesWithVariables.get(i + 1).variables().stream().findFirst().get());
             }
