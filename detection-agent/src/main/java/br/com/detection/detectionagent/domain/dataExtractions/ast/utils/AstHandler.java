@@ -332,8 +332,15 @@ public class AstHandler {
     }
 
     public SimpleName getVariableName(VariableDeclarationExpr var) {
-        return var.getChildNodes().stream().filter(VariableDeclarator.class::isInstance)
-                .map(VariableDeclarator.class::cast).findFirst().get().getName();
+        return Optional.ofNullable(var)
+                .map(VariableDeclarationExpr::getChildNodes)
+                .orElseThrow(VariableDeclarationExpectedException::new)
+                .stream()
+                .filter(VariableDeclarator.class::isInstance)
+                .map(VariableDeclarator.class::cast)
+                .findFirst()
+                .map(VariableDeclarator::getName)
+                .orElseThrow(SimpleNameException::new);
     }
 
     public boolean nodeHasSimpleName(SimpleName name, Node node) {
