@@ -279,13 +279,12 @@ public class AstHandler {
         return nodeHasClazz(node, ThrowStmt.class);
     }
 
-    // Recursion order was changed, the node instance of was the second condition
     public boolean nodeHasClazz(Node node, Class<?> clazz) {
         if (clazz.isInstance(node)) {
             return true;
         }
 
-        if (node.getChildNodes() == null || node.getChildNodes().isEmpty()) {
+        if (node == null || node.getChildNodes() == null || node.getChildNodes().isEmpty()) {
             return false;
         }
 

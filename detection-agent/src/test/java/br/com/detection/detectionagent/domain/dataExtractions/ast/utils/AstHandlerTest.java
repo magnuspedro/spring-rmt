@@ -103,8 +103,8 @@ class AstHandlerTest {
     }
 
     @Test
-    @DisplayName("Should teste get return stmt null")
-    public void shouldTesteGetReturnStmtNull() {
+    @DisplayName("Should test get return stmt null")
+    public void shouldTestGetReturnStmtNull() {
         var result = assertThrows(NullIfStmtException.class,
                 () -> this.astHandler.getReturnStmt(null));
 
@@ -690,5 +690,29 @@ class AstHandlerTest {
         assertTrue(result);
     }
 
+    @Test
+    @DisplayName("Should test node has return statement with null")
+    public void shouldTestNodeHasReturnStatementWithNull() {
+        var result = astHandler.nodeHasReturnStatement(null);
 
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test node has return statement with no return statement")
+    public void shouldTestNodeHasReturnStatementWithNoReturnStatement() {
+        var result = astHandler.nodeHasReturnStatement(new BlockStmt());
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test  node has return statement")
+    public void shouldTestNodeHasReturnStatement() {
+        var blockStmt = new BlockStmt(NodeList.nodeList(new ReturnStmt()));
+
+        var result = astHandler.nodeHasReturnStatement(blockStmt);
+
+        assertTrue(result);
+    }
 }
