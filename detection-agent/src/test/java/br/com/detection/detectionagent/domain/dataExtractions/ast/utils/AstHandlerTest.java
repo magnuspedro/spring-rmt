@@ -846,4 +846,26 @@ class AstHandlerTest {
 
         assertTrue(result);
     }
+
+    @Test
+    @DisplayName("Should test get variable name with null")
+    public void shouldTestGetVariableNameWithNull() {
+        var result = assertThrows(VariableDeclarationExpectedException.class,
+                () -> astHandler.getVariableName(null));
+
+        assertEquals("Variable declaration is expected as a parameter", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get variable")
+    public void shouldTestGetVariable() {
+        var variableDeclaratorExpr = new VariableDeclarationExpr();
+        var variableDeclarator = new VariableDeclarator();
+        variableDeclarator.setName("i");
+        variableDeclaratorExpr.setVariables(NodeList.nodeList(variableDeclarator));
+
+       var result =  astHandler.getVariableName(variableDeclaratorExpr);
+
+       assertEquals("i", result.toString());
+    }
 }
