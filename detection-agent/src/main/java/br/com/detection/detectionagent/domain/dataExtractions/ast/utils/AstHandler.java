@@ -362,7 +362,14 @@ public class AstHandler {
                 .anyMatch(n -> this.nodeHasSimpleName(nonNullName, n));
     }
 
-    public <T extends Node> Collection<T> getByNodeType(Node node, Class<T> type) {
+    public <T extends Node> Collection<T> getNodeByType(Node node, Class<T> type) {
+        if (node == null) {
+            throw new NullNodeException();
+        }
+        if (type == null) {
+            throw new ClassExpectedException();
+        }
+
         final Collection<T> methodCalls = new ArrayList<>();
 
         if (type.isInstance(node)) {
@@ -371,8 +378,10 @@ public class AstHandler {
             return methodCalls;
         }
 
-        methodCalls.addAll(node.getChildNodes().stream().map(n -> this.getByNodeType(node, type))
-                .flatMap(Collection::stream).collect(Collectors.toList()));
+        methodCalls.addAll(node.getChildNodes().stream()
+                .map(n -> this.getNodeByType(n, type))
+                .flatMap(Collection::stream)
+                .toList());
 
         return methodCalls;
     }
