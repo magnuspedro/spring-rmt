@@ -397,8 +397,10 @@ public class AstHandler {
             return methodCalls;
         }
 
-        methodCalls.addAll(node.getChildNodes().stream().map(this::getMethodCallExpr).flatMap(Collection::stream)
-                .collect(Collectors.toList()));
+        methodCalls.addAll(node.getChildNodes().stream()
+                .map(this::getMethodCallExpr)
+                .flatMap(Collection::stream)
+                .toList());
 
         return methodCalls;
     }

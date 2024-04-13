@@ -1,10 +1,7 @@
 package br.com.detection.detectionagent.domain.dataExtractions.ast.utils;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.*;
-import com.github.javaparser.ast.ArrayCreationLevel;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Modifier;
-import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
@@ -963,5 +960,51 @@ class AstHandlerTest {
 
         assertEquals(1, result.size());
     }
+
+    @Test
+    @DisplayName("Should test get method call expr with null node")
+    public void shouldTestGetMethodCallExprWithNullNode() {
+        var result = astHandler.getMethodCallExpr(null);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get method call expr with no method call expr")
+    public void shouldTestGetMethodCallExprWithNoMethodCallExpr() {
+        var result = astHandler.getMethodCallExpr(new BlockStmt());
+
+        assertTrue(result.isEmpty());
+    }
+
+
+    @Test
+    @DisplayName("Should test get method call expr for MethodCallExpr")
+    public void shouldTestGetMethodCallExprForMethodCallExpr() {
+        var result = astHandler.getMethodCallExpr(new MethodCallExpr());
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    @DisplayName("Should tet get method call expr for child")
+    public void shouldTetGetMethodCallExprForChild() {
+        var cu = new CompilationUnit();
+        var clazz = new ClassOrInterfaceDeclaration();
+        var method = new MethodDeclaration();
+        var body = new BlockStmt();
+        var expression = new ExpressionStmt();
+        var methodCallExpr = new MethodCallExpr();
+        expression.setExpression(methodCallExpr);
+        body.setStatements(NodeList.nodeList(expression));
+        method.setBody(body);
+        clazz.setMembers(NodeList.nodeList(method));
+        cu.getTypes().add(clazz);
+
+        var result = astHandler.getMethodCallExpr(methodCallExpr);
+
+        assertEquals(1, result.size());
+    }
+
 
 }
