@@ -715,4 +715,30 @@ class AstHandlerTest {
 
         assertTrue(result);
     }
+
+    @Test
+    @DisplayName("Should test node throws exception with null")
+    public void shouldTestNodeThrowsExceptionWithNull() {
+        var result = astHandler.nodeThrowsException(null);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test node throws exception with no throw")
+    public void shouldTestNodeThrowsExceptionWithNoThrow() {
+        var result = astHandler.nodeThrowsException(new BlockStmt());
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test node throws exception")
+    public void shouldTestNodeThrowsException() {
+        var blockStmt = new BlockStmt(NodeList.nodeList(new ThrowStmt()));
+
+        var result = astHandler.nodeThrowsException(blockStmt);
+
+        assertTrue(result);
+    }
 }
