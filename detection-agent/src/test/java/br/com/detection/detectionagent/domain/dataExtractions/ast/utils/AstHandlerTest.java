@@ -1108,4 +1108,67 @@ class AstHandlerTest {
 
         assertTrue(result);
     }
+
+    @Test
+    @DisplayName("Should test does method calls match for both parameters null")
+    public void shouldTestDoesMethodCallsMatchForBothParametersNull() {
+        var result = assertThrows(NullMethodException.class,
+                () -> astHandler.doesMethodCallsMatch(null, null));
+
+        assertEquals("Method cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test does method calls match for first parameter null")
+    public void shouldTestDoesMethodCallsMatchForFirstParameterNull() {
+        var result = assertThrows(NullMethodException.class,
+                () -> astHandler.doesMethodCallsMatch(null, new MethodCallExpr()));
+
+        assertEquals("Method cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test does method calls match for second parameter null")
+    public void shouldTestDoesMethodCallsMatchForSecondParameterNull() {
+        var result = assertThrows(NullMethodException.class,
+                () -> astHandler.doesMethodCallsMatch(new MethodCallExpr(), null));
+
+        assertEquals("Method cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test does method calls match for different methods")
+    public void shouldTestDoesMethodCallsMatchForDifferentMethods() {
+        var method1 = new MethodCallExpr("method1", new VariableDeclarationExpr());
+        var method2 = new MethodCallExpr("method1");
+
+        var result = astHandler.doesMethodCallsMatch(method1, method2);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test does method call match for different names")
+    public void shouldTestDoesMethodCallMatchForDifferentNames() {
+        var method1 = new MethodCallExpr("method1");
+        var method2 = new MethodCallExpr("method2");
+
+        var result = astHandler.doesMethodCallsMatch(method1, method2);
+
+        assertFalse(result);
+    }
+
+
+    @Test
+    @DisplayName("Should test does method call match for same methods")
+    public void shouldTestDoesMethodCallMatchForSameMethods() {
+        var method1 = new MethodCallExpr("method1", new VariableDeclarationExpr());
+        var method2 = new MethodCallExpr("method1", new VariableDeclarationExpr());
+
+        var result = astHandler.doesMethodCallsMatch(method1, method2);
+
+        assertTrue(result);
+    }
+
+
 }

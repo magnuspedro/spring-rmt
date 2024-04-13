@@ -428,7 +428,7 @@ public class AstHandler {
     }
 
     public boolean doesMethodCallsMatch(MethodCallExpr mc1, MethodCallExpr mc2) {
-        if(mc1 == null || mc2 == null) {
+        if (mc1 == null || mc2 == null) {
             throw new NullMethodException();
         }
 
