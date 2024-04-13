@@ -416,18 +416,22 @@ public class AstHandler {
         return this.getVariableSimpleName(var1).equals(this.getVariableSimpleName(var2));
     }
 
-    public boolean nodeHasSameMethodCall(Node node, MethodCallExpr methodCall) {
+    public boolean doesNodeContainMatchingMethodCall(Node node, MethodCallExpr methodCall) {
 
         final Collection<MethodCallExpr> methodCalls = this.getMethodCallExpr(node);
 
-        return methodCalls.stream().anyMatch(m -> this.methodCallsMatch(m, methodCall));
+        return methodCalls.stream().anyMatch(m -> this.doesMethodCallsMatch(m, methodCall));
     }
 
     private boolean listHasPos(int position, NodeList<?> list) {
         return (list.size() - 1) >= position;
     }
 
-    public boolean methodCallsMatch(MethodCallExpr mc1, MethodCallExpr mc2) {
+    public boolean doesMethodCallsMatch(MethodCallExpr mc1, MethodCallExpr mc2) {
+        if(mc1 == null || mc2 == null) {
+            throw new NullMethodException();
+        }
+
         if (!mc1.getName().equals(mc2.getName())) {
             return false;
         }

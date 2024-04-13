@@ -54,7 +54,7 @@ public class FragmentsSplitter {
         boolean methodCallWasFound = false;
         for (Node child : blockStmt.getChildNodes()) {
 
-            if (this.astHandler.nodeHasSameMethodCall(child, methodCall)) {
+            if (this.astHandler.doesNodeContainMatchingMethodCall(child, methodCall)) {
                 methodCallWasFound = true;
                 this.node = child;
                 continue;
