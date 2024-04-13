@@ -1,7 +1,6 @@
 package br.com.detection.detectionagent.domain.dataExtractions.ast.utils;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.*;
-import br.com.detection.detectionagent.methods.dataExtractions.forks.DataHandler;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
@@ -14,7 +13,6 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.nodeTypes.NodeWithCondition;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import com.github.javaparser.ast.type.Type;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -539,19 +537,4 @@ public class AstHandler {
         return node.getChildNodes().stream().flatMap(c -> this.getVariableDeclarations(c).stream())
                 .collect(Collectors.toList());
     }
-
-    public static Collection<ObjectCreationExpr> getInstance(CompilationUnit cu, DataHandler dataHandler) {
-        List<ObjectCreationExpr> instance = new ArrayList<>();
-        cu.findAll(ObjectCreationExpr.class).stream().forEach(f -> {
-            Type element = f.getType();
-            if (element.isReferenceType()) {
-                if (dataHandler.getParsedFileByName(f.getType().toString()) != null
-                        && !f.getType().toString().contains("Exception")) {
-                    instance.add(f);
-                }
-            }
-        });
-        return instance;
-    }
-
 }
