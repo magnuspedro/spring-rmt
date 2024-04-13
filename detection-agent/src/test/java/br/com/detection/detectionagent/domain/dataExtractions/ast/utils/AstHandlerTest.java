@@ -1,7 +1,10 @@
 package br.com.detection.detectionagent.domain.dataExtractions.ast.utils;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.*;
-import com.github.javaparser.ast.*;
+import com.github.javaparser.ast.ArrayCreationLevel;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
@@ -171,7 +174,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test for get variable simple name")
     public void shouldTestForGetVariableSimpleName() {
-        var node = new VariableDeclarator(PrimitiveType.intType(), "i");
+        var node = new VariableDeclarationExpr(PrimitiveType.intType(), "i");
 
         var result = this.astHandler.getVariableSimpleName(node);
 
@@ -1006,5 +1009,55 @@ class AstHandlerTest {
         assertEquals(1, result.size());
     }
 
+    @Test
+    @DisplayName("Should test do variable name match with both parameters null")
+    public void shouldTestDoVariableNameMatchWithBothParametersNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.doVariablesNameMatch(null, null));
 
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test do variable name match with first parameter null")
+    public void shouldTestDoVariableNameMatchWithFirstParameterNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.doVariablesNameMatch(null, new VariableDeclarationExpr()));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test do variable name match with second parameter null")
+    public void shouldTestDoVariableNameMatchWithSecondParameterNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.doVariablesNameMatch(new VariableDeclarationExpr(), null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test do variable name match for different names")
+    public void shouldTestDoVariableNameMatchForDifferentNames() {
+        var var1 = new VariableDeclarationExpr();
+        var1.setVariables(NodeList.nodeList(new VariableDeclarator(PrimitiveType.intType(), "i")));
+        var var2 = new VariableDeclarationExpr();
+
+        var result = astHandler.doVariablesNameMatch(var1, var2);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test do variable name match for same names")
+    public void shouldTestDoVariableNameMatchForSameNames() {
+        var var1 = new VariableDeclarationExpr();
+        var1.setVariables(NodeList.nodeList(new VariableDeclarator(PrimitiveType.intType(), "i")));
+        var var2 = new VariableDeclarationExpr();
+        var2.setVariables(NodeList.nodeList(new VariableDeclarator(PrimitiveType.intType(), "i")));
+
+        var result = astHandler.doVariablesNameMatch(var1, var2);
+
+        assertTrue(result);
+    }
 }
