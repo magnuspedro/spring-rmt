@@ -1,6 +1,7 @@
 package br.com.detection.detectionagent.domain.dataExtractions.ast.utils;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.*;
+import com.github.javaparser.ast.ArrayCreationLevel;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
@@ -864,8 +865,57 @@ class AstHandlerTest {
         variableDeclarator.setName("i");
         variableDeclaratorExpr.setVariables(NodeList.nodeList(variableDeclarator));
 
-       var result =  astHandler.getVariableName(variableDeclaratorExpr);
+        var result = astHandler.getVariableName(variableDeclaratorExpr);
 
-       assertEquals("i", result.toString());
+        assertEquals("i", result.toString());
+    }
+
+    @Test
+    @DisplayName("Should test node has simple name with parameters null")
+    public void shouldTestNodeHasSimpleNameWithParametersNull() {
+        var result = assertThrows(SimpleNameException.class,
+                () -> astHandler.nodeHasSimpleName(null, null));
+
+        assertEquals("Simple name not found", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test node has simple name with node null")
+    public void shouldTestNodeHasSimpleNameWithNodeNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.nodeHasSimpleName(new SimpleName(), null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test node has simple name with name null")
+    public void shouldTestNodeHasSimpleNameWithNameNull() {
+        var result = assertThrows(SimpleNameException.class,
+                () -> astHandler.nodeHasSimpleName(null, new SimpleName()));
+
+        assertEquals("Simple name not found", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test node has simple name for node without name")
+    public void shouldTestNodeHasSimpleNameForNodeWithoutName() {
+        var name = new SimpleName();
+        var node = new ArrayCreationLevel();
+
+        var result = astHandler.nodeHasSimpleName(name, node);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test node has simple name")
+    public void shouldTestNodeHasSimpleName() {
+        var name = new SimpleName();
+        var node = new MethodDeclaration();
+
+        var result = astHandler.nodeHasSimpleName(name, node);
+
+        assertTrue(result);
     }
 }
