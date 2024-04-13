@@ -442,12 +442,12 @@ public class AstHandler {
         return true;
     }
 
-    public boolean unitsMatch(CompilationUnit c1, CompilationUnit c2) {
-        return this.unitsMatch(c1, this.getClassOrInterfaceDeclaration(c2), c2.getPackageDeclaration());
+    public boolean doesCompilationUnitsMatch(CompilationUnit c1, CompilationUnit c2) {
+        return this.doesCompilationUnitsMatch(c1, this.getClassOrInterfaceDeclaration(c2), c2.getPackageDeclaration());
     }
 
-    public boolean unitsMatch(CompilationUnit c1, Optional<ClassOrInterfaceDeclaration> classOrInterface2,
-                              Optional<PackageDeclaration> package2) {
+    public boolean doesCompilationUnitsMatch(CompilationUnit c1, Optional<ClassOrInterfaceDeclaration> classOrInterface2,
+                                             Optional<PackageDeclaration> package2) {
         final String p1 = c1.getPackageDeclaration().map(PackageDeclaration::getNameAsString).orElse("");
         final String p2 = package2.map(PackageDeclaration::getNameAsString).orElse("");
 
@@ -455,7 +455,7 @@ public class AstHandler {
                 .orElse("");
         final String type2 = classOrInterface2.map(ClassOrInterfaceDeclaration::getNameAsString).orElse("");
 
-        return p1.equals(p2) && !type1.equals("") && type1.equals(type2);
+        return p1.equals(p2) && !type1.isEmpty() && type1.equals(type2);
     }
 
     public Collection<IfStmt> getIfStatements(MethodDeclaration method) {

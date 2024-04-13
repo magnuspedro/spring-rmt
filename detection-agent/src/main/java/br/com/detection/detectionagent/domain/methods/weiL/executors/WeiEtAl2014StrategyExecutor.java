@@ -41,7 +41,7 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
 
         try {
             var path = dataHandler.stream()
-                    .filter(f -> this.astHandler.unitsMatch((CompilationUnit) f.getParsed(), weiCandidate.getCompilationUnit()))
+                    .filter(f -> this.astHandler.doesCompilationUnitsMatch((CompilationUnit) f.getParsed(), weiCandidate.getCompilationUnit()))
                     .map(JavaFile::getPath)
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
@@ -145,7 +145,7 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
                 new Parameter(new TypeParameter(createdStrategy.getNameAsString()), "strategy"));
 
         var path = dataHandler.stream()
-                .filter(f -> this.astHandler.unitsMatch((CompilationUnit) f.getParsed(), baseCu))
+                .filter(f -> this.astHandler.doesCompilationUnitsMatch((CompilationUnit) f.getParsed(), baseCu))
                 .map(JavaFile::getPath)
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
@@ -163,7 +163,7 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
 
     private CompilationUnit updateBaseCompilationUnit(Collection<CompilationUnit> allClasses,
                                                       WeiEtAl2014Canditate candidate) {
-        return allClasses.stream().filter(c -> this.astHandler.unitsMatch(c, Optional.of(candidate.getClassDeclaration()),
+        return allClasses.stream().filter(c -> this.astHandler.doesCompilationUnitsMatch(c, Optional.of(candidate.getClassDeclaration()),
                 Optional.of(candidate.getPackageDeclaration()))).findFirst().get();
     }
 

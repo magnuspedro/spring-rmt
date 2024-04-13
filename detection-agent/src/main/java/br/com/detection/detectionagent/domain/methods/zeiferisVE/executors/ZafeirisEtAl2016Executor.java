@@ -73,7 +73,7 @@ public class ZafeirisEtAl2016Executor {
 
     private CompilationUnit updateChild(Collection<CompilationUnit> allClasses, ZafeirisEtAl2016Canditate candidate) {
         return allClasses.stream().filter(c ->
-                this.astHandler.unitsMatch(c, Optional.of(candidate.getClassDeclaration()),
+                this.astHandler.doesCompilationUnitsMatch(c, Optional.of(candidate.getClassDeclaration()),
                         Optional.of(candidate.getPackageDeclaration()))
         ).findFirst().get();
     }
