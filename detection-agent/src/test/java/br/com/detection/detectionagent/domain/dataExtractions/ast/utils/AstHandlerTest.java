@@ -1060,4 +1060,52 @@ class AstHandlerTest {
 
         assertTrue(result);
     }
+
+    @Test
+    @DisplayName("Should test does node contain matching method with both parameters null")
+    public void shouldTestDoesNodeContainMatchingMethodWithBothParametersNull() {
+        var result = astHandler.doesNodeContainMatchingMethodCall(null, null);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test does node contain matching method with second parameter null")
+    public void shouldTestDoesNodeContainMatchingMethodWithSecondParameterNull() {
+        var result = assertThrows(NullMethodException.class,
+                () -> astHandler.doesNodeContainMatchingMethodCall(new MethodCallExpr(), null));
+
+        assertEquals("Method cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test does node contain matching method with first parameter null")
+    public void shouldTestDoesNodeContainMatchingMethodWithFirstParameterNull() {
+        var result = astHandler.doesNodeContainMatchingMethodCall(null, new MethodCallExpr());
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test does node contain matching method call for methods that do not match")
+    public void shouldTestDoesNodeContainMatchingMethodCallForMethodsThatDoNotMatch() {
+        var cu = new CompilationUnit();
+        var method = new MethodCallExpr("method", new VariableDeclarationExpr());
+
+        var result = astHandler.doesNodeContainMatchingMethodCall(cu, method);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test does node contain matching method call for methods that match")
+    public void shouldTestDoesNodeContainMatchingMethodCallForMethodsThatMatch() {
+        var body = new BlockStmt();
+        var method = new MethodCallExpr();
+        body.setStatements(NodeList.nodeList(new ExpressionStmt(new MethodCallExpr())));
+
+        var result = astHandler.doesNodeContainMatchingMethodCall(body, method);
+
+        assertTrue(result);
+    }
 }
