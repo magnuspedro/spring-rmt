@@ -296,6 +296,9 @@ public class AstHandler {
 
     // Recursion order was changed, the node instance of was the second condition
     public Collection<VariableDeclarationExpr> extractVariableDclrFromNode(Node node) {
+        var nonNUllNode = Optional.ofNullable(node)
+                .orElseThrow(NullNodeException::new);
+
         if (node instanceof VariableDeclarationExpr) {
             final List<VariableDeclarationExpr> variables = new ArrayList<>();
             variables.add((VariableDeclarationExpr) node);
