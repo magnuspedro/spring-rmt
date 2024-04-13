@@ -344,16 +344,22 @@ public class AstHandler {
     }
 
     public boolean nodeHasSimpleName(SimpleName name, Node node) {
+        var nonNullName = Optional.ofNullable(name)
+                .orElseThrow(SimpleNameException::new);
+        var nonNullNode = Optional.ofNullable(node)
+                .orElseThrow(NullNodeException::new);
 
-        if (node instanceof SimpleName && node.equals(name)) {
+        if (nonNullNode instanceof SimpleName && nonNullNode.equals(nonNullName)) {
             return true;
         }
 
-        if (node.getChildNodes() == null || node.getChildNodes().isEmpty()) {
+        if (nonNullNode.getChildNodes() == null || nonNullNode.getChildNodes().isEmpty()) {
             return false;
         }
 
-        return node.getChildNodes().stream().anyMatch(n -> this.nodeHasSimpleName(name, n));
+        return nonNullNode.getChildNodes()
+                .stream()
+                .anyMatch(n -> this.nodeHasSimpleName(nonNullName, n));
     }
 
     public <T extends Node> Collection<T> getByNodeType(Node node, Class<T> type) {
