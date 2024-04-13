@@ -241,7 +241,7 @@ public class AstHandler {
 
         for (int i = 0; i < m1.getParameters().size(); i++) {
 
-            if (!listHasPos(i, m2.getParameters())
+            if (isPositionOutOfBounds(i, m2.getParameters())
                     || !m1.getParameters().get(i).getType().equals(m2.getParameters().get(i).getType())) {
                 return false;
             }
@@ -423,8 +423,8 @@ public class AstHandler {
         return methodCalls.stream().anyMatch(m -> this.doesMethodCallsMatch(m, methodCall));
     }
 
-    private boolean listHasPos(int position, NodeList<?> list) {
-        return (list.size() - 1) >= position;
+    private boolean isPositionOutOfBounds(int position, NodeList<?> list) {
+        return (list.size() - 1) < position;
     }
 
     public boolean doesMethodCallsMatch(MethodCallExpr mc1, MethodCallExpr mc2) {
@@ -437,7 +437,7 @@ public class AstHandler {
         }
 
         for (int i = 0; i < mc1.getArguments().size(); i++) {
-            if (!listHasPos(i, mc2.getArguments()) || !mc1.getArguments().get(i).equals(mc2.getArguments().get(i))) {
+            if (isPositionOutOfBounds(i, mc2.getArguments()) || !mc1.getArguments().get(i).equals(mc2.getArguments().get(i))) {
                 return false;
             }
         }
