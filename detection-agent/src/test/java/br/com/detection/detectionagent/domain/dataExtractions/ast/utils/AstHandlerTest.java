@@ -5,10 +5,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
-import com.github.javaparser.ast.expr.BooleanLiteralExpr;
-import com.github.javaparser.ast.expr.ObjectCreationExpr;
-import com.github.javaparser.ast.expr.SimpleName;
-import com.github.javaparser.ast.expr.SuperExpr;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
@@ -779,4 +776,35 @@ class AstHandlerTest {
         assertTrue(result);
     }
 
+    @Test
+    @DisplayName("Should test extract variable dclr from node with null")
+    public void shouldTestExtractVariableDclrFromNodeWithNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.extractVariableDclrFromNode(null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test extract variable dclr from node with no variable declaration")
+    public void shouldTestExtractVariableDclrFromNodeWithNoVariableDeclaration() {
+         var result = astHandler.extractVariableDclrFromNode(new BlockStmt());
+
+         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test extract variable dclr from node")
+    public void shouldTestExtractVariableDclrFromNode() {
+        var blockStmt = new BlockStmt();
+        var expressionStmt = new ExpressionStmt();
+        var variableDeclarator = new VariableDeclarator();
+        var variableDeclarationExpr = new VariableDeclarationExpr(variableDeclarator);
+        expressionStmt.setExpression(variableDeclarationExpr);
+        blockStmt.setStatements(NodeList.nodeList(expressionStmt));
+
+        var result = astHandler.extractVariableDclrFromNode(blockStmt);
+
+        assertEquals(1, result.size());
+    }
 }
