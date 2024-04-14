@@ -20,8 +20,7 @@
         <spring.cloud-version>2023.0.0</spring.cloud-version>
         <logback-json-classic.version>0.1.5</logback-json-classic.version>
         <logback-jackson.version>0.1.5</logback-jackson.version>
-        <awssdk.version>2.20.27</awssdk.version>
-        <spring-cloud-aws-dependencies.version>3.1.0</spring-cloud-aws-dependencies.version>
+        <spring-cloud-aws-dependencies.version>3.1.1</spring-cloud-aws-dependencies.version>
         <jedis.version>2.6.1</jedis.version>
     </properties>
     <dependencies>

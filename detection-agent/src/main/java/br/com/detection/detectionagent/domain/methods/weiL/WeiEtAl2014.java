@@ -3,8 +3,6 @@ package br.com.detection.detectionagent.domain.methods.weiL;
 import br.com.detection.detectionagent.domain.methods.DetectionMethod;
 import br.com.detection.detectionagent.domain.methods.RefactoringCandidatesVerifier;
 import br.com.detection.detectionagent.domain.methods.weiL.executors.WeiEtAl2014Executor;
-import br.com.detection.detectionagent.domain.methods.weiL.executors.WeiEtAl2014FactoryExecutor;
-import br.com.detection.detectionagent.domain.methods.weiL.executors.WeiEtAl2014StrategyExecutor;
 import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethodFactory;
 import br.com.detection.detectionagent.methods.dataExtractions.forks.AbstractSyntaxTreeDependent;
@@ -23,9 +21,9 @@ import java.util.stream.Stream;
 public class WeiEtAl2014 implements DetectionMethod, AbstractSyntaxTreeDependent {
 
     private final List<RefactoringCandidatesVerifier> refactoringCandidatesVerifier;
-
     private final ExtractionMethodFactory extractionMethodFactory;
     private final Set<DesignPattern> designPatterns = Set.of(DesignPattern.TEMPLATE_METHOD);
+    private final List<WeiEtAl2014Executor> executors;
 
     @Override
     public Collection<RefactoringCandidate> extractCandidates(List<JavaFile> javaFiles) {
@@ -47,7 +45,7 @@ public class WeiEtAl2014 implements DetectionMethod, AbstractSyntaxTreeDependent
     }
 
     private Stream<WeiEtAl2014Executor> getExecutors() {
-        return Stream.of(new WeiEtAl2014FactoryExecutor(), new WeiEtAl2014StrategyExecutor());
+        return executors.stream();
     }
 
     @Override

@@ -16,6 +16,8 @@ import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -23,9 +25,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
+@Component
+@RequiredArgsConstructor
 public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
 
-    private final AstHandler astHandler = new AstHandler();
+    private final AstHandler astHandler;
 
     @Override
     public void refactor(RefactoringCandidate candidate, List<JavaFile> dataHandler, ExtractionMethod extractionMethod) {

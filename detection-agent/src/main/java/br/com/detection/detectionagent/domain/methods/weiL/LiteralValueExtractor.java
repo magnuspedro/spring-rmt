@@ -4,10 +4,12 @@ import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandl
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.*;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.function.Predicate;
 
+@Component
 public class LiteralValueExtractor {
 
     private final AstHandler astHandler = new AstHandler();
