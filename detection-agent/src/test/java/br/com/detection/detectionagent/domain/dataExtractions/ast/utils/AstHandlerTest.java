@@ -1311,4 +1311,63 @@ class AstHandlerTest {
 
         assertTrue(result.isPresent());
     }
+
+    @Test
+    @DisplayName("Should test get variable declaration in node with both parameters null")
+    public void shouldTestGetVariableDeclarationInNodeWithBothParametersNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.getVariableDeclarationInNode(null, null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get variable declaration in node with first param null")
+    public void shouldTestGetVariableDeclarationInNodeWithFirstParamNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.getVariableDeclarationInNode(null, ""));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get variable declaration in node with second param null")
+    public void shouldTestGetVariableDeclarationInNodeWithSecondParamNull() {
+        var result = assertThrows(IllegalArgumentException.class,
+                () -> astHandler.getVariableDeclarationInNode(new BlockStmt(), null));
+
+        assertEquals("Return name cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get variable declaration in node for no match")
+    public void shouldTestGetVariableDeclarationInNodeForNoMatch() {
+        var result = astHandler.getVariableDeclarationInNode(new VariableDeclarationExpr(), "");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get variable declaration in node with match for name")
+    public void shouldTestGetVariableDeclarationInNodeWithMatchForName() {
+        var variable = new VariableDeclarationExpr();
+        variable.setVariables(NodeList.nodeList(new VariableDeclarator(PrimitiveType.intType(), "i")));
+
+        var result = astHandler.getVariableDeclarationInNode(variable, "i");
+
+        assertTrue(result.isPresent());
+    }
+
+    @Test
+    @DisplayName("Should test get variable declaration in node with match for name in child")
+    public void shouldTestGetVariableDeclarationInNodeWithMatchForNameInChild() {
+        var expression = new ExpressionStmt();
+        var variable = new VariableDeclarationExpr();
+        variable.setVariables(NodeList.nodeList(new VariableDeclarator(PrimitiveType.intType(), "i")));
+        expression.setExpression(variable);
+
+        var result = astHandler.getVariableDeclarationInNode(expression, "i");
+
+        assertTrue(result.isPresent());
+    }
 }
