@@ -465,6 +465,9 @@ public class AstHandler {
     }
 
     public Collection<IfStmt> getIfStatements(MethodDeclaration method) {
+        if (method == null) {
+            throw new NullMethodException();
+        }
 
         final List<IfStmt> statements = new ArrayList<>();
 
@@ -472,7 +475,11 @@ public class AstHandler {
             return statements;
         }
 
-        final Optional<IfStmt> ifStmt = method.getBody().get().getStatements().stream().filter(IfStmt.class::isInstance)
+        final Optional<IfStmt> ifStmt = method.getBody()
+                .get()
+                .getStatements()
+                .stream()
+                .filter(IfStmt.class::isInstance)
                 .map(IfStmt.class::cast).findFirst();
 
         ifStmt.ifPresent(i -> {

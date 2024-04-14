@@ -1243,4 +1243,45 @@ class AstHandlerTest {
 
         assertTrue(result);
     }
+
+    @Test
+    @DisplayName("Should test get if statement with null")
+    public void shouldTestGetIfStatementWithNull() {
+        var result = assertThrows(NullMethodException.class,
+                () -> astHandler.getIfStatements(null));
+
+        assertEquals("Method cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get if statement for method declaration without ifStmt")
+    public void shouldTestGetIfStatementForMethodDeclarationWithoutIfStmt() {
+        var result = astHandler.getIfStatements(new MethodDeclaration());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get if statement for method declaration with ifStmt")
+    public void shouldTestGetIfStatementForMethodDeclarationWithIfStmt() {
+        var method = new MethodDeclaration();
+        method.setBody(new BlockStmt(NodeList.nodeList(new IfStmt())));
+
+        var result = astHandler.getIfStatements(method);
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    @DisplayName("Should test get if statement for method declaration with inner ifStmt")
+    public void shouldTestGetIfStatementForMethodDeclarationWithInnerIfStmt() {
+        var method = new MethodDeclaration();
+        var ifStmt = new IfStmt();
+        ifStmt.setElseStmt(new IfStmt());
+        method.setBody(new BlockStmt(NodeList.nodeList(ifStmt)));
+
+        var result = astHandler.getIfStatements(method);
+
+        assertEquals(2, result.size());
+    }
 }
