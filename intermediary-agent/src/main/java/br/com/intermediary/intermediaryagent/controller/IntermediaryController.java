@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.utils.IoUtils;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.UUID;
 
+@Valid
 @Slf4j
 @RestController
 @RequestMapping(IntermediaryAgentCoreApi.AGENT_PATH + IntermediaryAgentProjectsApi.ROOT)
@@ -27,10 +29,8 @@ public class IntermediaryController implements Serializable {
 
     private final RefactorProject refactorProject;
 
-    @SneakyThrows
-    @Valid
     @PostMapping(path = "upload")
-    public String registration(@RequestParam("file") @NotNull MultipartFile file) {
+    public String registration(@NotNull @RequestParam("file") MultipartFile file) throws IOException {
         var id = UUID.randomUUID().toString();
         log.info("Receiving project original name: {},id: {}, size: {}", file.getOriginalFilename(), id, file.getSize());
 

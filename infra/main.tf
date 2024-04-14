@@ -1,15 +1,15 @@
 provider "aws" {
 
-  access_key = "mock_access_key"
-  secret_key = "mock_secret_key"
-  region     = "sa-east-1"
+  access_key                  = "mock_access_key"
+  secret_key                  = "mock_secret_key"
+  region                      = "sa-east-1"
   s3_use_path_style           = true
   skip_credentials_validation = true
   skip_metadata_api_check     = true
   skip_requesting_account_id  = true
 
   endpoints {
-    s3             = "http://localstack:4566"
+    s3 = "http://localstack:4566"
   }
 
 }
@@ -19,15 +19,15 @@ resource "aws_s3_bucket" "projects_bucket" {
   bucket = "projects"
 }
 
-/* resource "aws_elasticache_cluster" "projects_redis" { */
-/*   cluster_id           = "projectsredis" */
-/*   engine               = "redis" */
-/*   node_type            = "t4g.micro" */
-/*   num_cache_nodes      = 1 */
-/*   parameter_group_name = "default.redis3.2" */
-/*   engine_version       = "3.2.10" */
-/*   port                 = 6379 */
-/* } */
+# resource "aws_elasticache_cluster" "projects_redis" {
+#   cluster_id           = "projectsredis"
+#   engine               = "redis"
+#   node_type            = "t4g.micro"
+#   num_cache_nodes      = 1
+#   parameter_group_name = "default.redis7.2"
+#   engine_version       = "7.2"
+#   port                 = 6379
+# }
 
 resource "aws_sqs_queue" "detection_service" {
   name                      = "detect-pattern"

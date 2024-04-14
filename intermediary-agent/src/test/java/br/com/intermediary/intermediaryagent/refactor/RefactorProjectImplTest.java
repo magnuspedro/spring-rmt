@@ -44,10 +44,10 @@ class RefactorProjectImplTest {
 
     @Test
     @DisplayName("Should test project saving and sending to queue")
-    void ShouldTestProjectSavingAndSedingToQueue() {
+    void ShouldTestProjectSavingAndSendingToQueue() {
         var project = Project.builder()
                 .id("id")
-                .contentType("Stirng")
+                .contentType("String")
                 .content("Content".getBytes())
                 .build();
 

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>br.com.intermediary</groupId>
@@ -14,15 +14,14 @@
     <name>intermediary-agent</name>
     <description>Demo project for Spring Boot</description>
     <properties>
-        <java.version>19</java.version>
-        <messages-api.version>1.0.0</messages-api.version>
+        <java.version>21</java.version>
+        <messages-api.version>1.1.0</messages-api.version>
         <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
         <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
-        <spring.cloud-version>2022.0.1</spring.cloud-version>
+        <spring.cloud-version>2023.0.0</spring.cloud-version>
         <logback-jackson.version>0.1.5</logback-jackson.version>
         <logback-json-classic.version>0.1.5</logback-json-classic.version>
-        <awssdk.version>2.20.27</awssdk.version>
-        <spring-cloud-aws-dependencies.version>3.0.0-RC1</spring-cloud-aws-dependencies.version>
+        <spring-cloud-aws-dependencies.version>3.1.1</spring-cloud-aws-dependencies.version>
         <jedis.version>2.6.1</jedis.version>
     </properties>
     <dependencies>
@@ -50,6 +49,10 @@
         <dependency>
             <groupId>io.awspring.cloud</groupId>
             <artifactId>spring-cloud-aws-starter-sqs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -117,13 +120,6 @@
                 <groupId>io.awspring.cloud</groupId>
                 <artifactId>spring-cloud-aws-dependencies</artifactId>
                 <version>${spring-cloud-aws-dependencies.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>bom</artifactId>
-                <version>${awssdk.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
