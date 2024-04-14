@@ -491,12 +491,17 @@ public class AstHandler {
     }
 
     private Collection<IfStmt> getInnerIfStatements(IfStmt statement) {
-        final List<IfStmt> statements = new ArrayList<>();
+        if (statement == null) {
+            throw new NullIfStmtException();
+        }
 
-        final List<IfStmt> inner = statement.getChildNodes().stream().filter(IfStmt.class::isInstance)
-                .map(IfStmt.class::cast).collect(Collectors.toList());
+        final List<IfStmt> inner = statement.getChildNodes()
+                .stream()
+                .filter(IfStmt.class::isInstance)
+                .map(IfStmt.class::cast)
+                .toList();
 
-        statements.addAll(inner);
+        final List<IfStmt> statements = new ArrayList<>(inner);
 
         for (IfStmt singleInner : inner) {
             statements.addAll(this.getInnerIfStatements(singleInner));
