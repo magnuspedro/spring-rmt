@@ -14,6 +14,7 @@ import com.github.javaparser.ast.nodeTypes.NodeWithCondition;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -521,6 +522,10 @@ public class AstHandler {
     }
 
     public Optional<VariableDeclarator> getVariableDeclarationInNode(Node node, String returnName) {
+        if (node == null) {
+            throw new NullNodeException();
+        }
+        Assert.notNull(returnName, "Return name cannot be null");
 
         if (node instanceof VariableDeclarationExpr varDclrExpr) {
             return varDclrExpr.getVariables().stream()
@@ -537,7 +542,9 @@ public class AstHandler {
     }
 
     public Optional<ClassOrInterfaceType> getReturnTypeClassOrInterfaceDeclaration(MethodDeclaration method) {
-        return Optional.of(method.getType()).filter(ClassOrInterfaceType.class::isInstance)
+        return Optional.ofNullable(method)
+                .map(MethodDeclaration::getType)
+                .filter(ClassOrInterfaceType.class::isInstance)
                 .map(ClassOrInterfaceType.class::cast);
     }
 
