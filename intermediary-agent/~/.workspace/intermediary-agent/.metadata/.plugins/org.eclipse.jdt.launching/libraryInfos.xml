@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<libraryInfos>
+    <libraryInfo home="/Users/magnus/Library/Java/JavaVirtualMachines/temurin-1.8.0_372/Contents/Home" version="1.8.0_372">
+        <bootpath>
+            <entry path="/Users/magnus/Library/Java/JavaVirtualMachines/temurin-1.8.0_372/Contents/Home/jre/lib/resources.jar"/>
+            <entry path="/Users/magnus/Library/Java/JavaVirtualMachines/temurin-1.8.0_372/Contents/Home/jre/lib/rt.jar"/>
+            <entry path="/Users/magnus/Library/Java/JavaVirtualMachines/temurin-1.8.0_372/Contents/Home/jre/lib/sunrsasign.jar"/>
+            <entry path="/Users/magnus/Library/Java/JavaVirtualMachines/temurin-1.8.0_372/Contents/Home/jre/lib/jsse.jar"/>
+            <entry path="/Users/magnus/Library/Java/JavaVirtualMachines/temurin-1.8.0_372/Contents/Home/jre/lib/jce.jar"/>
+            <entry path="/Users/magnus/Library/Java/JavaVirtualMachines/temurin-1.8.0_372/Contents/Home/jre/lib/charsets.jar"/>
+            <entry path="/Users/magnus/Library/Java/JavaVirtualMachines/temurin-1.8.0_372/Contents/Home/jre/lib/jfr.jar"/>
+            <entry path="/Users/magnus/Library/Java/JavaVirtualMachines/temurin-1.8.0_372/Contents/Home/jre/classes"/>
+        </bootpath>
+        <extensionDirs>
+            <entry path="/Users/magnus/Library/Java/Extensions"/>
+            <entry path="/Users/magnus/Library/Java/JavaVirtualMachines/temurin-1.8.0_372/Contents/Home/jre/lib/ext"/>
+            <entry path="/Library/Java/Extensions"/>
+            <entry path="/Network/Library/Java/Extensions"/>
+            <entry path="/System/Library/Java/Extensions"/>
+            <entry path="/usr/lib/java"/>
+        </extensionDirs>
+        <endorsedDirs>
+            <entry path="/Users/magnus/Library/Java/JavaVirtualMachines/temurin-1.8.0_372/Contents/Home/jre/lib/endorsed"/>
+        </endorsedDirs>
+    </libraryInfo>
+    <libraryInfo home="/Users/magnus/Library/Java/JavaVirtualMachines/openjdk-20/Contents/Home" version="20"/>
+    <libraryInfo home="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home" version="1.8.0_292">
+        <bootpath>
+            <entry path="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib/resources.jar"/>
+            <entry path="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib/rt.jar"/>
+            <entry path="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib/sunrsasign.jar"/>
+            <entry path="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib/jsse.jar"/>
+            <entry path="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib/jce.jar"/>
+            <entry path="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib/charsets.jar"/>
+            <entry path="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib/jfr.jar"/>
+            <entry path="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/classes"/>
+        </bootpath>
+        <extensionDirs>
+            <entry path="/Users/magnus/Library/Java/Extensions"/>
+            <entry path="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib/ext"/>
+            <entry path="/Library/Java/Extensions"/>
+            <entry path="/Network/Library/Java/Extensions"/>
+            <entry path="/System/Library/Java/Extensions"/>
+            <entry path="/usr/lib/java"/>
+        </extensionDirs>
+        <endorsedDirs>
+            <entry path="/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre/lib/endorsed"/>
+        </endorsedDirs>
+    </libraryInfo>
+    <libraryInfo home="/Users/magnus/Library/Java/JavaVirtualMachines/openjdk-21/Contents/Home" version="21"/>
+    <libraryInfo home="/Users/magnus/Library/Java/JavaVirtualMachines/openjdk-17/Contents/Home" version="17.0.2"/>
+    <libraryInfo home="/Users/magnus/Library/Java/JavaVirtualMachines/corretto-11.0.19/Contents/Home" version="11.0.19"/>
+</libraryInfos>
