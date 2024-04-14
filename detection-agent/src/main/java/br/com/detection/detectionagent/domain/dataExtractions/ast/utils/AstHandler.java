@@ -511,21 +511,29 @@ public class AstHandler {
     }
 
     public Optional<LiteralExpr> getLiteralExpr(Node node) {
-        return node.getChildNodes().stream().filter(LiteralExpr.class::isInstance).map(LiteralExpr.class::cast)
+        return Optional.ofNullable(node)
+                .map(Node::getChildNodes)
+                .orElseThrow(NullNodeException::new)
+                .stream()
+                .filter(LiteralExpr.class::isInstance)
+                .map(LiteralExpr.class::cast)
                 .findFirst();
     }
 
     public Optional<VariableDeclarator> getVariableDeclarationInNode(Node node, String returnName) {
 
-        if (node instanceof VariableDeclarationExpr) {
-
-            final VariableDeclarationExpr varDclrExpr = (VariableDeclarationExpr) node;
-
-            return varDclrExpr.getVariables().stream().filter(v -> v.getNameAsString().equals(returnName)).findFirst();
+        if (node instanceof VariableDeclarationExpr varDclrExpr) {
+            return varDclrExpr.getVariables().stream()
+                    .filter(v -> v.getNameAsString().equals(returnName))
+                    .findFirst();
         }
 
-        return node.getChildNodes().stream().map(c -> this.getVariableDeclarationInNode(c, returnName))
-                .filter(Optional::isPresent).map(Optional::get).map(VariableDeclarator.class::cast).findFirst();
+        return node.getChildNodes().stream()
+                .map(c -> this.getVariableDeclarationInNode(c, returnName))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(VariableDeclarator.class::cast)
+                .findFirst();
     }
 
     public Optional<ClassOrInterfaceType> getReturnTypeClassOrInterfaceDeclaration(MethodDeclaration method) {
@@ -552,7 +560,8 @@ public class AstHandler {
             return variables;
         }
 
-        return node.getChildNodes().stream().flatMap(c -> this.getVariableDeclarations(c).stream())
-                .collect(Collectors.toList());
+        return node.getChildNodes().stream()
+                .flatMap(c -> this.getVariableDeclarations(c).stream())
+                .toList();
     }
 }
