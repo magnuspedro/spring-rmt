@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,11 +21,13 @@ import java.util.zip.ZipInputStream;
 @RequiredArgsConstructor
 public class ExtractFiles {
 
-    private static final String EXTENSION = ".class";
+    private static final String EXTENSION = ".java";
     private final S3ProjectRepository s3ProjectRepository;
 
     @SneakyThrows
     public List<JavaFile> extract(Project project) {
+        Assert.notNull(project, "Project cannot be null");
+
         ZipEntry zipEntry;
         List<JavaFile> javaFiles = new ArrayList<>();
 
