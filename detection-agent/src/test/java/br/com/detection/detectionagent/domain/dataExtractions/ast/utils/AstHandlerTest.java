@@ -1284,4 +1284,31 @@ class AstHandlerTest {
 
         assertEquals(2, result.size());
     }
+
+    @Test
+    @DisplayName("Should test get literal expr with null")
+    public void shouldTestGetLiteralExprWithNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.getLiteralExpr(null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get literal expr for node without literal expr")
+    public void shouldTestGetLiteralExprForNodeWithoutLiteralExpr() {
+        var result = astHandler.getLiteralExpr(new BlockStmt());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get literal expr for node with literal expr")
+    public void shouldTestGetLiteralExprForNodeWithLiteralExpr() {
+        var expression = new ExpressionStmt();
+        expression.setExpression(new BooleanLiteralExpr());
+        var result = astHandler.getLiteralExpr(expression);
+
+        assertTrue(result.isPresent());
+    }
 }
