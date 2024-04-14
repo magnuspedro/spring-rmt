@@ -541,7 +541,7 @@ public class AstHandler {
                 .findFirst();
     }
 
-    public Optional<ClassOrInterfaceType> getReturnTypeClassOrInterfaceDeclaration(MethodDeclaration method) {
+    public Optional<ClassOrInterfaceType> getMethodReturnType(MethodDeclaration method) {
         return Optional.ofNullable(method)
                 .map(MethodDeclaration::getType)
                 .filter(ClassOrInterfaceType.class::isInstance)
@@ -549,7 +549,6 @@ public class AstHandler {
     }
 
     public boolean nodeUsesVar(Node node, VariableDeclarator var) {
-
         if (node instanceof NameExpr) {
             return ((NameExpr) node).getNameAsString().equals(var.getNameAsString());
         }
@@ -558,7 +557,6 @@ public class AstHandler {
     }
 
     public Collection<VariableDeclarator> getVariableDeclarations(Node node) {
-
         final List<VariableDeclarator> variables = new ArrayList<>();
 
         if (node instanceof VariableDeclarator) {

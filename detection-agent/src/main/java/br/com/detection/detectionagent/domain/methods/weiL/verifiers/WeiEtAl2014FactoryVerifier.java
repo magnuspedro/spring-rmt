@@ -27,7 +27,7 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
     protected boolean ifStmtsAreValid(List<JavaFile> dataHandler, CompilationUnit parsedClazz,
                                       ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method, Collection<IfStmt> ifStatements) {
         final Optional<ClassOrInterfaceType> baseType = this.astHandler
-                .getReturnTypeClassOrInterfaceDeclaration(method);
+                .getMethodReturnType(method);
 
         if (baseType.isEmpty()) {
             return false;
@@ -134,7 +134,7 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
                                                    PackageDeclaration pkgDcl, ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method,
                                                    Collection<IfStmt> ifStatements) {
 
-        final ClassOrInterfaceType methodReturnType = this.astHandler.getReturnTypeClassOrInterfaceDeclaration(method)
+        final ClassOrInterfaceType methodReturnType = this.astHandler.getMethodReturnType(method)
                 .orElse(null);
 
         return new WeiEtAl2014FactoryCanditate(file, parsedClazz, pkgDcl, classOrInterface, method,
