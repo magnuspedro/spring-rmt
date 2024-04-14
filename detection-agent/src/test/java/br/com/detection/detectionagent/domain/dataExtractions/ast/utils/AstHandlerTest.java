@@ -1460,4 +1460,42 @@ class AstHandlerTest {
 
         assertTrue(result);
     }
+
+    @Test
+    @DisplayName("Should test get variable declarations with param null")
+    public void shouldTestGetVariableDeclarationsWithParamNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.getVariableDeclarations(null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get variable declaration for a node that is not a variable declarator")
+    public void shouldTestGetVariableDeclarationForANodeThatIsNotAVariableDeclarator() {
+        var result = astHandler.getVariableDeclarations(new BlockStmt());
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get variable declaration for node that is variable declarator")
+    public void shouldTestGetVariableDeclarationForNodeThatIsVariableDeclarator() {
+        var variableDeclarator = new VariableDeclarator();
+
+        var result = astHandler.getVariableDeclarations(variableDeclarator);
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    @DisplayName("Should test get variable declaration for node that is variable declarator in child")
+    public void shouldTestGetVariableDeclarationForNodeThatIsVariableDeclaratorInChild() {
+        var variable = new VariableDeclarationExpr();
+        variable.setVariables(NodeList.nodeList(new VariableDeclarator(), new VariableDeclarator()));
+
+        var result = astHandler.getVariableDeclarations(variable);
+
+        assertEquals(2, result.size());
+    }
 }

@@ -565,6 +565,10 @@ public class AstHandler {
     }
 
     public Collection<VariableDeclarator> getVariableDeclarations(Node node) {
+        if (node == null) {
+            throw new NullNodeException();
+        }
+
         final List<VariableDeclarator> variables = new ArrayList<>();
 
         if (node instanceof VariableDeclarator) {
