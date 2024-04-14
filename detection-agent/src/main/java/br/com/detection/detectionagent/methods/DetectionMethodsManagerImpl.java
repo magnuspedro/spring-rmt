@@ -39,7 +39,7 @@ public class DetectionMethodsManagerImpl implements DetectionMethodsManager {
 
         this.refactor(projectId, javaFiles, candidates);
 
-        return List.of();
+        return candidates;
     }
 
     @Override
