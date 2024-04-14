@@ -1372,20 +1372,20 @@ class AstHandlerTest {
     }
 
     @Test
-    @DisplayName("Should test for get method return type for null")
-    public void shouldTestForGetMethodReturnTypeForNull() {
-        var result = astHandler.getMethodReturnType(null);
+    @DisplayName("Should test for get method return class type for null")
+    public void shouldTestForGetMethodReturnClassTypeForNull() {
+        var result = astHandler.getMethodReturnClassType(null);
 
         assertTrue(result.isEmpty());
     }
 
     @Test
-    @DisplayName("Should test for get method return type")
-    public void shouldTestForGetMethodReturnType() {
+    @DisplayName("Should test for get method return class type")
+    public void shouldTestForGetMethodReturnClassType() {
         var method = new MethodDeclaration();
         method.setType(new ClassOrInterfaceType("Custom"));
 
-        var result = astHandler.getMethodReturnType(method);
+        var result = astHandler.getMethodReturnClassType(method);
 
         assertEquals("Custom", result.get().toString());
     }

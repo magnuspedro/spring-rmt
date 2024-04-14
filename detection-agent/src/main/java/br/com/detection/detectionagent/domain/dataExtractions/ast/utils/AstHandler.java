@@ -541,7 +541,7 @@ public class AstHandler {
                 .findFirst();
     }
 
-    public Optional<ClassOrInterfaceType> getMethodReturnType(MethodDeclaration method) {
+    public Optional<ClassOrInterfaceType> getMethodReturnClassType(MethodDeclaration method) {
         return Optional.ofNullable(method)
                 .map(MethodDeclaration::getType)
                 .filter(ClassOrInterfaceType.class::isInstance)
