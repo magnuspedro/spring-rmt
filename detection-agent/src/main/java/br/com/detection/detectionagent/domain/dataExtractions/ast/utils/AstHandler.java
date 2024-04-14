@@ -548,12 +548,20 @@ public class AstHandler {
                 .map(ClassOrInterfaceType.class::cast);
     }
 
-    public boolean nodeUsesVar(Node node, VariableDeclarator var) {
+    public boolean doesNodeUsesVar(Node node, VariableDeclarator var) {
+        if (node == null) {
+            throw new NullNodeException();
+        }
+
+        if (var == null) {
+            throw new VariableDeclarationExpectedException();
+        }
+
         if (node instanceof NameExpr) {
             return ((NameExpr) node).getNameAsString().equals(var.getNameAsString());
         }
 
-        return node.getChildNodes().stream().anyMatch(c -> this.nodeUsesVar(c, var));
+        return node.getChildNodes().stream().anyMatch(c -> this.doesNodeUsesVar(c, var));
     }
 
     public Collection<VariableDeclarator> getVariableDeclarations(Node node) {

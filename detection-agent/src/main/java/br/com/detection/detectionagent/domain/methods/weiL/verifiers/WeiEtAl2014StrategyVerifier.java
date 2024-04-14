@@ -58,7 +58,7 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
                 .filter(c -> !(c instanceof IfStmt)).flatMap(c -> this.astHandler.getVariableDeclarations(c).stream())
                 .toList();
 
-        return variables.stream().noneMatch(v -> ifStmt.getThenStmt().getChildNodes().stream().anyMatch(c -> this.astHandler.nodeUsesVar(c, v)));
+        return variables.stream().noneMatch(v -> ifStmt.getThenStmt().getChildNodes().stream().anyMatch(c -> this.astHandler.doesNodeUsesVar(c, v)));
     }
 
     private Collection<VariableDeclarator> classVariablesUsedInItsBody(CompilationUnit parsedClazz,
@@ -67,7 +67,7 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
         final Collection<FieldDeclaration> fields = this.astHandler.getDeclaredFields(classOrInterface);
 
         return fields.stream().flatMap(f -> f.getVariables().stream())
-                .filter(var -> this.astHandler.nodeUsesVar(ifStmt, var)).collect(Collectors.toList());
+                .filter(var -> this.astHandler.doesNodeUsesVar(ifStmt, var)).collect(Collectors.toList());
     }
 
     private boolean isParameterUsedInIfStmtConditional(Parameter parameter, Optional<BinaryExpr> binaryExpr,

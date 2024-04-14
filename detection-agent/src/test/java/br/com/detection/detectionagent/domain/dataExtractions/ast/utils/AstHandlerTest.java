@@ -1390,4 +1390,76 @@ class AstHandlerTest {
         assertEquals("Custom", result.get().toString());
     }
 
+    @Test
+    @DisplayName("Should test for does node uses var with both null")
+    public void shouldTestForDoesNodeUsesVarWithBothNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.doesNodeUsesVar(null, null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test for does node uses var with first null")
+    public void shouldTestForDoesNodeUsesVarWithFirstNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> astHandler.doesNodeUsesVar(null, new VariableDeclarator()));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test for does node uses var with second null")
+    public void shouldTestForDoesNodeUsesVarWithSecondNull() {
+        var result = assertThrows(VariableDeclarationExpectedException.class,
+                () -> astHandler.doesNodeUsesVar(new BlockStmt(), null));
+
+        assertEquals("Variable declaration is expected as a parameter", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test does node uses var for no instance of nameExpr")
+    public void shouldTestDoesNodeUsesVarForNoInstanceOfNameExpr() {
+        var result = astHandler.doesNodeUsesVar(new BlockStmt(), new VariableDeclarator());
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test does node uses var for different names")
+    public void shouldTestDoesNodeUsesVarForDifferentNames() {
+        var nameExpr = new NameExpr("i");
+        var variable = new VariableDeclarator();
+        variable.setName("io");
+
+        var result = astHandler.doesNodeUsesVar(nameExpr, variable);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should test does node uses var for same name")
+    public void shouldTestDoesNodeUsesVarForSameName() {
+        var nameExpr = new NameExpr("i");
+        var variable = new VariableDeclarator();
+        variable.setName("i");
+
+        var result = astHandler.doesNodeUsesVar(nameExpr, variable);
+
+        assertTrue(result);
+    }
+
+    @Test
+    @DisplayName("Should test does node uses var for same name in child")
+    public void shouldTestDoesNodeUsesVarForSameNameInChild() {
+        var blockStmt = new BlockStmt(NodeList.nodeList(new ExpressionStmt(new NameExpr("i"))));
+        var variable = new VariableDeclarator();
+        variable.setName("i");
+
+        var result = astHandler.doesNodeUsesVar(blockStmt, variable);
+
+        assertTrue(result);
+    }
+
+
 }
