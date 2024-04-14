@@ -1460,6 +1460,4 @@ class AstHandlerTest {
 
         assertTrue(result);
     }
-
-
 }
