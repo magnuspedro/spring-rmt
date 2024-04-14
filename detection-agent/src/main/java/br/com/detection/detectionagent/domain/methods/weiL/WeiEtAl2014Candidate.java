@@ -9,6 +9,7 @@ import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.IfStmt;
+import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @ToString
-public abstract class WeiEtAl2014Canditate implements RefactoringCandidate {
+public abstract class WeiEtAl2014Candidate implements RefactoringCandidate {
 
     private final String id = UUID.randomUUID().toString();
 
@@ -27,19 +28,22 @@ public abstract class WeiEtAl2014Canditate implements RefactoringCandidate {
 
     private final JavaFile file;
 
+    @Getter
     private final CompilationUnit compilationUnit;
 
     private final PackageDeclaration packageDcl;
 
     private final ClassOrInterfaceDeclaration classDcl;
 
+    @Getter
     private final MethodDeclaration methodDcl;
 
+    @Getter
     private final List<IfStmt> ifStatements = new ArrayList<>();
 
     private final DesignPattern eligiblePattern;
 
-    public WeiEtAl2014Canditate(JavaFile file, CompilationUnit compilationUnit,
+    public WeiEtAl2014Candidate(JavaFile file, CompilationUnit compilationUnit,
                                 PackageDeclaration packageDcl, ClassOrInterfaceDeclaration classDcl, MethodDeclaration methodDcl,
                                 Collection<IfStmt> ifStatements, DesignPattern eligiblePattern) {
         this.reference = Reference.builder()
@@ -81,10 +85,6 @@ public abstract class WeiEtAl2014Canditate implements RefactoringCandidate {
         return eligiblePattern;
     }
 
-    public CompilationUnit getCompilationUnit() {
-        return compilationUnit;
-    }
-
     public PackageDeclaration getPackageDeclaration() {
         return packageDcl;
     }
@@ -93,18 +93,9 @@ public abstract class WeiEtAl2014Canditate implements RefactoringCandidate {
         return classDcl;
     }
 
-    public MethodDeclaration getMethodDcl() {
-        return methodDcl;
-    }
-
-    public List<IfStmt> getIfStatements() {
-        return ifStatements;
-    }
-
     @Override
     public boolean equals(Object object) {
-        if (object instanceof WeiEtAl2014Canditate) {
-            WeiEtAl2014Canditate another = (WeiEtAl2014Canditate) object;
+        if (object instanceof WeiEtAl2014Candidate another) {
             return new EqualsBuilder().append(id, another.id).isEquals();
         }
         return false;

@@ -1,7 +1,7 @@
 package br.com.detection.detectionagent.domain.methods.weiL.verifiers;
 
-import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Canditate;
-import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014StrategyCanditate;
+import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
+import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014StrategyCandidate;
 import br.com.detection.detectionagent.file.JavaFile;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;
@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Component
 public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
@@ -26,26 +25,35 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
     protected boolean ifStmtsAreValid(List<JavaFile> dataHandler, CompilationUnit parsedClazz,
                                       ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method, Collection<IfStmt> ifStatements) {
         return !ifStatements.isEmpty()
-                && ifStatements.stream().allMatch(s -> ifStmtIsValid(parsedClazz, classOrInterface, method, s));
+                && ifStatements.stream()
+                .allMatch(s -> ifStmtIsValid(parsedClazz, classOrInterface, method, s));
     }
 
     private boolean ifStmtIsValid(CompilationUnit parsedClazz, ClassOrInterfaceDeclaration classOrInterface,
                                   MethodDeclaration method, IfStmt ifStmt) {
 
-        final Parameter parameter = method.getParameters().stream().findFirst().get();
+        final var parameter = method.getParameters()
+                .stream()
+                .findFirst()
+                .get();
 
         if (this.astHandler.getReturnStmt(ifStmt).isEmpty()) {
             return false;
         }
 
-        final Optional<BinaryExpr> binaryExpr = ifStmt.getChildNodes().stream().filter(BinaryExpr.class::isInstance)
-                .map(BinaryExpr.class::cast).findFirst();
+        final var binaryExpr = ifStmt.getChildNodes()
+                .stream()
+                .filter(BinaryExpr.class::isInstance)
+                .map(BinaryExpr.class::cast)
+                .findFirst();
 
-        final Optional<MethodCallExpr> methodCallExpr = ifStmt.getChildNodes().stream()
-                .filter(MethodCallExpr.class::isInstance).map(MethodCallExpr.class::cast).findFirst();
+        final var methodCallExpr = ifStmt.getChildNodes()
+                .stream()
+                .filter(MethodCallExpr.class::isInstance)
+                .map(MethodCallExpr.class::cast)
+                .findFirst();
 
-        final Collection<VariableDeclarator> variables = this.classVariablesUsedInItsBody(parsedClazz, classOrInterface,
-                ifStmt);
+        final var variables = this.classVariablesUsedInItsBody(parsedClazz, classOrInterface, ifStmt);
 
         return (binaryExpr.isPresent() || methodCallExpr.isPresent())
                 && this.isParameterUsedInIfStmtConditional(parameter, binaryExpr, methodCallExpr)
@@ -54,11 +62,18 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
 
     private boolean usesNoMethodInnerVariables(MethodDeclaration method, IfStmt ifStmt) {
 
-        final Collection<VariableDeclarator> variables = method.getChildNodes().stream()
-                .filter(c -> !(c instanceof IfStmt)).flatMap(c -> this.astHandler.getVariableDeclarations(c).stream())
+        final var variables = method.getChildNodes()
+                .stream()
+                .filter(c -> !(c instanceof IfStmt))
+                .flatMap(c -> this.astHandler.getVariableDeclarations(c).stream())
                 .toList();
 
-        return variables.stream().noneMatch(v -> ifStmt.getThenStmt().getChildNodes().stream().anyMatch(c -> this.astHandler.doesNodeUsesVar(c, v)));
+        return variables.stream()
+                .noneMatch(v -> ifStmt.getThenStmt()
+                        .getChildNodes()
+                        .stream()
+                        .anyMatch(c -> this.astHandler.doesNodeUsesVar(c, v))
+                );
     }
 
     private Collection<VariableDeclarator> classVariablesUsedInItsBody(CompilationUnit parsedClazz,
@@ -66,25 +81,37 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
 
         final Collection<FieldDeclaration> fields = this.astHandler.getDeclaredFields(classOrInterface);
 
-        return fields.stream().flatMap(f -> f.getVariables().stream())
-                .filter(var -> this.astHandler.doesNodeUsesVar(ifStmt, var)).collect(Collectors.toList());
+        return fields.stream()
+                .flatMap(f -> f.getVariables().stream())
+                .filter(var -> this.astHandler.doesNodeUsesVar(ifStmt, var))
+                .toList();
     }
 
     private boolean isParameterUsedInIfStmtConditional(Parameter parameter, Optional<BinaryExpr> binaryExpr,
                                                        Optional<MethodCallExpr> methodCallExpr) {
 
         if (binaryExpr.isPresent()) {
-            final String name2 = this.astHandler.getNameExpr(binaryExpr.get()).map(NodeWithSimpleName::getNameAsString).orElse("");
+            final var name2 = this.astHandler.getNameExpr(binaryExpr.get())
+                    .map(NodeWithSimpleName::getNameAsString)
+                    .orElse("");
 
             return parameter.getNameAsString().equals(name2) && isAnEqualsExpression(binaryExpr.get());
         } else if (methodCallExpr.isPresent()) {
 
-            final boolean hasParam = methodCallExpr.get().getChildNodes().stream().filter(NameExpr.class::isInstance)
-                    .map(NameExpr.class::cast).anyMatch(n -> n.getNameAsString().equals(parameter.getNameAsString()));
+            final var hasParam = methodCallExpr.get()
+                    .getChildNodes()
+                    .stream()
+                    .filter(NameExpr.class::isInstance)
+                    .map(NameExpr.class::cast)
+                    .anyMatch(n -> n.getNameAsString().equals(parameter.getNameAsString()));
 
-            final boolean isAnEqualsMethod = methodCallExpr.get().getNameAsString().equals("equals")
-                    && methodCallExpr.get().getChildNodes().stream().filter(NameExpr.class::isInstance)
-                    .map(NameExpr.class::cast).anyMatch(n -> n.getNameAsString().equals(parameter.getNameAsString()));
+            final var isAnEqualsMethod = methodCallExpr.get().getNameAsString().equals("equals")
+                    && methodCallExpr.get()
+                    .getChildNodes()
+                    .stream()
+                    .filter(NameExpr.class::isInstance)
+                    .map(NameExpr.class::cast)
+                    .anyMatch(n -> n.getNameAsString().equals(parameter.getNameAsString()));
 
             return hasParam && isAnEqualsMethod;
         }
@@ -98,11 +125,11 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
     }
 
     @Override
-    protected WeiEtAl2014Canditate createCandidate(JavaFile file, CompilationUnit parsedClazz,
+    protected WeiEtAl2014Candidate createCandidate(JavaFile file, CompilationUnit parsedClazz,
                                                    PackageDeclaration pkgDcl, ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method,
                                                    Collection<IfStmt> ifStatements) {
 
-        final List<VariableDeclarator> variables = new ArrayList<>();
+        final var variables = new ArrayList<VariableDeclarator>();
 
         final Function<VariableDeclarator, Boolean> isVariableRegistered = (var) -> variables.stream()
                 .anyMatch(v -> v.getNameAsString().equals(var.getNameAsString()));
@@ -114,8 +141,7 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
                     }
                 });
 
-        return new WeiEtAl2014StrategyCanditate(file, parsedClazz, pkgDcl, classOrInterface, method,
-                ifStatements, variables);
+        return new WeiEtAl2014StrategyCandidate(file, parsedClazz, pkgDcl, classOrInterface, method, ifStatements, variables);
     }
 
 }

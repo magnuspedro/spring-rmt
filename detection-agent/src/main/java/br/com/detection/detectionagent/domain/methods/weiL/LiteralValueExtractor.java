@@ -10,28 +10,34 @@ import java.util.function.Predicate;
 
 public class LiteralValueExtractor {
 
-	private final AstHandler astHandler = new AstHandler();
+    private final AstHandler astHandler = new AstHandler();
 
-	public Optional<Object> getNodeOtherThan(Node node, Parameter parameter) {
-		final Predicate<Node> isAValidChild = (c) -> !this.astHandler.getNameExpr(c)
-				.map(n -> n.getNameAsString().equals(parameter.getNameAsString())).isPresent();
+    public Optional<Object> getNodeOtherThan(Node node, Parameter parameter) {
+        final Predicate<Node> isAValidChild = (value) -> this.astHandler.getNameExpr(value)
+                .map(n -> n.getNameAsString().equals(parameter.getNameAsString()))
+                .isEmpty();
 
-		return node.getChildNodes().stream().filter(isAValidChild).filter(LiteralExpr.class::isInstance)
-				.map(LiteralExpr.class::cast).map(this::extractLiteralValidValues).filter(Optional::isPresent)
-				.map(Optional::get).findFirst();
-	}
+        return node.getChildNodes().stream()
+                .filter(isAValidChild)
+                .filter(LiteralExpr.class::isInstance)
+                .map(LiteralExpr.class::cast)
+                .map(this::extractLiteralValidValues)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
+    }
 
-	private Optional<Object> extractLiteralValidValues(LiteralExpr expr) {
-		if (expr instanceof LiteralStringValueExpr) {
-			return Optional.ofNullable(((LiteralStringValueExpr) expr).getValue());
-		} else if (expr instanceof CharLiteralExpr) {
-			return Optional.ofNullable(((CharLiteralExpr) expr).getValue());
-		} else if (expr instanceof IntegerLiteralExpr) {
-			return Optional.ofNullable(((IntegerLiteralExpr) expr).getValue());
-		} else if (expr instanceof LongLiteralExpr) {
-			return Optional.ofNullable(((LongLiteralExpr) expr).getValue());
-		}
-		return Optional.empty();
-	}
+    private Optional<Object> extractLiteralValidValues(LiteralExpr expr) {
+        if (expr instanceof CharLiteralExpr) {
+            return Optional.ofNullable(((CharLiteralExpr) expr).getValue());
+        } else if (expr instanceof IntegerLiteralExpr) {
+            return Optional.ofNullable(((IntegerLiteralExpr) expr).getValue());
+        } else if (expr instanceof LongLiteralExpr) {
+            return Optional.ofNullable(((LongLiteralExpr) expr).getValue());
+        } else if (expr instanceof LiteralStringValueExpr) {
+            return Optional.ofNullable(((LiteralStringValueExpr) expr).getValue());
+        }
+        return Optional.empty();
+    }
 
 }

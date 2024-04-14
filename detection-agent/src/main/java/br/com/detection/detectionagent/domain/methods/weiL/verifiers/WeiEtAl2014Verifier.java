@@ -2,7 +2,7 @@ package br.com.detection.detectionagent.domain.methods.weiL.verifiers;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
 import br.com.detection.detectionagent.domain.methods.RefactoringCandidatesVerifier;
-import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Canditate;
+import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethod;
 import br.com.messages.members.candidates.RefactoringCandidate;
@@ -34,7 +34,7 @@ public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifi
                 if (!classOrInterfaceDeclaration.isInterface()) {
                     for (MethodDeclaration method : this.astHandler.getMethods(cu)) {
 
-                        final Optional<WeiEtAl2014Canditate> candidate = this.retrieveCandidate(javaFiles, file, cu,
+                        final Optional<WeiEtAl2014Candidate> candidate = this.retrieveCandidate(javaFiles, file, cu,
                                 classOrInterface.get(), method);
                         candidate.ifPresent(candidates::add);
                     }
@@ -49,7 +49,7 @@ public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifi
                 || (method.getType() instanceof VoidType);
     }
 
-    private Optional<WeiEtAl2014Canditate> retrieveCandidate(List<JavaFile> javaFiles, JavaFile file,
+    private Optional<WeiEtAl2014Candidate> retrieveCandidate(List<JavaFile> javaFiles, JavaFile file,
                                                              CompilationUnit parsedClazz, ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method) {
 
         if (this.isMethodInvalid(method)) {
@@ -68,7 +68,7 @@ public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifi
                 .of(this.createCandidate(file, parsedClazz, pkgDcl, classOrInterface, method, ifStatements));
     }
 
-    protected abstract WeiEtAl2014Canditate createCandidate(JavaFile file, CompilationUnit parsedClazz,
+    protected abstract WeiEtAl2014Candidate createCandidate(JavaFile file, CompilationUnit parsedClazz,
                                                             PackageDeclaration pkgDcl, ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method,
                                                             Collection<IfStmt> ifStatements);
 

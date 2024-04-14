@@ -2,8 +2,8 @@ package br.com.detection.detectionagent.domain.methods.weiL.executors;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
 import br.com.detection.detectionagent.domain.methods.weiL.LiteralValueExtractor;
-import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Canditate;
-import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014StrategyCanditate;
+import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
+import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014StrategyCandidate;
 import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethod;
 import br.com.messages.members.candidates.RefactoringCandidate;
@@ -36,7 +36,7 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
 
     @Override
     public void refactor(RefactoringCandidate candidate, List<JavaFile> dataHandler, ExtractionMethod extractionMethod) {
-        final WeiEtAl2014StrategyCanditate weiCandidate = (WeiEtAl2014StrategyCanditate) candidate;
+        final WeiEtAl2014StrategyCandidate weiCandidate = (WeiEtAl2014StrategyCandidate) candidate;
         extractionMethod.parseAll(dataHandler);
 
         try {
@@ -45,9 +45,9 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
                     .map(JavaFile::getPath)
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
-            final Path file = Path.of(path);
+            final var file = Path.of(path);
 
-            final MethodDeclaration method = new MethodDeclaration();
+            final var method = new MethodDeclaration();
             method.setName(weiCandidate.getMethodDcl().getName());
             method.setType(weiCandidate.getMethodDcl().getType());
             method.setModifiers(EnumSet.of(Modifier.PUBLIC));
@@ -55,17 +55,17 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
 
             weiCandidate.getVariables().forEach(v -> method.addParameter(v.getType(), v.getNameAsString()));
 
-            final CompilationUnit strategyCu = new CompilationUnit();
-            final ClassOrInterfaceDeclaration createdStrategy = strategyCu.addClass("Strategy");
+            final var strategyCu = new CompilationUnit();
+            final var createdStrategy = strategyCu.addClass("Strategy");
             createdStrategy.addMember(method);
             createdStrategy.setAbstract(true);
 
-            final Path strategyFile = file.getParent().resolve("Strategy.java");
+            final var strategyFile = file.getParent().resolve("Strategy.java");
 
-            writeCanges(strategyCu, strategyFile);
+            writeChanges(strategyCu, strategyFile);
 
             int i = 1;
-            for (IfStmt ifStmt : weiCandidate.getIfStatements()) {
+            for (var ifStmt : weiCandidate.getIfStatements()) {
                 this.changesIfStmtCandidate(i++, file, weiCandidate, ifStmt, dataHandler);
             }
 
@@ -77,16 +77,16 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
 
     }
 
-    private void changesIfStmtCandidate(int idx, Path file, WeiEtAl2014StrategyCanditate candidate, IfStmt ifStmt,
+    private void changesIfStmtCandidate(int idx, Path file, WeiEtAl2014StrategyCandidate candidate, IfStmt ifStmt,
                                         List<JavaFile> dataHandler) throws IOException {
 
-        final String concreteStrategyClassName = "ConcreteStrategy"
+        final var concreteStrategyClassName = "ConcreteStrategy"
                 .concat(this.getNameSuffix(idx, candidate.getMethodDcl(), ifStmt));
 
-        CompilationUnit cu = new CompilationUnit();
-        ClassOrInterfaceDeclaration type = cu.addClass(concreteStrategyClassName);
+        final var cu = new CompilationUnit();
+        final var type = cu.addClass(concreteStrategyClassName);
 
-        MethodDeclaration method = new MethodDeclaration();
+        final var method = new MethodDeclaration();
         method.setName(candidate.getMethodDcl().getName());
         method.setType(candidate.getMethodDcl().getType());
         method.setModifiers(EnumSet.of(Modifier.PUBLIC));
@@ -96,49 +96,66 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
         type.addMember(method);
         type.addExtendedType("Strategy");
 
-        writeCanges(cu, file.getParent().resolve(String.format("%s.java", concreteStrategyClassName)));
+        writeChanges(cu, file.getParent().resolve(String.format("%s.java", concreteStrategyClassName)));
     }
 
     private String getNameSuffix(int idx, MethodDeclaration method, IfStmt ifStmt) {
 
-        final Parameter parameter = method.getParameters().stream().findFirst().get();
+        final var parameter = method.getParameters()
+                .stream()
+                .findFirst()
+                .get();
 
-        final Optional<BinaryExpr> binaryExpr = ifStmt.getChildNodes().stream().filter(BinaryExpr.class::isInstance)
-                .map(BinaryExpr.class::cast).findFirst();
+        final var binaryExpr = ifStmt.getChildNodes()
+                .stream()
+                .filter(BinaryExpr.class::isInstance)
+                .map(BinaryExpr.class::cast)
+                .findFirst();
 
-        final Optional<MethodCallExpr> methodCallExpr = ifStmt.getChildNodes().stream()
-                .filter(MethodCallExpr.class::isInstance).map(MethodCallExpr.class::cast).findFirst();
+        final var methodCallExpr = ifStmt.getChildNodes()
+                .stream()
+                .filter(MethodCallExpr.class::isInstance)
+                .map(MethodCallExpr.class::cast)
+                .findFirst();
 
         if (binaryExpr.isPresent()) {
-            return new LiteralValueExtractor().getNodeOtherThan(binaryExpr.get(), parameter).map(Object::toString).orElse(String.valueOf(idx));
+            return new LiteralValueExtractor()
+                    .getNodeOtherThan(binaryExpr.get(), parameter)
+                    .map(Object::toString)
+                    .orElse(String.valueOf(idx));
         } else if (methodCallExpr.isPresent()) {
-            return new LiteralValueExtractor().getNodeOtherThan(methodCallExpr.get(), parameter).map(Object::toString).orElse(String.valueOf(idx));
+            return new LiteralValueExtractor()
+                    .getNodeOtherThan(methodCallExpr.get(), parameter)
+                    .map(Object::toString)
+                    .orElse(String.valueOf(idx));
         }
 
         throw new NotImplementedException("Conditional not covered yet");
-
     }
 
-    private void changeBaseClazz(WeiEtAl2014StrategyCanditate candidate, ClassOrInterfaceDeclaration createdStrategy,
+    private void changeBaseClazz(WeiEtAl2014StrategyCandidate candidate, ClassOrInterfaceDeclaration createdStrategy,
                                  List<JavaFile> dataHandler) {
-        final Collection<CompilationUnit> allClasses = dataHandler.stream().map(m -> (CompilationUnit) m.getParsed()).toList();
-        final CompilationUnit baseCu = this.updateBaseCompilationUnit(allClasses, candidate);
+        final var allClasses = dataHandler.stream().map(m -> (CompilationUnit) m.getParsed()).toList();
+        final var baseCu = this.updateBaseCompilationUnit(allClasses, candidate);
 
-        final MethodDeclaration candidateMethod = this.astHandler.getMethods(baseCu).stream()
+        final var candidateMethod = this.astHandler.getMethods(baseCu).stream()
                 .filter(m -> m.getNameAsString().equals(candidate.getMethodDcl().getNameAsString())
                         && this.astHandler.methodsParamsMatch(m, candidate.getMethodDcl()))
-                .findFirst().orElseThrow(IllegalStateException::new);
+                .findFirst()
+                .orElseThrow(IllegalStateException::new);
 
-        final MethodCallExpr methodCall = new MethodCallExpr();
+        final var methodCall = new MethodCallExpr();
         methodCall.setName(candidateMethod.getNameAsString());
         methodCall.setScope(new NameExpr("strategy"));
-        methodCall.setArguments(new NodeList<>(
-                candidate.getVariables().stream().map(this::parseVariableToFieldAccess).collect(Collectors.toList())));
+        methodCall.setArguments(new NodeList<>(candidate.getVariables()
+                .stream()
+                .map(this::parseVariableToFieldAccess).collect(Collectors.toList()))
+        );
 
-        final ReturnStmt returnStmt = new ReturnStmt();
+        final var returnStmt = new ReturnStmt();
         returnStmt.setExpression(methodCall);
 
-        final BlockStmt block = new BlockStmt();
+        final var block = new BlockStmt();
         block.addStatement(returnStmt);
         candidateMethod.setBody(block);
         candidateMethod.setParameter(0,
@@ -149,27 +166,30 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
                 .map(JavaFile::getPath)
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
+
         final Path file = Path.of(path);
-//
 //        writeCanges(baseCu, file);
     }
 
     private FieldAccessExpr parseVariableToFieldAccess(VariableDeclarator var) {
-        final FieldAccessExpr fieldAccess = new FieldAccessExpr();
+        final var fieldAccess = new FieldAccessExpr();
         fieldAccess.setScope(new ThisExpr());
         fieldAccess.setName(new SimpleName(var.getNameAsString()));
         return fieldAccess;
     }
 
     private CompilationUnit updateBaseCompilationUnit(Collection<CompilationUnit> allClasses,
-                                                      WeiEtAl2014Canditate candidate) {
-        return allClasses.stream().filter(c -> this.astHandler.doesCompilationUnitsMatch(c, Optional.of(candidate.getClassDeclaration()),
-                Optional.of(candidate.getPackageDeclaration()))).findFirst().get();
+                                                      WeiEtAl2014Candidate candidate) {
+        return allClasses.stream()
+                .filter(c -> this.astHandler.doesCompilationUnitsMatch(c, Optional.of(candidate.getClassDeclaration()),
+                        Optional.of(candidate.getPackageDeclaration())))
+                .findFirst()
+                .get();
     }
 
     @Override
     public boolean isApplicable(RefactoringCandidate candidate) {
-        return candidate instanceof WeiEtAl2014StrategyCanditate
+        return candidate instanceof WeiEtAl2014StrategyCandidate
                 && DesignPattern.STRATEGY.equals(candidate.getEligiblePattern());
     }
 

@@ -14,11 +14,11 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.Collection;
 import java.util.List;
 
-public class WeiEtAl2014StrategyCanditate extends WeiEtAl2014Canditate {
+public class WeiEtAl2014StrategyCandidate extends WeiEtAl2014Candidate {
 
 	private final List<VariableDeclarator> variables;
 
-	public WeiEtAl2014StrategyCanditate(JavaFile file, CompilationUnit compilationUnit,
+	public WeiEtAl2014StrategyCandidate(JavaFile file, CompilationUnit compilationUnit,
 										PackageDeclaration packageDcl, ClassOrInterfaceDeclaration classDcl, MethodDeclaration methodDcl,
 										Collection<IfStmt> ifStatements, List<VariableDeclarator> variables) {
 		super(file, compilationUnit, packageDcl, classDcl, methodDcl, ifStatements, DesignPattern.STRATEGY);
@@ -31,8 +31,8 @@ public class WeiEtAl2014StrategyCanditate extends WeiEtAl2014Canditate {
 
 	@Override
 	public boolean equals(Object object) {
-		if (object instanceof WeiEtAl2014StrategyCanditate) {
-			WeiEtAl2014StrategyCanditate another = (WeiEtAl2014StrategyCanditate) object;
+		if (object instanceof WeiEtAl2014StrategyCandidate) {
+			WeiEtAl2014StrategyCandidate another = (WeiEtAl2014StrategyCandidate) object;
 			return new EqualsBuilder().append(this.getId(), another.getId()).isEquals();
 		}
 		return false;

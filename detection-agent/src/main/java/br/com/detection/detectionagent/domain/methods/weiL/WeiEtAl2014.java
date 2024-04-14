@@ -5,9 +5,6 @@ import br.com.detection.detectionagent.domain.methods.RefactoringCandidatesVerif
 import br.com.detection.detectionagent.domain.methods.weiL.executors.WeiEtAl2014Executor;
 import br.com.detection.detectionagent.domain.methods.weiL.executors.WeiEtAl2014FactoryExecutor;
 import br.com.detection.detectionagent.domain.methods.weiL.executors.WeiEtAl2014StrategyExecutor;
-import br.com.detection.detectionagent.domain.methods.weiL.verifiers.WeiEtAl2014FactoryVerifier;
-import br.com.detection.detectionagent.domain.methods.weiL.verifiers.WeiEtAl2014StrategyVerifier;
-import br.com.detection.detectionagent.domain.methods.weiL.verifiers.WeiEtAl2014Verifier;
 import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethodFactory;
 import br.com.detection.detectionagent.methods.dataExtractions.forks.AbstractSyntaxTreeDependent;
@@ -42,8 +39,11 @@ public class WeiEtAl2014 implements DetectionMethod, AbstractSyntaxTreeDependent
     @Override
     public void refactor(List<JavaFile> javaFiles, RefactoringCandidate candidate) {
         var extractionMethod = this.extractionMethodFactory.build(this);
-        this.getExecutors().filter(e -> e.isApplicable(candidate)).findFirst()
-                .orElseThrow(IllegalArgumentException::new).refactor(candidate, javaFiles, extractionMethod);
+        this.getExecutors()
+                .filter(e -> e.isApplicable(candidate))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new)
+                .refactor(candidate, javaFiles, extractionMethod);
     }
 
     private Stream<WeiEtAl2014Executor> getExecutors() {

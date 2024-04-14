@@ -1,7 +1,7 @@
 package br.com.detection.detectionagent.domain.methods.weiL.verifiers;
 
-import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Canditate;
-import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014FactoryCanditate;
+import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
+import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014FactoryCandidate;
 import br.com.detection.detectionagent.file.JavaFile;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -130,14 +130,14 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
     }
 
     @Override
-    protected WeiEtAl2014Canditate createCandidate(JavaFile file, CompilationUnit parsedClazz,
+    protected WeiEtAl2014Candidate createCandidate(JavaFile file, CompilationUnit parsedClazz,
                                                    PackageDeclaration pkgDcl, ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method,
                                                    Collection<IfStmt> ifStatements) {
 
         final ClassOrInterfaceType methodReturnType = this.astHandler.getMethodReturnClassType(method)
                 .orElse(null);
 
-        return new WeiEtAl2014FactoryCanditate(file, parsedClazz, pkgDcl, classOrInterface, method,
+        return new WeiEtAl2014FactoryCandidate(file, parsedClazz, pkgDcl, classOrInterface, method,
                 methodReturnType, ifStatements);
     }
 
