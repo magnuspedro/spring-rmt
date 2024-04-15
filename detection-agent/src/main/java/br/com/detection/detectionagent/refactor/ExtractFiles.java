@@ -6,10 +6,13 @@ import br.com.messages.repository.S3ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +25,7 @@ import java.util.zip.ZipInputStream;
 public class ExtractFiles {
 
     private static final String EXTENSION = ".java";
+    private static final Path TEMP_DIR = Path.of(System.getProperty("user.dir"));
     private final S3ProjectRepository s3ProjectRepository;
 
     @SneakyThrows
@@ -35,18 +39,35 @@ public class ExtractFiles {
 
         var zipInputStream = new ZipInputStream(compressedProject);
         while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+
             Optional.of(zipEntry)
                     .filter(f -> f.getName().endsWith(EXTENSION))
                     .map(entry -> {
-                        var file = new File(entry.getName());
+                        var file = createTempFile(entry.getName(), zipInputStream);
                         return javaFiles.add(JavaFile.builder()
                                 .name(file.getName())
                                 .path(file.getPath())
-                                .inputStream(zipInputStream)
+                                .inputStream(openFile(file))
                                 .build());
                     });
         }
 
+        zipInputStream.closeEntry();
+        zipInputStream.close();
+
         return javaFiles;
+    }
+
+    @SneakyThrows
+    private File createTempFile(String name, ZipInputStream zipInputStream) {
+        var fullName = name.split("\\.");
+        var file = File.createTempFile(fullName[0], "."+fullName[1]);
+        FileUtils.copyToFile(zipInputStream, file);
+        return file;
+    }
+
+    @SneakyThrows
+    private InputStream openFile(File file) {
+        return FileUtils.openInputStream(file);
     }
 }
