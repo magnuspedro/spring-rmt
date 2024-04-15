@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -42,14 +43,12 @@ public class ExtractFiles {
 
             Optional.of(zipEntry)
                     .filter(f -> f.getName().endsWith(EXTENSION))
-                    .map(entry -> {
-                        var file = createTempFile(entry.getName(), zipInputStream);
-                        return javaFiles.add(JavaFile.builder()
-                                .name(file.getName())
-                                .path(file.getPath())
-                                .inputStream(openFile(file))
-                                .build());
-                    });
+                    .flatMap(entry -> createTempFile(entry.getName(), zipInputStream))
+                    .ifPresent(file -> javaFiles.add(JavaFile.builder()
+                            .name(file.getName())
+                            .path(file.getPath())
+                            .inputStream(openFile(file))
+                            .build()));
         }
 
         zipInputStream.closeEntry();
@@ -58,12 +57,16 @@ public class ExtractFiles {
         return javaFiles;
     }
 
-    @SneakyThrows
-    private File createTempFile(String name, ZipInputStream zipInputStream) {
+    private Optional<File> createTempFile(String name, ZipInputStream zipInputStream) {
         var fullName = name.split("\\.");
-        var file = File.createTempFile(fullName[0], "."+fullName[1]);
-        FileUtils.copyToFile(zipInputStream, file);
-        return file;
+        try {
+            var file = File.createTempFile(fullName[0], "." + fullName[1]);
+            FileUtils.copyToFile(zipInputStream, file);
+            return Optional.of(file);
+        } catch (IOException e) {
+            log.warn("Error creating temp file, {}", name, e);
+        }
+        return Optional.empty();
     }
 
     @SneakyThrows

@@ -26,14 +26,14 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
 
     protected boolean ifStmtsAreValid(List<JavaFile> dataHandler, CompilationUnit parsedClazz,
                                       ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method, Collection<IfStmt> ifStatements) {
-        final Optional<ClassOrInterfaceType> baseType = this.astHandler
+        final var baseType = this.astHandler
                 .getMethodReturnClassType(method);
 
         if (baseType.isEmpty()) {
             return false;
         }
 
-        final Parameter parameter = method.getParameters().stream().findFirst().get();
+        final var parameter = method.getParameters().stream().findFirst().get();
 
         return !ifStatements.isEmpty()
                 && ifStatements.stream().allMatch(s -> ifStmtIsValid(dataHandler, baseType.get(), parameter, s));
