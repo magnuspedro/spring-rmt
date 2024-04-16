@@ -13,7 +13,6 @@ import org.springframework.util.Assert;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,9 +23,7 @@ import java.util.zip.ZipInputStream;
 @Component
 @RequiredArgsConstructor
 public class ExtractFiles {
-
     private static final String EXTENSION = ".java";
-    private static final Path TEMP_DIR = Path.of(System.getProperty("user.dir"));
     private final S3ProjectRepository s3ProjectRepository;
 
     @SneakyThrows
@@ -58,9 +55,9 @@ public class ExtractFiles {
     }
 
     private Optional<File> createTempFile(String name, ZipInputStream zipInputStream) {
-        var fullName = name.split("\\.");
+        var fullName = name.split(EXTENSION);
         try {
-            var file = File.createTempFile(fullName[0], "." + fullName[1]);
+            var file = File.createTempFile(fullName[0], EXTENSION);
             FileUtils.copyToFile(zipInputStream, file);
             return Optional.of(file);
         } catch (IOException e) {
