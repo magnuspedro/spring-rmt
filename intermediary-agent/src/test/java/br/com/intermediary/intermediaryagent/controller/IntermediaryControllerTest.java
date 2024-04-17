@@ -42,7 +42,7 @@ class IntermediaryControllerTest {
                 "Hello, World!".getBytes()
         );
 
-        mockMvc.perform(multipart("/intermediary-agent/rest/projects/upload")
+        mockMvc.perform(multipart("/rmt/api/v1/upload")
                 .file(multipart)
         ).andExpect(status().isOk());
 

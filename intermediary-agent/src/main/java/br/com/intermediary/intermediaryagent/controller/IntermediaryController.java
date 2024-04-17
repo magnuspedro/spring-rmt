@@ -1,13 +1,10 @@
 package br.com.intermediary.intermediaryagent.controller;
 
 import br.com.intermediary.intermediaryagent.refactor.RefactorProject;
-import br.com.messages.members.api.intermediary.IntermediaryAgentCoreApi;
-import br.com.messages.members.api.intermediary.IntermediaryAgentProjectsApi;
 import br.com.messages.projects.Project;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,13 +20,13 @@ import java.util.UUID;
 @Valid
 @Slf4j
 @RestController
-@RequestMapping(IntermediaryAgentCoreApi.AGENT_PATH + IntermediaryAgentProjectsApi.ROOT)
+@RequestMapping("/rmt/api/v1")
 @RequiredArgsConstructor
 public class IntermediaryController implements Serializable {
 
     private final RefactorProject refactorProject;
 
-    @PostMapping(path = "upload")
+    @PostMapping(path = "/upload")
     public String registration(@NotNull @RequestParam("file") MultipartFile file) throws IOException {
         var id = UUID.randomUUID().toString();
         log.info("Receiving project original name: {},id: {}, size: {}", file.getOriginalFilename(), id, file.getSize());
