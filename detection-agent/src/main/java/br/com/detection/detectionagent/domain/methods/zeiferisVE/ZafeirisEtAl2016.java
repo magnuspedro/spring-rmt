@@ -11,8 +11,6 @@ import br.com.messages.patterns.DesignPattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -28,14 +26,10 @@ public class ZafeirisEtAl2016 implements DetectionMethod, AbstractSyntaxTreeDepe
 
     @Override
     public Collection<RefactoringCandidate> extractCandidates(List<JavaFile> javaFiles) {
-        try {
-            extractionMethodFactory.build(this).parseAll(javaFiles);
-            return zafeirisEtAl2016Verifier.retrieveCandidatesFrom(javaFiles).stream()
-                    .map(RefactoringCandidate.class::cast)
-                    .toList();
-        } catch (MalformedURLException | FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        extractionMethodFactory.build(this).parseAll(javaFiles);
+        return zafeirisEtAl2016Verifier.retrieveCandidatesFrom(javaFiles).stream()
+                .map(RefactoringCandidate.class::cast)
+                .toList();
     }
 
     @Override

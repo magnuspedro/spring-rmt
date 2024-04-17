@@ -12,8 +12,6 @@ import com.github.javaparser.ast.expr.SuperExpr;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,8 +26,7 @@ public class ZafeirisEtAl2016Verifier {
     private final SiblingPreconditions siblingPreconditions;
 
 
-    public List<ZafeirisEtAl2016Candidate> retrieveCandidatesFrom(List<JavaFile> javaFiles)
-            throws MalformedURLException, FileNotFoundException {
+    public List<ZafeirisEtAl2016Candidate> retrieveCandidatesFrom(List<JavaFile> javaFiles) {
 
         final var candidates = this.retrieveCandidates(javaFiles);
         var candidatesWithOverriddenMethods = candidates.stream()

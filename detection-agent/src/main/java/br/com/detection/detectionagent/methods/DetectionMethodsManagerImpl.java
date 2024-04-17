@@ -27,7 +27,7 @@ public class DetectionMethodsManagerImpl implements DetectionMethodsManager {
     public List<RefactoringCandidate> extractCandidates(String projectId) {
 
         var project = projectsRepository.findById(projectId)
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
 
         var javaFiles = this.extractFiles.extract(project);
         var candidates = detectionMethod.stream()
