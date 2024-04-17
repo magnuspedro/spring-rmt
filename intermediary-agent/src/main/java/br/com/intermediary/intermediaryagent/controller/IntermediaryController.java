@@ -1,7 +1,7 @@
 package br.com.intermediary.intermediaryagent.controller;
 
 import br.com.intermediary.intermediaryagent.refactor.RefactorProject;
-import br.com.messages.projects.Project;
+import br.com.magnus.config.starter.projects.Project;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;

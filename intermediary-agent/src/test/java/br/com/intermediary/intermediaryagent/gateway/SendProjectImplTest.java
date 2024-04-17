@@ -1,7 +1,7 @@
 package br.com.intermediary.intermediaryagent.gateway;
 
 import br.com.intermediary.intermediaryagent.configuration.SqsProperties;
-import br.com.messages.projects.Project;
+import br.com.magnus.config.starter.projects.Project;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

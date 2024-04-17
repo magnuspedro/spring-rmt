@@ -2,9 +2,9 @@ package br.com.intermediary.intermediaryagent.refactor;
 
 import br.com.intermediary.intermediaryagent.gateway.SendProject;
 import br.com.intermediary.intermediaryagent.repository.ProjectRepository;
-import br.com.messages.configuration.BucketProperties;
-import br.com.messages.projects.Project;
-import br.com.messages.repository.S3ProjectRepository;
+import br.com.magnus.config.starter.configuration.BucketProperties;
+import br.com.magnus.config.starter.projects.Project;
+import br.com.magnus.config.starter.repository.S3ProjectRepository;
 import io.awspring.cloud.s3.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
