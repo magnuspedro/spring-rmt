@@ -1,9 +1,9 @@
 package br.com.detection.detectionagent.domain.methods.weiL;
 
 import br.com.detection.detectionagent.file.JavaFile;
-import br.com.messages.members.candidates.RefactoringCandidate;
-import br.com.messages.members.detectors.methods.Reference;
-import br.com.messages.patterns.DesignPattern;
+import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
+import br.com.magnus.config.starter.members.detectors.methods.Reference;
+import br.com.magnus.config.starter.patterns.DesignPattern;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;

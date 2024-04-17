@@ -1,8 +1,8 @@
 package br.com.detection.detectionagent.refactor;
 
 import br.com.detection.detectionagent.file.JavaFile;
-import br.com.messages.projects.Project;
-import br.com.messages.repository.S3ProjectRepository;
+import br.com.magnus.config.starter.projects.Project;
+import br.com.magnus.config.starter.repository.S3ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

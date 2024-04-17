@@ -6,8 +6,8 @@ import br.com.detection.detectionagent.domain.methods.zeiferisVE.verifiers.Zafei
 import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethodFactory;
 import br.com.detection.detectionagent.methods.dataExtractions.forks.AbstractSyntaxTreeDependent;
-import br.com.messages.members.candidates.RefactoringCandidate;
-import br.com.messages.patterns.DesignPattern;
+import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
+import br.com.magnus.config.starter.patterns.DesignPattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

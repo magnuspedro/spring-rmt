@@ -4,7 +4,7 @@ import br.com.detection.detectionagent.domain.methods.DetectionMethod;
 import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.refactor.ExtractFiles;
 import br.com.detection.detectionagent.repository.ProjectRepository;
-import br.com.messages.members.candidates.RefactoringCandidate;
+import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

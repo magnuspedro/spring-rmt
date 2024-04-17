@@ -5,7 +5,7 @@ import br.com.detection.detectionagent.domain.methods.RefactoringCandidatesVerif
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethod;
-import br.com.messages.members.candidates.RefactoringCandidate;
+import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;

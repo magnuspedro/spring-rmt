@@ -1,7 +1,7 @@
 package br.com.detection.detectionagent;
 
 import br.com.detection.detectionagent.configuration.SqsProperties;
-import br.com.messages.configuration.RedisProperties;
+import br.com.magnus.config.starter.configuration.RedisProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
