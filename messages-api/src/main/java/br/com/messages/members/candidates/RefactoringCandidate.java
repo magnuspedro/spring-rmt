@@ -5,16 +5,16 @@ import br.com.messages.patterns.DesignPattern;
 
 public interface RefactoringCandidate<T> {
 
-	String getId();
-	
-	Reference getReference();
+    String getId();
 
-	String getPkg();
+    Reference getReference();
 
-	String getClassName();
+    String getPkg();
 
-	DesignPattern getEligiblePattern();
+    String getClassName();
 
-	T isCandidateFrom();
+    DesignPattern getEligiblePattern();
+
+    boolean supports();
 
 }
