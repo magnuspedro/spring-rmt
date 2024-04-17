@@ -38,9 +38,8 @@ class ExtractMethodPreconditionsTest {
     public void shouldReturnFalseWhenFragmentsIsNull() {
         var overriddenMethod = new MethodDeclaration();
         var method = new MethodDeclaration();
-        var superExpr = new SuperExpr();
 
-        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method, superExpr);
+        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
 
         assertFalse(result);
     }
@@ -49,7 +48,6 @@ class ExtractMethodPreconditionsTest {
     @DisplayName("Should return false when super call is nested")
     public void shouldReturnFalseWhenSuperCallIsNested() {
         var overriddenMethod = new MethodDeclaration();
-        var superExpr = new SuperExpr();
         var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
@@ -61,7 +59,7 @@ class ExtractMethodPreconditionsTest {
                         new ExpressionStmt(new MethodCallExpr("cast", new CastExpr())),
                         new ReturnStmt())));
 
-        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method, superExpr);
+        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
 
         assertFalse(result);
     }
@@ -83,7 +81,7 @@ class ExtractMethodPreconditionsTest {
                         new ExpressionStmt(new MethodCallExpr("super", superExpr))
                 )));
 
-        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method, superExpr);
+        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
 
         assertFalse(result);
     }
@@ -105,7 +103,7 @@ class ExtractMethodPreconditionsTest {
                         new ExpressionStmt(new MethodCallExpr("super", superExpr))
                 )));
 
-        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method, superExpr);
+        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
 
         assertFalse(result);
     }
@@ -128,7 +126,7 @@ class ExtractMethodPreconditionsTest {
                         new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), new NameExpr("var"), superExpr))
                 )));
 
-        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method, superExpr);
+        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
 
         assertFalse(result);
     }
@@ -155,7 +153,7 @@ class ExtractMethodPreconditionsTest {
                         new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), superExpr))
                 )));
 
-        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method, superExpr);
+        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
 
         assertFalse(result);
     }
@@ -182,7 +180,7 @@ class ExtractMethodPreconditionsTest {
                         new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), superExpr))
                 )));
 
-        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method, superExpr);
+        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
 
         assertFalse(result);
     }
@@ -211,7 +209,7 @@ class ExtractMethodPreconditionsTest {
                         new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), superExpr))
                 )));
 
-        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method, superExpr);
+        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
 
         assertTrue(result);
     }
