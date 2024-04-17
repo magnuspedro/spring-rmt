@@ -3,7 +3,7 @@ package br.com.messages.members.candidates;
 import br.com.messages.members.detectors.methods.Reference;
 import br.com.messages.patterns.DesignPattern;
 
-public interface RefactoringCandidate {
+public interface RefactoringCandidate<T> {
 
 	String getId();
 	
@@ -14,5 +14,7 @@ public interface RefactoringCandidate {
 	String getClassName();
 
 	DesignPattern getEligiblePattern();
+
+	T isCandidateFrom();
 
 }
