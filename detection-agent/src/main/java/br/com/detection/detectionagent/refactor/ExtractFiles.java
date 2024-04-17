@@ -6,13 +6,11 @@ import br.com.messages.repository.S3ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,11 +38,11 @@ public class ExtractFiles {
 
             Optional.of(zipEntry)
                     .filter(f -> f.getName().endsWith(EXTENSION))
-                    .flatMap(entry -> createTempFile(entry.getName(), zipInputStream))
+                    .flatMap(entry -> createTempFile(entry.getName()))
                     .ifPresent(file -> javaFiles.add(JavaFile.builder()
                             .name(file.getName())
                             .path(file.getPath())
-                            .inputStream(openFile(file))
+                            .originalClass(getString(zipInputStream))
                             .build()));
         }
 
@@ -54,11 +52,10 @@ public class ExtractFiles {
         return javaFiles;
     }
 
-    private Optional<File> createTempFile(String name, ZipInputStream zipInputStream) {
+    private Optional<File> createTempFile(String name) {
         var fullName = name.split(EXTENSION);
         try {
             var file = File.createTempFile(fullName[0], EXTENSION);
-            FileUtils.copyToFile(zipInputStream, file);
             return Optional.of(file);
         } catch (IOException e) {
             log.warn("Error creating temp file, {}", name, e);
@@ -67,7 +64,7 @@ public class ExtractFiles {
     }
 
     @SneakyThrows
-    private InputStream openFile(File file) {
-        return FileUtils.openInputStream(file);
+    private String getString(ZipInputStream zipInputStream) {
+        return new String(zipInputStream.readAllBytes());
     }
 }

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.ByteArrayInputStream;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -47,7 +46,7 @@ class AbstractSyntaxTreeTest {
     @DisplayName("Should test parseAll for a java file")
     public void shouldTestParseAllForAJavaFile() {
         var javaFiles = List.of(JavaFile.builder()
-                .inputStream(new ByteArrayInputStream(clazz.getBytes()))
+                .originalClass(new String(clazz.getBytes()))
                 .build());
 
         var result = this.abstractSyntaxTree.parseAll(javaFiles);
@@ -66,7 +65,7 @@ class AbstractSyntaxTreeTest {
     @DisplayName("Should test parse single for java file")
     public void shouldTestParseSingleForJavaFile() {
         var javaFile = JavaFile.builder()
-                .inputStream(new ByteArrayInputStream(clazz.getBytes()))
+                .originalClass(new String(clazz.getBytes()))
                 .build();
 
         var result = this.abstractSyntaxTree.parseSingle(javaFile);

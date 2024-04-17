@@ -34,8 +34,7 @@ public class AbstractSyntaxTree implements ExtractionMethod {
         CompilationUnit parsed = null;
 
         try {
-            parsed = JavaParser.parse(file.getInputStream());
-            ;
+            parsed = JavaParser.parse(file.getOriginalClass());
             file.setParsed(parsed);
         } catch (Exception e) {
             log.error("Error parsing file: {}", file.getPath(), e);
