@@ -17,14 +17,13 @@ import lombok.ToString;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 @Builder
 @ToString
 @RequiredArgsConstructor
-public class ZafeirisEtAl2016Canditate implements RefactoringCandidate {
+public class ZafeirisEtAl2016Candidate implements RefactoringCandidate {
 
     @Builder.Default
     private final String id = UUID.randomUUID().toString();
@@ -88,7 +87,7 @@ public class ZafeirisEtAl2016Canditate implements RefactoringCandidate {
     }
 
     public FragmentsSplitter toFragment() {
-        return new FragmentsSplitter(this.getOverridingMethod(), this.getSuperCall());
+        return new FragmentsSplitter(this.getOverridingMethod());
     }
 
     public CandidateWithVariables toCandidateWithVariables() {
@@ -96,13 +95,13 @@ public class ZafeirisEtAl2016Canditate implements RefactoringCandidate {
                 this.toFragment().getVariablesOnBeforeFragmentsMethodCalss());
     }
 
-    public record CandidateWithVariables(ZafeirisEtAl2016Canditate candidate,
-                                         Collection<VariableDeclarationExpr> variables) {
+    public record CandidateWithVariables(ZafeirisEtAl2016Candidate candidate,
+                                         List<VariableDeclarationExpr> variables) {
     }
 
     @Override
     public boolean equals(Object object) {
-        if (object instanceof ZafeirisEtAl2016Canditate another) {
+        if (object instanceof ZafeirisEtAl2016Candidate another) {
             return new EqualsBuilder().append(id, another.id).isEquals();
         }
         return false;

@@ -4,7 +4,6 @@ import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandl
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.FragmentsSplitter;
 import com.github.javaparser.ast.DataKey;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.SuperExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +19,8 @@ public class ExtractMethodPreconditions {
 
     private final AstHandler astHandler;
 
-    public boolean isValid(MethodDeclaration overriddenMethod, MethodDeclaration m, SuperExpr superCall) {
-        final FragmentsSplitter fragmentsSplitter = new FragmentsSplitter(m, superCall);
+    public boolean isValid(MethodDeclaration overriddenMethod, MethodDeclaration m) {
+        final var fragmentsSplitter = new FragmentsSplitter(m);
 
         return fragmentsSplitter.hasSpecificNode()
                 && this.superCallIsNotNested(m)

@@ -10,7 +10,10 @@ import com.github.javaparser.ast.type.Type;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -26,11 +29,11 @@ public class FragmentsSplitter {
 
     private final AstHandler astHandler = new AstHandler();
 
-    public FragmentsSplitter(MethodDeclaration m, SuperExpr superCall) {
+    public FragmentsSplitter(MethodDeclaration m) {
         final BlockStmt blockStmt = astHandler.getBlockStatement(m)
                 .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
 
-        boolean superWasFound = false;
+        var superWasFound = false;
         for (Node child : blockStmt.getChildNodes()) {
 
             if (this.astHandler.childHasDirectSuperCall(child)) {
@@ -84,27 +87,30 @@ public class FragmentsSplitter {
         return this.node != null;
     }
 
-    public Collection<VariableDeclarationExpr> getVariablesOnBeforeFragmentsMethodCalss() {
-        final Collection<VariableDeclarationExpr> variables = this.getBeforeFragment().stream().flatMap(n -> this.astHandler.extractVariableDclrFromNode(n).stream()).toList();
+    public List<VariableDeclarationExpr> getVariablesOnBeforeFragmentsMethodCalss() {
+        final var variables = this.getBeforeFragment()
+                .stream()
+                .flatMap(n -> this.astHandler.extractVariableDclrFromNode(n).stream())
+                .toList();
 
-        final Optional<MethodCallExpr> methodCall = this.astHandler.getMethodCallExpr(node).stream().findFirst();
+        final var methodCall = this.astHandler.getMethodCallExpr(node).stream().findFirst();
 
         if (methodCall.isEmpty()) {
 
             log.info("Method call not found - {}", NodeConverter.toString(node));
 
-            return Collections.emptyList();
+            return List.of();
         }
 
-        final List<VariableDeclarationExpr> referencedVariables = new ArrayList<>();
-        for (VariableDeclarationExpr var : variables) {
-            if (this.astHandler.variableIsPresentInMethodCall(var, methodCall.get())) {
-                referencedVariables.add(var);
+        final var referencedVariables = new ArrayList<VariableDeclarationExpr>();
+        for (var variable : variables) {
+            if (this.astHandler.variableIsPresentInMethodCall(variable, methodCall.get())) {
+                referencedVariables.add(variable);
                 continue;
             }
 
-            if (this.afterFragmentContaisVariable(var)) {
-                referencedVariables.add(var);
+            if (this.afterFragmentContainsVariable(variable)) {
+                referencedVariables.add(variable);
             }
         }
         return referencedVariables;
@@ -115,15 +121,15 @@ public class FragmentsSplitter {
             return Optional.empty();
         }
 
-        if (this.node.getChildNodes().get(0) instanceof VariableDeclarationExpr) {
-            return Optional.of(new SuperReturnVar((VariableDeclarationExpr) this.node.getChildNodes().get(0)));
-        } else if (this.node.getChildNodes().get(0) instanceof AssignExpr assignment) {
+        if (this.node.getChildNodes().getFirst() instanceof VariableDeclarationExpr) {
+            return Optional.of(new SuperReturnVar((VariableDeclarationExpr) this.node.getChildNodes().getFirst()));
+        } else if (this.node.getChildNodes().getFirst() instanceof AssignExpr assignment) {
             return Optional.of(new SuperReturnVar(assignment));
         }
         return Optional.empty();
     }
 
-    private boolean afterFragmentContaisVariable(VariableDeclarationExpr var) {
+    private boolean afterFragmentContainsVariable(VariableDeclarationExpr var) {
         return this.getAfterFragment().stream().anyMatch(n -> this.astHandler.nodeHasSimpleName(this.astHandler.getVariableName(var), n));
     }
 
@@ -136,9 +142,11 @@ public class FragmentsSplitter {
                 .toList();
 
         return declarations.stream()
-                .flatMap(varDclr -> varDclr.getVariables().stream())
+                .map(VariableDeclarationExpr::getVariables)
+                .flatMap(Collection::stream)
                 .filter(v -> v.getNameAsString().equals(nameExpr.getNameAsString()))
-                .findFirst().get()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Variable name is not the same"))
                 .getType();
     }
 

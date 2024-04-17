@@ -261,6 +261,7 @@ public class AstHandler {
                     .getArguments()
                     .stream()
                     .anyMatch(this::childHasDirectSuperCall);
+
             if (argumentsPresentSuper) {
                 return true;
             }

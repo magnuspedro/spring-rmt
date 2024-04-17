@@ -1,7 +1,7 @@
 package br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
-import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Canditate;
+import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -46,7 +46,7 @@ class SiblingPreconditionsTest {
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new BlockStmt(NodeList.nodeList(new IfStmt(), new ReturnStmt())));
-        var candidates = List.of(ZafeirisEtAl2016Canditate.builder()
+        var candidates = List.of(ZafeirisEtAl2016Candidate.builder()
                 .overridingMethod(method)
                 .superCall(new SuperExpr())
                 .build());
@@ -77,15 +77,15 @@ class SiblingPreconditionsTest {
                                 new NameExpr("primitive2")
                         )),
                         new ReturnStmt())));
-        var candidates = List.of(ZafeirisEtAl2016Canditate.builder()
+        var candidates = List.of(ZafeirisEtAl2016Candidate.builder()
                         .overridingMethod(new MethodDeclaration())
                         .superCall(new SuperExpr())
                         .build(),
-                ZafeirisEtAl2016Canditate.builder()
+                ZafeirisEtAl2016Candidate.builder()
                         .overridingMethod(method)
                         .superCall(new SuperExpr())
                         .build(),
-                ZafeirisEtAl2016Canditate.builder()
+                ZafeirisEtAl2016Candidate.builder()
                         .overridingMethod(new MethodDeclaration())
                         .superCall(new SuperExpr())
                         .build());
@@ -142,19 +142,19 @@ class SiblingPreconditionsTest {
                                 new NameExpr("var2")
                         )),
                         new ReturnStmt())));
-        var candidates = List.of(ZafeirisEtAl2016Canditate.builder()
+        var candidates = List.of(ZafeirisEtAl2016Candidate.builder()
                         .id("1")
                         .overridingMethod(method)
                         .superCall(superExpr)
                         .classDcl(new ClassOrInterfaceDeclaration())
                         .build(),
-                ZafeirisEtAl2016Canditate.builder()
+                ZafeirisEtAl2016Candidate.builder()
                         .id("2")
                         .overridingMethod(method2)
                         .superCall(superExpr)
                         .classDcl(new ClassOrInterfaceDeclaration())
                         .build(),
-                ZafeirisEtAl2016Canditate.builder()
+                ZafeirisEtAl2016Candidate.builder()
                         .id("3")
                         .overridingMethod(method3)
                         .superCall(superExpr)
@@ -217,19 +217,19 @@ class SiblingPreconditionsTest {
                                 new NameExpr("var")
                         )),
                         new ReturnStmt())));
-        var candidates = List.of(ZafeirisEtAl2016Canditate.builder()
+        var candidates = List.of(ZafeirisEtAl2016Candidate.builder()
                         .id("1")
                         .overridingMethod(method)
                         .superCall(superExpr)
                         .classDcl(new ClassOrInterfaceDeclaration())
                         .build(),
-                ZafeirisEtAl2016Canditate.builder()
+                ZafeirisEtAl2016Candidate.builder()
                         .id("2")
                         .overridingMethod(method2)
                         .superCall(superExpr)
                         .classDcl(new ClassOrInterfaceDeclaration())
                         .build(),
-                ZafeirisEtAl2016Canditate.builder()
+                ZafeirisEtAl2016Candidate.builder()
                         .id("3")
                         .overridingMethod(method3)
                         .superCall(superExpr)

@@ -2,7 +2,7 @@ package br.com.detection.detectionagent.domain.methods.zeiferisVE.executors;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.FragmentsSplitter;
-import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Canditate;
+import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
 import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethod;
 import com.github.javaparser.ast.CompilationUnit;
@@ -37,7 +37,7 @@ public class ZafeirisEtAl2016Executor {
 
     }
 
-    public void refactor(ZafeirisEtAl2016Canditate candidate, List<JavaFile> javaFiles, ExtractionMethod extractMethod) {
+    public void refactor(ZafeirisEtAl2016Candidate candidate, List<JavaFile> javaFiles, ExtractionMethod extractMethod) {
 
         var cus = this.getParsedClasses(javaFiles, extractMethod);
         var childCU = candidate.getCompilationUnit();
@@ -71,7 +71,7 @@ public class ZafeirisEtAl2016Executor {
         applyFinalAdjustments(javaFiles, candidate, parentCU, childCU);
     }
 
-    private CompilationUnit updateChild(Collection<CompilationUnit> allClasses, ZafeirisEtAl2016Canditate candidate) {
+    private CompilationUnit updateChild(Collection<CompilationUnit> allClasses, ZafeirisEtAl2016Candidate candidate) {
         return allClasses.stream().filter(c ->
                 this.astHandler.doesCompilationUnitsMatch(c, Optional.of(candidate.getClassDeclaration()),
                         Optional.of(candidate.getPackageDeclaration()))
@@ -82,7 +82,7 @@ public class ZafeirisEtAl2016Executor {
         return this.astHandler.getParent(childCU, allClasses).orElseThrow(IllegalStateException::new);
     }
 
-    private void applyFinalAdjustments(List<JavaFile> javaFiles, ZafeirisEtAl2016Canditate candidate,
+    private void applyFinalAdjustments(List<JavaFile> javaFiles, ZafeirisEtAl2016Candidate candidate,
                                        CompilationUnit parentCU, CompilationUnit childCU) {
 
         final MethodDeclaration overridenMethodDclr = this.astHandler.getMethods(parentCU).stream()
@@ -95,7 +95,7 @@ public class ZafeirisEtAl2016Executor {
 
     }
 
-    private void pullUpOverridenMethod(List<JavaFile> javaFiles, ZafeirisEtAl2016Canditate candidate,
+    private void pullUpOverridenMethod(List<JavaFile> javaFiles, ZafeirisEtAl2016Candidate candidate,
                                        CompilationUnit parentCU, CompilationUnit childCU) {
 
         final MethodDeclaration overridenMethodDclr = this.astHandler.getMethods(parentCU).stream()
@@ -119,7 +119,7 @@ public class ZafeirisEtAl2016Executor {
 //        writeCanges(childCU, javaFiles.getFile(childCU));
     }
 
-    private void extractMethodOnBeforeAndAfterFragments(List<JavaFile> javaFiles, ZafeirisEtAl2016Canditate candidate,
+    private void extractMethodOnBeforeAndAfterFragments(List<JavaFile> javaFiles, ZafeirisEtAl2016Candidate candidate,
                                                         CompilationUnit childCU, CompilationUnit parentCU, MethodCallExpr newDoOverridenCall) {
 
         final MethodDeclaration childMethodDclr = this.astHandler.getMethods(childCU).stream()
@@ -355,7 +355,7 @@ public class ZafeirisEtAl2016Executor {
     }
 
     private MethodDeclaration extractMethodOnOverriddenMethod(List<JavaFile> javaFiles,
-                                                              ZafeirisEtAl2016Canditate candidate, CompilationUnit parentCu) {
+                                                              ZafeirisEtAl2016Candidate candidate, CompilationUnit parentCu) {
 
         final ClassOrInterfaceDeclaration parentClassDclr = this.astHandler.getClassOrInterfaceDeclaration(parentCu)
                 .orElseThrow(IllegalArgumentException::new);

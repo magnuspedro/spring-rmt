@@ -1,15 +1,12 @@
 package br.com.detection.detectionagent.domain.methods.zeiferisVE.verifiers;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
-import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Canditate;
+import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions.ExtractMethodPreconditions;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions.SiblingPreconditions;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions.SuperInvocationPreconditions;
 import br.com.detection.detectionagent.file.JavaFile;
-import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethod;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.PackageDeclaration;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.SuperExpr;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +15,8 @@ import org.springframework.stereotype.Component;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -33,99 +28,107 @@ public class ZafeirisEtAl2016Verifier {
     private final SiblingPreconditions siblingPreconditions;
 
 
-    public List<ZafeirisEtAl2016Canditate> retrieveCandidatesFrom(List<JavaFile> javaFiles, ExtractionMethod extractMethod)
+    public List<ZafeirisEtAl2016Candidate> retrieveCandidatesFrom(List<JavaFile> javaFiles)
             throws MalformedURLException, FileNotFoundException {
 
-        final List<ZafeirisEtAl2016Canditate> candidates = this.retrieveCandidates(javaFiles, extractMethod);
+        final var candidates = this.retrieveCandidates(javaFiles);
+        var candidatesWithOverriddenMethods = candidates.stream()
+                .map(ZafeirisEtAl2016Candidate::getOverridenMethod)
+                .toList();
 
-        for (MethodDeclaration overriddenMethod : candidates.stream().map(ZafeirisEtAl2016Canditate::getOverridenMethod)
-                .toList()) {
+        for (var overriddenMethod : candidatesWithOverriddenMethods) {
+            final var candidateWithSameOverriddenMethod = candidates.stream()
+                    .filter(c -> c.getOverridenMethod().equals(overriddenMethod))
+                    .toList();
 
-            final Collection<ZafeirisEtAl2016Canditate> candidatesOfSameOverriddenMethod = candidates.stream()
-                    .filter(c -> c.getOverridenMethod().equals(overriddenMethod)).collect(Collectors.toList());
-
-            if (siblingPreconditions.violates(candidatesOfSameOverriddenMethod)) {
-                candidates.removeAll(candidates.stream().filter(c -> c.getOverridenMethod().equals(overriddenMethod))
-                        .toList());
+            if (siblingPreconditions.violates(candidateWithSameOverriddenMethod)) {
+                candidates.removeAll(candidates.stream()
+                        .filter(c -> c.getOverridenMethod().equals(overriddenMethod))
+                        .toList()
+                );
             }
         }
         return candidates;
     }
 
-    private List<ZafeirisEtAl2016Canditate> retrieveCandidates(List<JavaFile> javaFiles, ExtractionMethod extractionMethod) {
-        final List<ZafeirisEtAl2016Canditate> candidates = new ArrayList<>();
+    private List<ZafeirisEtAl2016Candidate> retrieveCandidates(List<JavaFile> javaFiles) {
+        final var candidates = new ArrayList<ZafeirisEtAl2016Candidate>();
 
-        var cus = extractionMethod.parseAll(javaFiles).stream()
-                .map(CompilationUnit.class::cast)
+        var cus = javaFiles.stream()
+                .map(JavaFile::getCU)
                 .toList();
 
         javaFiles.forEach(file -> {
+            final var parent = this.astHandler.getParent(file.getCU(), cus);
+            file.getCU().setParentNode(parent.orElse(null));
 
-            final Optional<CompilationUnit> parent = this.astHandler.getParent((CompilationUnit) file.getParsed(), cus);
-
-            this.retrieveCandidate(file, (CompilationUnit) file.getParsed(), parent).ifPresent(candidates::add);
+            this.retrieveCandidate(file).ifPresent(candidates::add);
         });
 
         return candidates;
     }
 
-    private Optional<ZafeirisEtAl2016Canditate> retrieveCandidate(JavaFile file, CompilationUnit cUnit,
-                                                                  Optional<CompilationUnit> parent) {
+    private Optional<ZafeirisEtAl2016Candidate> retrieveCandidate(JavaFile file) {
+        var parent = (CompilationUnit) file.getCU()
+                .getParentNode()
+                .orElse(null);
 
-        if (this.violatesClassPreconditions(cUnit, parent)) {
+        if (this.violatesClassPreconditions(parent)) {
             return Optional.empty();
         }
 
-        final Collection<MethodDeclaration> methods = this.astHandler.getMethods(cUnit);
+        final var methods = this.astHandler.getMethods(file.getCU());
+        final var nonStaticOrConstructorMethodsList = methods.stream()
+                .filter(m -> !m.isConstructorDeclaration() && !m.isStatic())
+                .toList();
 
-        for (MethodDeclaration method : methods.stream().filter(m -> !m.isConstructorDeclaration() && !m.isStatic())
-                .toList()) {
-
-            final Collection<SuperExpr> superCalls = this.astHandler.getSuperCalls(method);
+        for (var method : nonStaticOrConstructorMethodsList) {
+            final var superCalls = this.astHandler.getSuperCalls(method);
 
             if (superInvocationPreconditions.violatesAmountOfSuperCallsOrName(method, superCalls)) {
                 continue;
             }
 
-            final SuperExpr superCall = superCalls.stream().findFirst().get();
+            final var overriddenMethod = this.astHandler.retrieveOverriddenMethod(parent, method);
 
-            final MethodDeclaration overridenMethod = this.astHandler.retrieveOverriddenMethod(parent.get(),
-                    method);
-
-            if (overridenMethod == null) {
+            if (overriddenMethod == null) {
                 continue;
             }
 
-            if (!this.superInvocationPreconditions.isOverriddenMethodValid(overridenMethod, method)
-                    || !extractMethodPreconditions.isValid(overridenMethod, method, superCall)) {
+            final var superCall = superCalls.stream()
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Super call should exists in method"));
+
+            if (!this.superInvocationPreconditions.isOverriddenMethodValid(overriddenMethod, method)
+                    || !extractMethodPreconditions.isValid(overriddenMethod, method)) {
                 continue;
             }
 
-            return Optional.of(this.createCandidate(file, cUnit, overridenMethod, method, superCall));
+            return Optional.of(this.createCandidate(file, overriddenMethod, method, superCall));
 
         }
         return Optional.empty();
     }
 
-    private ZafeirisEtAl2016Canditate createCandidate(JavaFile file, CompilationUnit cUnit,
-                                                      MethodDeclaration overridenMethod, MethodDeclaration method, SuperExpr superCall) {
-        final PackageDeclaration pkgDcl = this.astHandler.getPackageDeclaration(cUnit);
+    private ZafeirisEtAl2016Candidate createCandidate(JavaFile file, MethodDeclaration overriddenMethod, MethodDeclaration method, SuperExpr superCall) {
+        final var pkgDcl = this.astHandler.getPackageDeclaration(file.getCU());
 
-        final ClassOrInterfaceDeclaration classDcl = this.astHandler.getClassOrInterfaceDeclaration(cUnit).get();
+        final var classDcl = this.astHandler.getClassOrInterfaceDeclaration(file.getCU())
+                .orElseThrow(() -> new IllegalArgumentException("Could not find class declaration for candidate"));
 
-        return ZafeirisEtAl2016Canditate.builder()
+        return ZafeirisEtAl2016Candidate.builder()
                 .file(file)
-                .compilationUnit(cUnit)
+                .compilationUnit(file.getCU())
                 .packageDcl(pkgDcl)
                 .classDcl(classDcl)
-                .overridenMethod(overridenMethod)
+                .overridenMethod(overriddenMethod)
                 .overridingMethod(method)
                 .superCall(superCall)
                 .build();
     }
 
-    private boolean violatesClassPreconditions(CompilationUnit cUnit, Optional<CompilationUnit> parent) {
-        return parent.isEmpty();
+    private boolean violatesClassPreconditions(CompilationUnit parent) {
+        return parent == null;
 
     }
 

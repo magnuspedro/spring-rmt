@@ -16,7 +16,6 @@ import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -30,9 +29,10 @@ public class ZafeirisEtAl2016 implements DetectionMethod, AbstractSyntaxTreeDepe
     @Override
     public Collection<RefactoringCandidate> extractCandidates(List<JavaFile> javaFiles) {
         try {
-            var extractMethod = extractionMethodFactory.build(this);
-            return zafeirisEtAl2016Verifier.retrieveCandidatesFrom(javaFiles, extractMethod).stream()
-                    .map(RefactoringCandidate.class::cast).collect(Collectors.toList());
+            extractionMethodFactory.build(this).parseAll(javaFiles);
+            return zafeirisEtAl2016Verifier.retrieveCandidatesFrom(javaFiles).stream()
+                    .map(RefactoringCandidate.class::cast)
+                    .toList();
         } catch (MalformedURLException | FileNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -41,9 +41,11 @@ public class ZafeirisEtAl2016 implements DetectionMethod, AbstractSyntaxTreeDepe
     @Override
     public void refactor(List<JavaFile> javaFiles, RefactoringCandidate candidate) {
         var extractMethod = extractionMethodFactory.build(this);
-        new ZafeirisEtAl2016Executor().refactor((ZafeirisEtAl2016Canditate) candidate, javaFiles, extractMethod);
+        new ZafeirisEtAl2016Executor().refactor((ZafeirisEtAl2016Candidate) candidate, javaFiles, extractMethod);
     }
-;
+
+    ;
+
     @Override
     public Set<DesignPattern> getDesignPatterns() {
         return designPatterns;

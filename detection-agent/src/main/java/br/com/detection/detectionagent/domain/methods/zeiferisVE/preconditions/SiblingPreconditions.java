@@ -1,7 +1,8 @@
 package br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
-import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Canditate;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.SimpleNameException;
+import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
@@ -18,59 +19,66 @@ public class SiblingPreconditions {
 
     private final AstHandler astHandler;
 
-    public boolean violates(Collection<ZafeirisEtAl2016Canditate> canditadesOfSameOverridenMethod) {
-        final List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables = canditadesOfSameOverridenMethod.stream()
-                .map(ZafeirisEtAl2016Canditate::toCandidateWithVariables)
+    public boolean violates(Collection<ZafeirisEtAl2016Candidate> candidatesOfSameOverriddenMethod) {
+        final List<ZafeirisEtAl2016Candidate.CandidateWithVariables> candidatesWithVariables = candidatesOfSameOverriddenMethod.stream()
+                .map(ZafeirisEtAl2016Candidate::toCandidateWithVariables)
                 .collect(Collectors.toList());
 
-        return !beforeFragmentReturnIsSame(candidatesWithVariables)
+        return !beforeFragmentReturnEqual(candidatesWithVariables)
                 && !this.beforeReturnIsUsedInSuper(candidatesWithVariables)
-                && this.isHierarchyShort(candidatesWithVariables);
+                && this.isAShortHierarchy(candidatesWithVariables);
     }
 
-    private boolean isHierarchyShort(List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables) {
+    private boolean isAShortHierarchy(List<ZafeirisEtAl2016Candidate.CandidateWithVariables> candidatesWithVariables) {
 
-        final List<Hierarchy> hierarchies = new ArrayList<>();
+        final var hierarchies = new ArrayList<Hierarchy>();
 
-        for (ZafeirisEtAl2016Canditate.CandidateWithVariables candidate : candidatesWithVariables) {
-            boolean isPartOfAny = false;
-            for (Hierarchy hierarchy : hierarchies) {
-                if (hierarchy.isPartOf(candidate.candidate().getClassDeclaration())) {
-                    isPartOfAny = true;
+        for (var candidate : candidatesWithVariables) {
+            boolean belongsToHierarchy = false;
+            for (var hierarchy : hierarchies) {
+                if (hierarchy.belongs(candidate.candidate().getClassDeclaration())) {
+                    belongsToHierarchy = true;
                     hierarchy.declarations.add(candidate.candidate().getClassDeclaration());
                 }
             }
 
-            if (!isPartOfAny) {
+            if (!belongsToHierarchy) {
                 hierarchies.add(new Hierarchy());
-                hierarchies.get(0).declarations.add(candidate.candidate().getClassDeclaration());
+                hierarchies.getFirst().declarations.add(candidate.candidate().getClassDeclaration());
             }
         }
 
         return hierarchies.stream().anyMatch(h -> h.declarations.size() < 2);
     }
 
-    private boolean beforeFragmentReturnIsSame(List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables) {
+    private boolean beforeFragmentReturnEqual(List<ZafeirisEtAl2016Candidate.CandidateWithVariables> candidatesWithVariables) {
 
         boolean areEqual = true;
 
         for (int i = 1; i < candidatesWithVariables.size() - 1; i++) {
             if (candidatesWithVariables.get(i).variables().size() > 1) {
-                throw new IllegalStateException();
+                throw new IllegalStateException("Candidate with multiple variables found");
             } else if (candidatesWithVariables.get(i).variables().size() != candidatesWithVariables.get(i + 1).variables().size()) {
                 areEqual = false;
             } else if (candidatesWithVariables.get(i).variables().isEmpty()) {
                 areEqual = false;
             } else {
                 areEqual &= this.astHandler.doVariablesNameMatch(
-                        candidatesWithVariables.get(i).variables().stream().findFirst().get(),
-                        candidatesWithVariables.get(i + 1).variables().stream().findFirst().get());
+                        candidatesWithVariables.get(i).variables()
+                                .stream()
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException("No variables found")),
+                        candidatesWithVariables.get(i + 1).variables()
+                                .stream()
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException("No variables found"))
+                );
             }
         }
         return areEqual;
     }
 
-    private boolean beforeReturnIsUsedInSuper(List<ZafeirisEtAl2016Canditate.CandidateWithVariables> candidatesWithVariables) {
+    private boolean beforeReturnIsUsedInSuper(List<ZafeirisEtAl2016Candidate.CandidateWithVariables> candidatesWithVariables) {
         var isFirstCandidateWithoutVariables = candidatesWithVariables.stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No candidates with variables found"))
@@ -82,7 +90,7 @@ public class SiblingPreconditions {
         }
 
         boolean isUsed = true;
-        for (ZafeirisEtAl2016Canditate.CandidateWithVariables candidate : candidatesWithVariables) {
+        for (ZafeirisEtAl2016Candidate.CandidateWithVariables candidate : candidatesWithVariables) {
             final VariableDeclarationExpr var = candidate.variables().stream()
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("No variables found in candidate"));
@@ -101,20 +109,26 @@ public class SiblingPreconditions {
     private class Hierarchy {
         final Set<ClassOrInterfaceDeclaration> declarations = new HashSet<>();
 
-        boolean isPartOf(ClassOrInterfaceDeclaration dclr) {
-            return declarations.contains(dclr) && this.isChildOfAny(dclr) && this.isParentOfAny(dclr);
+        boolean belongs(ClassOrInterfaceDeclaration dclr) {
+            return declarations.contains(dclr) && this.isChild(dclr) && this.isParent(dclr);
         }
 
-        boolean isChildOfAny(ClassOrInterfaceDeclaration dclr) {
+        private boolean isChild(ClassOrInterfaceDeclaration dclr) {
             final Optional<ClassOrInterfaceType> parent = astHandler.getParentType(dclr);
-            return parent.filter(classOrInterfaceType -> declarations.stream().map(astHandler::getSimpleName).map(Optional::get)
-                    .anyMatch(n -> n.equals(astHandler.getSimpleName(classOrInterfaceType).get()))).isPresent();
+            return parent.filter(classOrInterfaceType -> declarations.stream()
+                            .map(astHandler::getSimpleName)
+                            .flatMap(Optional::stream)
+                            .anyMatch(n -> n.equals(astHandler.getSimpleName(classOrInterfaceType).orElseThrow(SimpleNameException::new))))
+                    .isPresent();
         }
 
-        boolean isParentOfAny(ClassOrInterfaceDeclaration dclr) {
-            return this.declarations.stream().map(astHandler::getParentType).filter(Optional::isPresent)
-                    .map(Optional::get).map(astHandler::getSimpleName).map(Optional::get)
-                    .anyMatch(n -> n.equals(astHandler.getSimpleName(dclr).get()));
+        private boolean isParent(ClassOrInterfaceDeclaration dclr) {
+            return this.declarations.stream()
+                    .map(astHandler::getParentType)
+                    .flatMap(Optional::stream)
+                    .map(astHandler::getSimpleName)
+                    .flatMap(Optional::stream)
+                    .anyMatch(n -> n.equals(astHandler.getSimpleName(dclr).orElseThrow(SimpleNameException::new)));
         }
 
     }

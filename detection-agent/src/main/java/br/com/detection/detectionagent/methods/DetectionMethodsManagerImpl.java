@@ -35,7 +35,7 @@ public class DetectionMethodsManagerImpl implements DetectionMethodsManager {
                 .flatMap(Collection::stream)
                 .toList();
 
-        log.info("Candidates {}", candidates);
+        log.info("Candidates {}", candidates.stream().map(RefactoringCandidate::getClassName).toList());
 
         this.refactor(projectId, javaFiles, candidates);
 
