@@ -71,16 +71,12 @@ public class FragmentsSplitter {
         }
     }
 
-    private void addToFragment(boolean superWasFound, Node node) {
-        if (superWasFound) {
+    private void addToFragment(boolean hasSuper, Node node) {
+        if (hasSuper) {
             this.afterFragment.add(node);
-        } else {
-            this.beforeFragment.add(node);
+            return;
         }
-    }
-
-    public Node getSpecificNode() {
-        return node;
+        this.beforeFragment.add(node);
     }
 
     public boolean hasSpecificNode() {
