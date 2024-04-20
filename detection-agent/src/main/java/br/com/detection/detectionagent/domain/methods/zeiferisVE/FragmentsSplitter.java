@@ -27,16 +27,14 @@ public class FragmentsSplitter {
     @Getter
     private final List<Node> afterFragment = new ArrayList<>();
 
-    private final AstHandler astHandler = new AstHandler();
-
     public FragmentsSplitter(MethodDeclaration m) {
-        final BlockStmt blockStmt = astHandler.getBlockStatement(m)
+        final BlockStmt blockStmt = AstHandler.getBlockStatement(m)
                 .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
 
         var superWasFound = false;
         for (Node child : blockStmt.getChildNodes()) {
 
-            if (this.astHandler.childHasDirectSuperCall(child)) {
+            if (AstHandler.childHasDirectSuperCall(child)) {
                 superWasFound = true;
                 this.node = child;
                 continue;
@@ -51,13 +49,13 @@ public class FragmentsSplitter {
     }
 
     public FragmentsSplitter(MethodDeclaration m, MethodCallExpr methodCall) {
-        final BlockStmt blockStmt = astHandler.getBlockStatement(m)
+        final BlockStmt blockStmt = AstHandler.getBlockStatement(m)
                 .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
 
         boolean methodCallWasFound = false;
         for (Node child : blockStmt.getChildNodes()) {
 
-            if (this.astHandler.doesNodeContainMatchingMethodCall(child, methodCall)) {
+            if (AstHandler.doesNodeContainMatchingMethodCall(child, methodCall)) {
                 methodCallWasFound = true;
                 this.node = child;
                 continue;
@@ -86,10 +84,10 @@ public class FragmentsSplitter {
     public List<VariableDeclarationExpr> getVariablesOnBeforeFragmentsMethodCalss() {
         final var variables = this.getBeforeFragment()
                 .stream()
-                .flatMap(n -> this.astHandler.extractVariableDclrFromNode(n).stream())
+                .flatMap(n -> AstHandler.extractVariableDclrFromNode(n).stream())
                 .toList();
 
-        final var methodCall = this.astHandler.getMethodCallExpr(node).stream().findFirst();
+        final var methodCall = AstHandler.getMethodCallExpr(node).stream().findFirst();
 
         if (methodCall.isEmpty()) {
 
@@ -100,7 +98,7 @@ public class FragmentsSplitter {
 
         final var referencedVariables = new ArrayList<VariableDeclarationExpr>();
         for (var variable : variables) {
-            if (this.astHandler.variableIsPresentInMethodCall(variable, methodCall.get())) {
+            if (AstHandler.variableIsPresentInMethodCall(variable, methodCall.get())) {
                 referencedVariables.add(variable);
                 continue;
             }
@@ -126,14 +124,14 @@ public class FragmentsSplitter {
     }
 
     private boolean afterFragmentContainsVariable(VariableDeclarationExpr var) {
-        return this.getAfterFragment().stream().anyMatch(n -> this.astHandler.nodeHasSimpleName(this.astHandler.getVariableName(var), n));
+        return this.getAfterFragment().stream().anyMatch(n -> AstHandler.nodeHasSimpleName(AstHandler.getVariableName(var), n));
     }
 
     private Type getTypeOfVar(NameExpr nameExpr) {
 
         final Collection<VariableDeclarationExpr> declarations = Stream.of(this.beforeFragment.stream(), Stream.of(this.node), this.afterFragment.stream())
                 .flatMap(s -> s)
-                .map(this.astHandler::extractVariableDclrFromNode)
+                .map(AstHandler::extractVariableDclrFromNode)
                 .flatMap(Collection::stream)
                 .toList();
 

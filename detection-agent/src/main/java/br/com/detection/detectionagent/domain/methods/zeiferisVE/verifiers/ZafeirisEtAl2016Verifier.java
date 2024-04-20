@@ -20,7 +20,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ZafeirisEtAl2016Verifier {
 
-    private final AstHandler astHandler;
     private final SuperInvocationPreconditions superInvocationPreconditions;
     private final ExtractMethodPreconditions extractMethodPreconditions;
     private final SiblingPreconditions siblingPreconditions;
@@ -56,7 +55,7 @@ public class ZafeirisEtAl2016Verifier {
                 .toList();
 
         javaFiles.forEach(file -> {
-            final var parent = this.astHandler.getParent(file.getCU(), cus);
+            final var parent = AstHandler.getParent(file.getCU(), cus);
             file.getCU().setParentNode(parent.orElse(null));
 
             this.retrieveCandidate(file).ifPresent(candidates::add);
@@ -74,19 +73,19 @@ public class ZafeirisEtAl2016Verifier {
             return Optional.empty();
         }
 
-        final var methods = this.astHandler.getMethods(file.getCU());
+        final var methods = AstHandler.getMethods(file.getCU());
         final var nonStaticOrConstructorMethodsList = methods.stream()
                 .filter(m -> !m.isConstructorDeclaration() && !m.isStatic())
                 .toList();
 
         for (var method : nonStaticOrConstructorMethodsList) {
-            final var superCalls = this.astHandler.getSuperCalls(method);
+            final var superCalls = AstHandler.getSuperCalls(method);
 
             if (superInvocationPreconditions.violatesAmountOfSuperCallsOrName(method, superCalls)) {
                 continue;
             }
 
-            final var overriddenMethod = this.astHandler.retrieveOverriddenMethod(parent, method);
+            final var overriddenMethod = AstHandler.retrieveOverriddenMethod(parent, method);
 
             if (overriddenMethod == null) {
                 continue;
@@ -108,9 +107,9 @@ public class ZafeirisEtAl2016Verifier {
     }
 
     private ZafeirisEtAl2016Candidate createCandidate(JavaFile file, MethodDeclaration overriddenMethod, MethodDeclaration method, SuperExpr superCall) {
-        final var pkgDcl = this.astHandler.getPackageDeclaration(file.getCU());
+        final var pkgDcl = AstHandler.getPackageDeclaration(file.getCU());
 
-        final var classDcl = this.astHandler.getClassOrInterfaceDeclaration(file.getCU())
+        final var classDcl = AstHandler.getClassOrInterfaceDeclaration(file.getCU())
                 .orElseThrow(() -> new IllegalArgumentException("Could not find class declaration for candidate"));
 
         return ZafeirisEtAl2016Candidate.builder()

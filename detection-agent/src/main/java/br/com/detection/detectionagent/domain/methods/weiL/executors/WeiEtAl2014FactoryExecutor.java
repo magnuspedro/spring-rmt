@@ -29,8 +29,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
 
-    private final AstHandler astHandler;
-
     @Override
     public void refactor(RefactoringCandidate candidate, List<JavaFile> dataHandler, ExtractionMethod extractionMethod) {
         final WeiEtAl2014FactoryCandidate weiCandidate = (WeiEtAl2014FactoryCandidate) candidate;
@@ -55,12 +53,12 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
                 .toList();
         final var baseCu = this.updateBaseCompilationUnit(allClasses, candidate);
         var path = dataHandler.stream()
-                .filter(f -> this.astHandler.doesCompilationUnitsMatch((CompilationUnit) f.getParsed(), baseCu))
+                .filter(f -> AstHandler.doesCompilationUnitsMatch((CompilationUnit) f.getParsed(), baseCu))
                 .map(JavaFile::getPath)
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
         final var file = Path.of(path);
-        final var classDclr = this.astHandler.getClassOrInterfaceDeclaration(baseCu)
+        final var classDclr = AstHandler.getClassOrInterfaceDeclaration(baseCu)
                 .orElseThrow(IllegalStateException::new);
 
         final var createdClassName = this.getClassReturnTypeName(classDclr, ifStmt, candidate.getMethodReturnType(),
@@ -85,16 +83,16 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
 
     private String getClassReturnTypeName(ClassOrInterfaceDeclaration classDclr, IfStmt ifStmt,
                                           ClassOrInterfaceType returnType, List<JavaFile> dataHandler) {
-        final var returnStmt = this.astHandler.getReturnStmt(ifStmt).orElseThrow(IllegalStateException::new);
+        final var returnStmt = AstHandler.getReturnStmt(ifStmt).orElseThrow(IllegalStateException::new);
         final var node = returnStmt.getChildNodes().stream().findFirst();
 
         if (node.filter(NameExpr.class::isInstance).isPresent()) {
 
             final var returnName = node.map(NameExpr.class::cast).get().getNameAsString();
-            final var varDclr = this.astHandler
+            final var varDclr = AstHandler
                     .getVariableDeclarationInNode(ifStmt.getThenStmt(), returnName);
             final var objectCreationExpr = varDclr
-                    .map(this.astHandler::getObjectCreationExpr)
+                    .map(AstHandler::getObjectCreationExpr)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .orElseThrow(IllegalStateException::new);
@@ -118,7 +116,7 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
                 .map(m -> (CompilationUnit) m.getParsed())
                 .findFirst();
 
-        final var declaration = cu.flatMap(this.astHandler::getClassOrInterfaceDeclaration);
+        final var declaration = cu.flatMap(AstHandler::getClassOrInterfaceDeclaration);
 
         return declaration.map(ClassOrInterfaceDeclaration::getNameAsString)
                 .orElseThrow(IllegalStateException::new);
@@ -131,13 +129,13 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
                 .map(CompilationUnit.class::cast)
                 .toList();
         final var baseCu = this.updateBaseCompilationUnit(allClasses, candidate);
-        final var classDclr = this.astHandler.getClassOrInterfaceDeclaration(baseCu)
+        final var classDclr = AstHandler.getClassOrInterfaceDeclaration(baseCu)
                 .orElseThrow(IllegalStateException::new);
 
-        final var candidateMethod = this.astHandler.getMethods(baseCu)
+        final var candidateMethod = AstHandler.getMethods(baseCu)
                 .stream()
                 .filter(m -> m.getNameAsString().equals(candidate.getMethodDcl().getNameAsString())
-                        && this.astHandler.methodsParamsMatch(m, candidate.getMethodDcl()))
+                        && AstHandler.methodsParamsMatch(m, candidate.getMethodDcl()))
                 .findFirst()
                 .orElseThrow(IllegalStateException::new);
 
@@ -148,7 +146,7 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
 
 
         var path = dataHandler.stream()
-                .filter(f -> this.astHandler.doesCompilationUnitsMatch((CompilationUnit) f.getParsed(), baseCu))
+                .filter(f -> AstHandler.doesCompilationUnitsMatch((CompilationUnit) f.getParsed(), baseCu))
                 .map(JavaFile::getPath)
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
@@ -160,7 +158,7 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
     private CompilationUnit updateBaseCompilationUnit(Collection<CompilationUnit> allClasses,
                                                       WeiEtAl2014Candidate candidate) {
         return allClasses.stream()
-                .filter(c -> this.astHandler.doesCompilationUnitsMatch(c, Optional.of(candidate.getClassDeclaration()),
+                .filter(c -> AstHandler.doesCompilationUnitsMatch(c, Optional.of(candidate.getClassDeclaration()),
                         Optional.of(candidate.getPackageDeclaration())))
                 .findFirst()
                 .get();

@@ -1,6 +1,5 @@
 package br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
@@ -26,13 +25,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class SiblingPreconditionsTest {
-    private final AstHandler astHandler = new AstHandler();
 
     private SiblingPreconditions siblingPreconditions;
 
     @BeforeEach
     void setup() {
-        this.siblingPreconditions = new SiblingPreconditions(astHandler);
+        this.siblingPreconditions = new SiblingPreconditions();
     }
 
     @Test

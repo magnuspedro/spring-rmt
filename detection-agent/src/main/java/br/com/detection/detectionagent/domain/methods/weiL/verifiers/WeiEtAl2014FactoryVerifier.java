@@ -1,5 +1,6 @@
 package br.com.detection.detectionagent.domain.methods.weiL.verifiers;
 
+import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014FactoryCandidate;
 import br.com.detection.detectionagent.file.JavaFile;
@@ -26,7 +27,7 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
 
     protected boolean ifStmtsAreValid(List<JavaFile> dataHandler, CompilationUnit parsedClazz,
                                       ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method, Collection<IfStmt> ifStatements) {
-        final var baseType = this.astHandler
+        final var baseType = AstHandler
                 .getMethodReturnClassType(method);
 
         if (baseType.isEmpty()) {
@@ -58,7 +59,7 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
 
     private boolean hasReturnTypeAndHasValidSubtype(List<JavaFile> dataHandler, ClassOrInterfaceType baseType,
                                                     IfStmt ifStmt) {
-        final Optional<ReturnStmt> returnStmt = this.astHandler.getReturnStmt(ifStmt);
+        final Optional<ReturnStmt> returnStmt = AstHandler.getReturnStmt(ifStmt);
 
         if (returnStmt.isPresent()) {
             final Optional<Node> node = returnStmt.get().getChildNodes().stream().findFirst();
@@ -67,11 +68,11 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
 
                 final String returnName = node.map(NameExpr.class::cast).get().getNameAsString();
 
-                final Optional<VariableDeclarator> varDclr = this.astHandler.getVariableDeclarationInNode(ifStmt.getThenStmt(),
+                final Optional<VariableDeclarator> varDclr = AstHandler.getVariableDeclarationInNode(ifStmt.getThenStmt(),
                         returnName);
 
                 final Optional<ObjectCreationExpr> objectCreationExpr = varDclr
-                        .map(this.astHandler::getObjectCreationExpr).filter(Optional::isPresent).map(Optional::get);
+                        .map(AstHandler::getObjectCreationExpr).filter(Optional::isPresent).map(Optional::get);
 
                 return this.isOfTypeOrIsSubtype(dataHandler, baseType, objectCreationExpr);
             } else if (node.filter(ObjectCreationExpr.class::isInstance).isPresent()) {
@@ -102,7 +103,7 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
                         .map(m -> (CompilationUnit) m.getParsed())
                         .findFirst();
 
-        final Optional<ClassOrInterfaceDeclaration> declaration = cu.flatMap(this.astHandler::getClassOrInterfaceDeclaration);
+        final Optional<ClassOrInterfaceDeclaration> declaration = cu.flatMap(AstHandler::getClassOrInterfaceDeclaration);
 
         return declaration.isPresent() && (declaration.get().getExtendedTypes().stream().anyMatch(t -> t.equals(type)) || declaration.get().getImplementedTypes().stream().anyMatch(t -> t.equals(type)));
     }
@@ -111,7 +112,7 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
                                                        Optional<MethodCallExpr> methodCallExpr) {
 
         if (binaryExpr.isPresent()) {
-            final String name2 = this.astHandler.getNameExpr(binaryExpr.get()).map(NodeWithSimpleName::getNameAsString).orElse("");
+            final String name2 = AstHandler.getNameExpr(binaryExpr.get()).map(NodeWithSimpleName::getNameAsString).orElse("");
 
             return parameter.getNameAsString().equals(name2)
                     && BinaryExpr.Operator.EQUALS.equals(binaryExpr.get().getOperator());
@@ -134,7 +135,7 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
                                                    PackageDeclaration pkgDcl, ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method,
                                                    Collection<IfStmt> ifStatements) {
 
-        final ClassOrInterfaceType methodReturnType = this.astHandler.getMethodReturnClassType(method)
+        final ClassOrInterfaceType methodReturnType = AstHandler.getMethodReturnClassType(method)
                 .orElse(null);
 
         return new WeiEtAl2014FactoryCandidate(file, parsedClazz, pkgDcl, classOrInterface, method,

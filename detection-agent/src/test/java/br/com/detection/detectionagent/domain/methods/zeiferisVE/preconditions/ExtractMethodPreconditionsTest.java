@@ -1,6 +1,5 @@
 package br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -29,7 +28,7 @@ class ExtractMethodPreconditionsTest {
 
     @BeforeEach
     public void setup() {
-        this.extractMethodPreconditions = new ExtractMethodPreconditions(new AstHandler());
+        this.extractMethodPreconditions = new ExtractMethodPreconditions();
     }
 
 

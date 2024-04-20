@@ -20,19 +20,17 @@ import java.util.Optional;
 
 public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifier {
 
-    protected final AstHandler astHandler = new AstHandler();
-
     public List<RefactoringCandidate> retrieveCandidatesFrom(List<JavaFile> javaFiles, ExtractionMethod extractionMethod) {
         final List<RefactoringCandidate> candidates = new ArrayList<>();
         extractionMethod.parseAll(javaFiles);
 
         javaFiles.forEach(file -> {
             var cu = (CompilationUnit) file.getParsed();
-            var classOrInterface = this.astHandler.getClassOrInterfaceDeclaration(cu);
+            var classOrInterface = AstHandler.getClassOrInterfaceDeclaration(cu);
 
             classOrInterface.ifPresent(classOrInterfaceDeclaration -> {
                 if (!classOrInterfaceDeclaration.isInterface()) {
-                    for (MethodDeclaration method : this.astHandler.getMethods(cu)) {
+                    for (MethodDeclaration method : AstHandler.getMethods(cu)) {
 
                         final Optional<WeiEtAl2014Candidate> candidate = this.retrieveCandidate(javaFiles, file, cu,
                                 classOrInterface.get(), method);
@@ -58,13 +56,13 @@ public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifi
             return Optional.empty();
         }
 
-        final Collection<IfStmt> ifStatements = this.astHandler.getIfStatements(method);
+        final Collection<IfStmt> ifStatements = AstHandler.getIfStatements(method);
 
         if (!this.ifStmtsAreValid(javaFiles, parsedClazz, classOrInterface, method, ifStatements)) {
             return Optional.empty();
         }
 
-        final PackageDeclaration pkgDcl = this.astHandler.getPackageDeclaration(parsedClazz);
+        final PackageDeclaration pkgDcl = AstHandler.getPackageDeclaration(parsedClazz);
 
         return Optional
                 .of(this.createCandidate(file, parsedClazz, pkgDcl, classOrInterface, method, ifStatements));

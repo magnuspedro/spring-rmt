@@ -1,6 +1,5 @@
 package br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -24,12 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(MockitoExtension.class)
 class SuperInvocationPreconditionsTest {
 
-    private final AstHandler astParser = new AstHandler();
     private SuperInvocationPreconditions superInvocationPreconditions;
 
     @BeforeEach
     void setUp() {
-        superInvocationPreconditions = new SuperInvocationPreconditions(astParser);
+        superInvocationPreconditions = new SuperInvocationPreconditions();
     }
 
     @Test

@@ -13,7 +13,6 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.nodeTypes.NodeWithCondition;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -23,10 +22,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component
 public class AstHandler {
 
-    public Collection<FieldDeclaration> getDeclaredFields(Node node) {
+    public static Collection<FieldDeclaration> getDeclaredFields(Node node) {
         return Optional.ofNullable(node)
                 .map(Node::getChildNodes)
                 .orElseThrow(NullNodeException::new)
@@ -36,7 +34,7 @@ public class AstHandler {
                 .collect(Collectors.toList());
     }
 
-    public Optional<ObjectCreationExpr> getObjectCreationExpr(Node node) {
+    public static Optional<ObjectCreationExpr> getObjectCreationExpr(Node node) {
         return Optional.ofNullable(node)
                 .map(Node::getChildNodes)
                 .orElseThrow(NullNodeException::new)
@@ -46,7 +44,7 @@ public class AstHandler {
                 .findFirst();
     }
 
-    public Optional<ReturnStmt> getReturnStmt(IfStmt ifStmt) {
+    public static Optional<ReturnStmt> getReturnStmt(IfStmt ifStmt) {
         if (ifStmt == null) {
             throw new NullIfStmtException();
         }
@@ -62,7 +60,7 @@ public class AstHandler {
         return Optional.empty();
     }
 
-    public Optional<NameExpr> getNameExpr(Node node) {
+    public static Optional<NameExpr> getNameExpr(Node node) {
         return Optional.ofNullable(node)
                 .map(Node::getChildNodes)
                 .orElseThrow(NullNodeException::new)
@@ -72,7 +70,7 @@ public class AstHandler {
                 .findFirst();
     }
 
-    public Optional<SimpleName> getVariableSimpleName(VariableDeclarationExpr node) {
+    public static Optional<SimpleName> getVariableSimpleName(VariableDeclarationExpr node) {
         Stream<VariableDeclarator> variableDeclarator = Optional.ofNullable(node)
                 .map(Node::getChildNodes)
                 .orElseThrow(NullNodeException::new)
@@ -88,7 +86,7 @@ public class AstHandler {
                 .findFirst();
     }
 
-    public Optional<SimpleName> getSimpleName(Node node) {
+    public static Optional<SimpleName> getSimpleName(Node node) {
         return Optional.ofNullable(node)
                 .map(Node::getChildNodes)
                 .orElseThrow(NullNodeException::new)
@@ -98,8 +96,8 @@ public class AstHandler {
                 .findFirst();
     }
 
-    public Optional<ClassOrInterfaceType> getParentType(CompilationUnit cUnit) {
-        return this.getClassOrInterfaceDeclaration(cUnit)
+    public static Optional<ClassOrInterfaceType> getParentType(CompilationUnit cUnit) {
+        return getClassOrInterfaceDeclaration(cUnit)
                 .flatMap(classOrInterfaceDeclaration -> classOrInterfaceDeclaration
                         .getChildNodes()
                         .stream()
@@ -108,7 +106,7 @@ public class AstHandler {
                         .findFirst());
     }
 
-    public Optional<ClassOrInterfaceType> getParentType(ClassOrInterfaceDeclaration classDclr) {
+    public static Optional<ClassOrInterfaceType> getParentType(ClassOrInterfaceDeclaration classDclr) {
         return Optional.ofNullable(classDclr)
                 .map(Node::getParentNode)
                 .orElseThrow(NoClassOrInterfaceDeclarationException::new)
@@ -118,17 +116,17 @@ public class AstHandler {
                 .findFirst();
     }
 
-    public Optional<CompilationUnit> getParent(CompilationUnit cUnit, Collection<CompilationUnit> allClasses) {
-        final Optional<ClassOrInterfaceType> parentDef = this.getParentType(cUnit);
+    public static Optional<CompilationUnit> getParent(CompilationUnit cUnit, Collection<CompilationUnit> allClasses) {
+        final Optional<ClassOrInterfaceType> parentDef = getParentType(cUnit);
 
         if (parentDef.isPresent()) {
 
-            var typeName = this.getSimpleName(parentDef.get())
+            var typeName = getSimpleName(parentDef.get())
                     .orElseThrow(SimpleNameException::new);
 
             for (CompilationUnit parent : allClasses) {
-                final var declaration = this.getClassOrInterfaceDeclaration(parent);
-                var isClassNameEqualsTypeName = declaration.map(dcl -> this.getSimpleName(dcl)
+                final var declaration = getClassOrInterfaceDeclaration(parent);
+                var isClassNameEqualsTypeName = declaration.map(dcl -> getSimpleName(dcl)
                                 .orElseThrow(SimpleNameException::new))
                         .filter(typeName::equals)
                         .isPresent();
@@ -141,7 +139,7 @@ public class AstHandler {
         return Optional.empty();
     }
 
-    public PackageDeclaration getPackageDeclaration(CompilationUnit cUnit) {
+    public static PackageDeclaration getPackageDeclaration(CompilationUnit cUnit) {
         return Optional.ofNullable(cUnit)
                 .map(Node::getChildNodes)
                 .orElseThrow(NullCompilationUnitException::new)
@@ -152,7 +150,7 @@ public class AstHandler {
                 .orElseThrow(NoPackageDeclarationException::new);
     }
 
-    public Optional<ClassOrInterfaceDeclaration> getClassOrInterfaceDeclaration(CompilationUnit cUnit) {
+    public static Optional<ClassOrInterfaceDeclaration> getClassOrInterfaceDeclaration(CompilationUnit cUnit) {
         return Optional.ofNullable(cUnit)
                 .map(Node::getChildNodes)
                 .orElseThrow(NoClassOrInterfaceException::new)
@@ -162,7 +160,7 @@ public class AstHandler {
                 .findFirst();
     }
 
-    public Collection<MethodDeclaration> getMethods(CompilationUnit cUnit) {
+    public static Collection<MethodDeclaration> getMethods(CompilationUnit cUnit) {
         return Optional.ofNullable(cUnit)
                 .map(Node::getChildNodes)
                 .orElseThrow(NullCompilationUnitException::new)
@@ -174,7 +172,7 @@ public class AstHandler {
                 .collect(Collectors.toList());
     }
 
-    public Optional<BlockStmt> getBlockStatement(Node n) {
+    public static Optional<BlockStmt> getBlockStatement(Node n) {
         return Optional.ofNullable(n)
                 .map(Node::getChildNodes)
                 .flatMap(it -> it.stream()
@@ -183,17 +181,17 @@ public class AstHandler {
                         .findFirst());
     }
 
-    public Optional<ExpressionStmt> getExpressionStatement(Node node) {
+    public static Optional<ExpressionStmt> getExpressionStatement(Node node) {
         if (node == null || node instanceof BlockStmt || node instanceof ClassOrInterfaceDeclaration) {
             return Optional.empty();
         }
         if (node instanceof ExpressionStmt) {
             return Optional.of((ExpressionStmt) node);
         }
-        return this.getExpressionStatement(node.getParentNode().orElse(null));
+        return getExpressionStatement(node.getParentNode().orElse(null));
     }
 
-    public Collection<SuperExpr> getSuperCalls(Node node) {
+    public static Collection<SuperExpr> getSuperCalls(Node node) {
         final List<SuperExpr> superCalls = new ArrayList<>();
 
         if (node == null) {
@@ -208,32 +206,32 @@ public class AstHandler {
             return superCalls;
         }
 
-        superCalls.addAll(node.getChildNodes().stream().flatMap(cn -> this.getSuperCalls(cn).stream())
+        superCalls.addAll(node.getChildNodes().stream().flatMap(cn -> getSuperCalls(cn).stream())
                 .toList());
 
         return superCalls;
     }
 
-    public MethodDeclaration retrieveOverriddenMethod(CompilationUnit parent,
-                                                      MethodDeclaration overridingMethod) {
+    public static MethodDeclaration retrieveOverriddenMethod(CompilationUnit parent,
+                                                             MethodDeclaration overridingMethod) {
 
-        final String childMethodName = this.getSimpleName(overridingMethod)
+        final String childMethodName = getSimpleName(overridingMethod)
                 .orElseThrow(SimpleNameException::new)
                 .asString();
 
-        for (MethodDeclaration parentMethod : this.getMethods(parent)) {
-            final String simpleName = this.getSimpleName(parentMethod)
+        for (MethodDeclaration parentMethod : getMethods(parent)) {
+            final String simpleName = getSimpleName(parentMethod)
                     .orElseThrow(SimpleNameException::new)
                     .asString();
 
-            if (childMethodName.equals(simpleName) && this.methodsParamsMatch(overridingMethod, parentMethod)) {
+            if (childMethodName.equals(simpleName) && methodsParamsMatch(overridingMethod, parentMethod)) {
                 return parentMethod;
             }
         }
         return null;
     }
 
-    public boolean methodsParamsMatch(MethodDeclaration m1, MethodDeclaration m2) {
+    public static boolean methodsParamsMatch(MethodDeclaration m1, MethodDeclaration m2) {
         if (m1 == null || m2 == null) {
             throw new NullMethodException();
         }
@@ -248,7 +246,7 @@ public class AstHandler {
         return true;
     }
 
-    public boolean childHasDirectSuperCall(Node node) {
+    public static boolean childHasDirectSuperCall(Node node) {
         if (node == null) {
             throw new NullNodeException();
         }
@@ -260,7 +258,7 @@ public class AstHandler {
             boolean argumentsPresentSuper = ((MethodCallExpr) node)
                     .getArguments()
                     .stream()
-                    .anyMatch(this::childHasDirectSuperCall);
+                    .anyMatch(AstHandler::childHasDirectSuperCall);
 
             if (argumentsPresentSuper) {
                 return true;
@@ -275,18 +273,18 @@ public class AstHandler {
             return true;
         }
 
-        return node.getChildNodes().stream().anyMatch(this::childHasDirectSuperCall);
+        return node.getChildNodes().stream().anyMatch(AstHandler::childHasDirectSuperCall);
     }
 
-    public boolean nodeHasReturnStatement(Node node) {
+    public static boolean nodeHasReturnStatement(Node node) {
         return nodeHasClazz(node, ReturnStmt.class);
     }
 
-    public boolean nodeThrowsException(Node node) {
+    public static boolean nodeThrowsException(Node node) {
         return nodeHasClazz(node, ThrowStmt.class);
     }
 
-    public boolean nodeHasClazz(Node node, Class<?> clazz) {
+    public static boolean nodeHasClazz(Node node, Class<?> clazz) {
         var nonNullClazz = Optional.ofNullable(clazz)
                 .orElseThrow(ClassExpectedException::new);
 
@@ -298,11 +296,10 @@ public class AstHandler {
             return false;
         }
 
-        return node.getChildNodes().stream().anyMatch(n -> this.nodeHasClazz(n, nonNullClazz));
+        return node.getChildNodes().stream().anyMatch(n -> nodeHasClazz(n, nonNullClazz));
     }
 
-    // Recursion order was changed, the node instance of was the second condition
-    public Collection<VariableDeclarationExpr> extractVariableDclrFromNode(Node node) {
+    public static Collection<VariableDeclarationExpr> extractVariableDclrFromNode(Node node) {
         var nonNUllNode = Optional.ofNullable(node)
                 .orElseThrow(NullNodeException::new);
 
@@ -315,12 +312,12 @@ public class AstHandler {
         if (node.getChildNodes() == null || node.getChildNodes().isEmpty()) {
             return new ArrayList<>();
         } else {
-            return node.getChildNodes().stream().flatMap(cn -> this.extractVariableDclrFromNode(cn).stream())
+            return node.getChildNodes().stream().flatMap(cn -> extractVariableDclrFromNode(cn).stream())
                     .collect(Collectors.toList());
         }
     }
 
-    public boolean variableIsPresentInMethodCall(VariableDeclarationExpr var, MethodCallExpr methodCall) {
+    public static boolean variableIsPresentInMethodCall(VariableDeclarationExpr var, MethodCallExpr methodCall) {
         var simpleNameList = Optional.ofNullable(methodCall)
                 .map(MethodCallExpr::getChildNodes)
                 .orElseThrow(MethodCallExpectedException::new)
@@ -331,14 +328,14 @@ public class AstHandler {
                 .toList();
 
         for (SimpleName paramName : simpleNameList) {
-            if (this.getVariableName(var).equals(paramName)) {
+            if (getVariableName(var).equals(paramName)) {
                 return true;
             }
         }
         return false;
     }
 
-    public SimpleName getVariableName(VariableDeclarationExpr var) {
+    public static SimpleName getVariableName(VariableDeclarationExpr var) {
         return Optional.ofNullable(var)
                 .map(VariableDeclarationExpr::getChildNodes)
                 .orElseThrow(VariableDeclarationExpectedException::new)
@@ -350,7 +347,7 @@ public class AstHandler {
                 .orElseThrow(SimpleNameException::new);
     }
 
-    public boolean nodeHasSimpleName(SimpleName name, Node node) {
+    public static boolean nodeHasSimpleName(SimpleName name, Node node) {
         var nonNullName = Optional.ofNullable(name)
                 .orElseThrow(SimpleNameException::new);
         var nonNullNode = Optional.ofNullable(node)
@@ -366,10 +363,10 @@ public class AstHandler {
 
         return nonNullNode.getChildNodes()
                 .stream()
-                .anyMatch(n -> this.nodeHasSimpleName(nonNullName, n));
+                .anyMatch(n -> nodeHasSimpleName(nonNullName, n));
     }
 
-    public <T extends Node> Collection<T> getNodeByType(Node node, Class<T> type) {
+    public static <T extends Node> Collection<T> getNodeByType(Node node, Class<T> type) {
         if (node == null) {
             throw new NullNodeException();
         }
@@ -386,14 +383,14 @@ public class AstHandler {
         }
 
         methodCalls.addAll(node.getChildNodes().stream()
-                .map(n -> this.getNodeByType(n, type))
+                .map(n -> getNodeByType(n, type))
                 .flatMap(Collection::stream)
                 .toList());
 
         return methodCalls;
     }
 
-    public Collection<MethodCallExpr> getMethodCallExpr(Node node) {
+    public static Collection<MethodCallExpr> getMethodCallExpr(Node node) {
         final Collection<MethodCallExpr> methodCalls = new ArrayList<>();
 
         if (node == null) {
@@ -405,29 +402,29 @@ public class AstHandler {
         }
 
         methodCalls.addAll(node.getChildNodes().stream()
-                .map(this::getMethodCallExpr)
+                .map(AstHandler::getMethodCallExpr)
                 .flatMap(Collection::stream)
                 .toList());
 
         return methodCalls;
     }
 
-    public boolean doVariablesNameMatch(VariableDeclarationExpr var1, VariableDeclarationExpr var2) {
-        return this.getVariableSimpleName(var1).equals(this.getVariableSimpleName(var2));
+    public static boolean doVariablesNameMatch(VariableDeclarationExpr var1, VariableDeclarationExpr var2) {
+        return getVariableSimpleName(var1).equals(getVariableSimpleName(var2));
     }
 
-    public boolean doesNodeContainMatchingMethodCall(Node node, MethodCallExpr methodCall) {
+    public static boolean doesNodeContainMatchingMethodCall(Node node, MethodCallExpr methodCall) {
 
-        final Collection<MethodCallExpr> methodCalls = this.getMethodCallExpr(node);
+        final Collection<MethodCallExpr> methodCalls = getMethodCallExpr(node);
 
-        return methodCalls.stream().anyMatch(m -> this.doesMethodCallsMatch(m, methodCall));
+        return methodCalls.stream().anyMatch(m -> doesMethodCallsMatch(m, methodCall));
     }
 
-    private boolean isPositionOutOfBounds(int position, NodeList<?> list) {
+    private static boolean isPositionOutOfBounds(int position, NodeList<?> list) {
         return (list.size() - 1) < position;
     }
 
-    public boolean doesMethodCallsMatch(MethodCallExpr mc1, MethodCallExpr mc2) {
+    public static boolean doesMethodCallsMatch(MethodCallExpr mc1, MethodCallExpr mc2) {
         if (mc1 == null || mc2 == null) {
             throw new NullMethodException();
         }
@@ -444,12 +441,12 @@ public class AstHandler {
         return true;
     }
 
-    public boolean doesCompilationUnitsMatch(CompilationUnit c1, CompilationUnit c2) {
-        return this.doesCompilationUnitsMatch(c1, this.getClassOrInterfaceDeclaration(c2), c2.getPackageDeclaration());
+    public static boolean doesCompilationUnitsMatch(CompilationUnit c1, CompilationUnit c2) {
+        return doesCompilationUnitsMatch(c1, getClassOrInterfaceDeclaration(c2), c2.getPackageDeclaration());
     }
 
-    public boolean doesCompilationUnitsMatch(CompilationUnit c1, Optional<ClassOrInterfaceDeclaration> classOrInterface2,
-                                             Optional<PackageDeclaration> package2) {
+    public static boolean doesCompilationUnitsMatch(CompilationUnit c1, Optional<ClassOrInterfaceDeclaration> classOrInterface2,
+                                                    Optional<PackageDeclaration> package2) {
 
         final String p1 = Optional.ofNullable(c1)
                 .flatMap(CompilationUnit::getPackageDeclaration)
@@ -459,14 +456,14 @@ public class AstHandler {
                 .map(PackageDeclaration::getNameAsString)
                 .orElse("");
 
-        final String type1 = this.getClassOrInterfaceDeclaration(c1).map(ClassOrInterfaceDeclaration::getNameAsString)
+        final String type1 = getClassOrInterfaceDeclaration(c1).map(ClassOrInterfaceDeclaration::getNameAsString)
                 .orElse("");
         final String type2 = classOrInterface2.map(ClassOrInterfaceDeclaration::getNameAsString).orElse("");
 
         return p1.equals(p2) && !type1.isEmpty() && type1.equals(type2);
     }
 
-    public Collection<IfStmt> getIfStatements(MethodDeclaration method) {
+    public static Collection<IfStmt> getIfStatements(MethodDeclaration method) {
         if (method == null) {
             throw new NullMethodException();
         }
@@ -486,13 +483,13 @@ public class AstHandler {
 
         ifStmt.ifPresent(i -> {
             statements.add(i);
-            statements.addAll(this.getInnerIfStatements(i));
+            statements.addAll(getInnerIfStatements(i));
         });
 
         return statements;
     }
 
-    private Collection<IfStmt> getInnerIfStatements(IfStmt statement) {
+    private static Collection<IfStmt> getInnerIfStatements(IfStmt statement) {
         if (statement == null) {
             throw new NullIfStmtException();
         }
@@ -506,13 +503,13 @@ public class AstHandler {
         final List<IfStmt> statements = new ArrayList<>(inner);
 
         for (IfStmt singleInner : inner) {
-            statements.addAll(this.getInnerIfStatements(singleInner));
+            statements.addAll(getInnerIfStatements(singleInner));
         }
 
         return statements;
     }
 
-    public Optional<LiteralExpr> getLiteralExpr(Node node) {
+    public static Optional<LiteralExpr> getLiteralExpr(Node node) {
         return Optional.ofNullable(node)
                 .map(Node::getChildNodes)
                 .orElseThrow(NullNodeException::new)
@@ -522,7 +519,7 @@ public class AstHandler {
                 .findFirst();
     }
 
-    public Optional<VariableDeclarator> getVariableDeclarationInNode(Node node, String returnName) {
+    public static Optional<VariableDeclarator> getVariableDeclarationInNode(Node node, String returnName) {
         if (node == null) {
             throw new NullNodeException();
         }
@@ -535,21 +532,21 @@ public class AstHandler {
         }
 
         return node.getChildNodes().stream()
-                .map(c -> this.getVariableDeclarationInNode(c, returnName))
+                .map(c -> getVariableDeclarationInNode(c, returnName))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(VariableDeclarator.class::cast)
                 .findFirst();
     }
 
-    public Optional<ClassOrInterfaceType> getMethodReturnClassType(MethodDeclaration method) {
+    public static Optional<ClassOrInterfaceType> getMethodReturnClassType(MethodDeclaration method) {
         return Optional.ofNullable(method)
                 .map(MethodDeclaration::getType)
                 .filter(ClassOrInterfaceType.class::isInstance)
                 .map(ClassOrInterfaceType.class::cast);
     }
 
-    public boolean doesNodeUsesVar(Node node, VariableDeclarator var) {
+    public static boolean doesNodeUsesVar(Node node, VariableDeclarator var) {
         if (node == null) {
             throw new NullNodeException();
         }
@@ -562,10 +559,10 @@ public class AstHandler {
             return ((NameExpr) node).getNameAsString().equals(var.getNameAsString());
         }
 
-        return node.getChildNodes().stream().anyMatch(c -> this.doesNodeUsesVar(c, var));
+        return node.getChildNodes().stream().anyMatch(c -> doesNodeUsesVar(c, var));
     }
 
-    public Collection<VariableDeclarator> getVariableDeclarations(Node node) {
+    public static Collection<VariableDeclarator> getVariableDeclarations(Node node) {
         if (node == null) {
             throw new NullNodeException();
         }
@@ -579,7 +576,7 @@ public class AstHandler {
         }
 
         return node.getChildNodes().stream()
-                .flatMap(c -> this.getVariableDeclarations(c).stream())
+                .flatMap(c -> getVariableDeclarations(c).stream())
                 .toList();
     }
 }

@@ -27,8 +27,6 @@ import java.util.Optional;
 
 public class ZafeirisEtAl2016Executor {
 
-    private final AstHandler astHandler = new AstHandler();
-
     private Collection<CompilationUnit> getParsedClasses(List<JavaFile> javaFiles, ExtractionMethod extractionMethod) {
         return extractionMethod.parseAll(javaFiles)
                 .stream()
@@ -73,20 +71,20 @@ public class ZafeirisEtAl2016Executor {
 
     private CompilationUnit updateChild(Collection<CompilationUnit> allClasses, ZafeirisEtAl2016Candidate candidate) {
         return allClasses.stream().filter(c ->
-                this.astHandler.doesCompilationUnitsMatch(c, Optional.of(candidate.getClassDeclaration()),
+                AstHandler.doesCompilationUnitsMatch(c, Optional.of(candidate.getClassDeclaration()),
                         Optional.of(candidate.getPackageDeclaration()))
         ).findFirst().get();
     }
 
     private CompilationUnit updateParent(Collection<CompilationUnit> allClasses, CompilationUnit childCU) {
-        return this.astHandler.getParent(childCU, allClasses).orElseThrow(IllegalStateException::new);
+        return AstHandler.getParent(childCU, allClasses).orElseThrow(IllegalStateException::new);
     }
 
     private void applyFinalAdjustments(List<JavaFile> javaFiles, ZafeirisEtAl2016Candidate candidate,
                                        CompilationUnit parentCU, CompilationUnit childCU) {
 
-        final MethodDeclaration overridenMethodDclr = this.astHandler.getMethods(parentCU).stream()
-                .filter(m -> this.astHandler.methodsParamsMatch(m, candidate.getOverridenMethod())).findFirst()
+        final MethodDeclaration overridenMethodDclr = AstHandler.getMethods(parentCU).stream()
+                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverridenMethod())).findFirst()
                 .orElseThrow(IllegalArgumentException::new);
 
         overridenMethodDclr.setFinal(true);
@@ -98,12 +96,12 @@ public class ZafeirisEtAl2016Executor {
     private void pullUpOverridenMethod(List<JavaFile> javaFiles, ZafeirisEtAl2016Candidate candidate,
                                        CompilationUnit parentCU, CompilationUnit childCU) {
 
-        final MethodDeclaration overridenMethodDclr = this.astHandler.getMethods(parentCU).stream()
-                .filter(m -> this.astHandler.methodsParamsMatch(m, candidate.getOverridenMethod())).findFirst()
+        final MethodDeclaration overridenMethodDclr = AstHandler.getMethods(parentCU).stream()
+                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverridenMethod())).findFirst()
                 .orElseThrow(IllegalArgumentException::new);
 
-        final MethodDeclaration overridingMethodDclr = this.astHandler.getMethods(childCU).stream()
-                .filter(m -> this.astHandler.methodsParamsMatch(m, candidate.getOverridingMethod())).findFirst()
+        final MethodDeclaration overridingMethodDclr = AstHandler.getMethods(childCU).stream()
+                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverridingMethod())).findFirst()
                 .orElseThrow(IllegalArgumentException::new);
 
         overridenMethodDclr.setBody(new BlockStmt());
@@ -111,7 +109,7 @@ public class ZafeirisEtAl2016Executor {
         overridingMethodDclr.getBody()
                 .ifPresent(b -> b.getStatements().forEach(overridenMethodDclr.getBody().get()::addStatement));
 
-        final ClassOrInterfaceDeclaration childClass = this.astHandler.getClassOrInterfaceDeclaration(childCU).get();
+        final ClassOrInterfaceDeclaration childClass = AstHandler.getClassOrInterfaceDeclaration(childCU).get();
 
         childClass.remove(overridingMethodDclr);
 
@@ -122,9 +120,9 @@ public class ZafeirisEtAl2016Executor {
     private void extractMethodOnBeforeAndAfterFragments(List<JavaFile> javaFiles, ZafeirisEtAl2016Candidate candidate,
                                                         CompilationUnit childCU, CompilationUnit parentCU, MethodCallExpr newDoOverridenCall) {
 
-        final MethodDeclaration childMethodDclr = this.astHandler.getMethods(childCU).stream()
+        final MethodDeclaration childMethodDclr = AstHandler.getMethods(childCU).stream()
                 .filter(m -> m.getNameAsString().equals(candidate.getOverridenMethod().getNameAsString()))
-                .filter(m -> this.astHandler.methodsParamsMatch(m, candidate.getOverridenMethod())).findFirst()
+                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverridenMethod())).findFirst()
                 .orElseThrow(IllegalArgumentException::new);
 
         final FragmentsSplitter fragmentsSplitter = new FragmentsSplitter(childMethodDclr, newDoOverridenCall);
@@ -176,7 +174,7 @@ public class ZafeirisEtAl2016Executor {
     private Node applyExtractMethodOnBeforeFragment(CompilationUnit parentCU, CompilationUnit childCU,
                                                     MethodDeclaration childMethodDclr, FragmentsSplitter fragmentsSplitter) {
 
-        final ClassOrInterfaceDeclaration childClassDclr = this.astHandler.getClassOrInterfaceDeclaration(childCU)
+        final ClassOrInterfaceDeclaration childClassDclr = AstHandler.getClassOrInterfaceDeclaration(childCU)
                 .orElseThrow(IllegalArgumentException::new);
 
         final String beforeMethodName = String.format("before%s%s",
@@ -185,10 +183,10 @@ public class ZafeirisEtAl2016Executor {
 
         childClassDclr.addMethod(beforeMethodName, Modifier.PROTECTED);
 
-        final Collection<MethodDeclaration> methods = this.astHandler.getMethods(childCU);
+        final Collection<MethodDeclaration> methods = AstHandler.getMethods(childCU);
 
         final MethodDeclaration newMethodDclr = methods.stream().filter(
-                        m -> this.astHandler.getSimpleName(m).filter(sn -> sn.asString().equals(beforeMethodName)).isPresent())
+                        m -> AstHandler.getSimpleName(m).filter(sn -> sn.asString().equals(beforeMethodName)).isPresent())
                 .findFirst().orElseThrow(IllegalArgumentException::new);
 
         final BlockStmt block = new BlockStmt();
@@ -237,15 +235,15 @@ public class ZafeirisEtAl2016Executor {
     private void createHookMethod(CompilationUnit parentCU, MethodDeclaration newMethodDclr,
                                   FragmentsSplitter fragmentsSplitter) {
 
-        final ClassOrInterfaceDeclaration childClassDclr = this.astHandler.getClassOrInterfaceDeclaration(parentCU)
+        final ClassOrInterfaceDeclaration childClassDclr = AstHandler.getClassOrInterfaceDeclaration(parentCU)
                 .orElseThrow(IllegalArgumentException::new);
 
         childClassDclr.addMethod(newMethodDclr.getNameAsString(), Modifier.PROTECTED);
 
-        final Collection<MethodDeclaration> methods = this.astHandler.getMethods(parentCU);
+        final Collection<MethodDeclaration> methods = AstHandler.getMethods(parentCU);
 
         final MethodDeclaration hookMethodDclr = methods.stream()
-                .filter(m -> this.astHandler.getSimpleName(m)
+                .filter(m -> AstHandler.getSimpleName(m)
                         .filter(sn -> sn.asString().equals(newMethodDclr.getNameAsString())).isPresent())
                 .findFirst().orElseThrow(IllegalArgumentException::new);
 
@@ -275,7 +273,7 @@ public class ZafeirisEtAl2016Executor {
                                                                 MethodDeclaration childMethodDclr, FragmentsSplitter fragmentsSplitter,
                                                                 Optional<VariableDeclarationExpr> beforeFragmentReturnValue) {
 
-        final ClassOrInterfaceDeclaration childClassDclr = this.astHandler.getClassOrInterfaceDeclaration(childCU)
+        final ClassOrInterfaceDeclaration childClassDclr = AstHandler.getClassOrInterfaceDeclaration(childCU)
                 .orElseThrow(IllegalArgumentException::new);
 
         final Optional<FragmentsSplitter.SuperReturnVar> superReturnVar = fragmentsSplitter.getSuperReturnVariable();
@@ -286,10 +284,10 @@ public class ZafeirisEtAl2016Executor {
 
         childClassDclr.addMethod(afterMethodName, Modifier.PROTECTED);
 
-        final Collection<MethodDeclaration> methods = this.astHandler.getMethods(childCU);
+        final Collection<MethodDeclaration> methods = AstHandler.getMethods(childCU);
 
         final MethodDeclaration newMethodDclr = methods.stream().filter(
-                        m -> this.astHandler.getSimpleName(m).filter(sn -> sn.asString().equals(afterMethodName)).isPresent())
+                        m -> AstHandler.getSimpleName(m).filter(sn -> sn.asString().equals(afterMethodName)).isPresent())
                 .findFirst().orElseThrow(IllegalArgumentException::new);
 
         final BlockStmt block = new BlockStmt();
@@ -319,11 +317,11 @@ public class ZafeirisEtAl2016Executor {
     private MethodCallExpr replaceSuperCallByDoOverriden(List<JavaFile> javaFiles, CompilationUnit childCU,
                                                          CompilationUnit parentCu, MethodDeclaration newOverridenMethod) {
 
-        final SuperExpr superExpr = this.astHandler.getSuperCalls(childCU).stream().findFirst().get();
+        final SuperExpr superExpr = AstHandler.getSuperCalls(childCU).stream().findFirst().get();
 
         final MethodCallExpr superMethodCall = (MethodCallExpr) superExpr.getParentNode().get();
 
-        final ExpressionStmt node = this.astHandler.getExpressionStatement(superExpr).get();
+        final ExpressionStmt node = AstHandler.getExpressionStatement(superExpr).get();
 
         final MethodCallExpr newMethodCall = new MethodCallExpr(newOverridenMethod.getNameAsString());
 
@@ -357,11 +355,11 @@ public class ZafeirisEtAl2016Executor {
     private MethodDeclaration extractMethodOnOverriddenMethod(List<JavaFile> javaFiles,
                                                               ZafeirisEtAl2016Candidate candidate, CompilationUnit parentCu) {
 
-        final ClassOrInterfaceDeclaration parentClassDclr = this.astHandler.getClassOrInterfaceDeclaration(parentCu)
+        final ClassOrInterfaceDeclaration parentClassDclr = AstHandler.getClassOrInterfaceDeclaration(parentCu)
                 .orElseThrow(IllegalArgumentException::new);
 
-        final MethodDeclaration oldMethodDclr = this.astHandler.getMethods(parentCu).stream()
-                .filter(m -> this.astHandler.methodsParamsMatch(m, candidate.getOverridenMethod())).findFirst()
+        final MethodDeclaration oldMethodDclr = AstHandler.getMethods(parentCu).stream()
+                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverridenMethod())).findFirst()
                 .orElseThrow(IllegalArgumentException::new);
 
         final String newMethodName = String.format("do%s%s",
@@ -370,10 +368,10 @@ public class ZafeirisEtAl2016Executor {
 
         parentClassDclr.addMethod(newMethodName, Modifier.PRIVATE);
 
-        final Collection<MethodDeclaration> methods = this.astHandler.getMethods(parentCu);
+        final Collection<MethodDeclaration> methods = AstHandler.getMethods(parentCu);
 
         final MethodDeclaration newMethodDclr = methods.stream()
-                .filter(m -> this.astHandler.getSimpleName(m)
+                .filter(m -> AstHandler.getSimpleName(m)
                         .filter(sn -> sn.asString().equals(newMethodName))
                         .isPresent())
                 .findFirst()

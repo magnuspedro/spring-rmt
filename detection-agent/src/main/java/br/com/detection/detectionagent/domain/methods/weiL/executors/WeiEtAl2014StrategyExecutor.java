@@ -36,8 +36,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
 
-    private final AstHandler astHandler;
-
     @Override
     public void refactor(RefactoringCandidate candidate, List<JavaFile> dataHandler, ExtractionMethod extractionMethod) {
         final WeiEtAl2014StrategyCandidate weiCandidate = (WeiEtAl2014StrategyCandidate) candidate;
@@ -45,7 +43,7 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
 
         try {
             var path = dataHandler.stream()
-                    .filter(f -> this.astHandler.doesCompilationUnitsMatch((CompilationUnit) f.getParsed(), weiCandidate.getCompilationUnit()))
+                    .filter(f -> AstHandler.doesCompilationUnitsMatch((CompilationUnit) f.getParsed(), weiCandidate.getCompilationUnit()))
                     .map(JavaFile::getPath)
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
@@ -142,9 +140,9 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
         final var allClasses = dataHandler.stream().map(m -> (CompilationUnit) m.getParsed()).toList();
         final var baseCu = this.updateBaseCompilationUnit(allClasses, candidate);
 
-        final var candidateMethod = this.astHandler.getMethods(baseCu).stream()
+        final var candidateMethod = AstHandler.getMethods(baseCu).stream()
                 .filter(m -> m.getNameAsString().equals(candidate.getMethodDcl().getNameAsString())
-                        && this.astHandler.methodsParamsMatch(m, candidate.getMethodDcl()))
+                        && AstHandler.methodsParamsMatch(m, candidate.getMethodDcl()))
                 .findFirst()
                 .orElseThrow(IllegalStateException::new);
 
@@ -166,7 +164,7 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
                 new Parameter(new TypeParameter(createdStrategy.getNameAsString()), "strategy"));
 
         var path = dataHandler.stream()
-                .filter(f -> this.astHandler.doesCompilationUnitsMatch((CompilationUnit) f.getParsed(), baseCu))
+                .filter(f -> AstHandler.doesCompilationUnitsMatch((CompilationUnit) f.getParsed(), baseCu))
                 .map(JavaFile::getPath)
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
@@ -185,7 +183,7 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
     private CompilationUnit updateBaseCompilationUnit(Collection<CompilationUnit> allClasses,
                                                       WeiEtAl2014Candidate candidate) {
         return allClasses.stream()
-                .filter(c -> this.astHandler.doesCompilationUnitsMatch(c, Optional.of(candidate.getClassDeclaration()),
+                .filter(c -> AstHandler.doesCompilationUnitsMatch(c, Optional.of(candidate.getClassDeclaration()),
                         Optional.of(candidate.getPackageDeclaration())))
                 .findFirst()
                 .get();

@@ -17,8 +17,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ExtractMethodPreconditions {
 
-    private final AstHandler astHandler;
-
     public boolean isValid(MethodDeclaration overriddenMethod, MethodDeclaration m) {
         final var fragmentsSplitter = new FragmentsSplitter(m);
 
@@ -66,19 +64,19 @@ public class ExtractMethodPreconditions {
 
     private boolean beforeFragmentHasNoReturn(FragmentsSplitter fragmentsSplitter) {
         return fragmentsSplitter.getBeforeFragment().stream()
-                .noneMatch(this.astHandler::nodeHasReturnStatement);
+                .noneMatch(AstHandler::nodeHasReturnStatement);
     }
 
     private boolean beforeFragmentThrowsNoException(FragmentsSplitter fragmentsSplitter) {
         return fragmentsSplitter.getBeforeFragment().stream()
-                .noneMatch(this.astHandler::nodeThrowsException);
+                .noneMatch(AstHandler::nodeThrowsException);
     }
 
     private boolean superCallIsNotNested(MethodDeclaration m) {
 
-        final Optional<BlockStmt> blockStmt = this.astHandler.getBlockStatement(m);
+        final Optional<BlockStmt> blockStmt = AstHandler.getBlockStatement(m);
 
-        return blockStmt.filter(this.astHandler::childHasDirectSuperCall).isPresent();
+        return blockStmt.filter(AstHandler::childHasDirectSuperCall).isPresent();
 
     }
 

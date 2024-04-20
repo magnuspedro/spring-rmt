@@ -1,5 +1,6 @@
 package br.com.detection.detectionagent.domain.methods.weiL.verifiers;
 
+import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014StrategyCandidate;
 import br.com.detection.detectionagent.file.JavaFile;
@@ -37,7 +38,7 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
                 .findFirst()
                 .get();
 
-        if (this.astHandler.getReturnStmt(ifStmt).isEmpty()) {
+        if (AstHandler.getReturnStmt(ifStmt).isEmpty()) {
             return false;
         }
 
@@ -65,25 +66,25 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
         final var variables = method.getChildNodes()
                 .stream()
                 .filter(c -> !(c instanceof IfStmt))
-                .flatMap(c -> this.astHandler.getVariableDeclarations(c).stream())
+                .flatMap(c -> AstHandler.getVariableDeclarations(c).stream())
                 .toList();
 
         return variables.stream()
                 .noneMatch(v -> ifStmt.getThenStmt()
                         .getChildNodes()
                         .stream()
-                        .anyMatch(c -> this.astHandler.doesNodeUsesVar(c, v))
+                        .anyMatch(c -> AstHandler.doesNodeUsesVar(c, v))
                 );
     }
 
     private Collection<VariableDeclarator> classVariablesUsedInItsBody(CompilationUnit parsedClazz,
                                                                        ClassOrInterfaceDeclaration classOrInterface, IfStmt ifStmt) {
 
-        final Collection<FieldDeclaration> fields = this.astHandler.getDeclaredFields(classOrInterface);
+        final Collection<FieldDeclaration> fields = AstHandler.getDeclaredFields(classOrInterface);
 
         return fields.stream()
                 .flatMap(f -> f.getVariables().stream())
-                .filter(var -> this.astHandler.doesNodeUsesVar(ifStmt, var))
+                .filter(var -> AstHandler.doesNodeUsesVar(ifStmt, var))
                 .toList();
     }
 
@@ -91,7 +92,7 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
                                                        Optional<MethodCallExpr> methodCallExpr) {
 
         if (binaryExpr.isPresent()) {
-            final var name2 = this.astHandler.getNameExpr(binaryExpr.get())
+            final var name2 = AstHandler.getNameExpr(binaryExpr.get())
                     .map(NodeWithSimpleName::getNameAsString)
                     .orElse("");
 

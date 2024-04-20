@@ -19,11 +19,9 @@ public class SuperInvocationPreconditions {
     private static final String SET = "set";
     private static final Set<String> invalidMethodNames = Set.of("toString", "equals", "hashCode", "clone", "finalize", "compareTo");
 
-    private final AstHandler astParser;
-
     public boolean violatesAmountOfSuperCallsOrName(MethodDeclaration method, Collection<SuperExpr> superCalls) {
 
-        final var name = this.astParser.getSimpleName(method)
+        final var name = AstHandler.getSimpleName(method)
                 .map(SimpleName::asString)
                 .orElse("");
 

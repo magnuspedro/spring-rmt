@@ -10,7 +10,6 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,16 +26,11 @@ class AstHandlerTest {
 
     private AstHandler astHandler;
 
-    @BeforeEach
-    void setup() {
-        this.astHandler = new AstHandler();
-    }
-
     @Test
     @DisplayName("Should test method get declared fields for null")
     public void shouldTestMethodGetDeclaredFieldsForNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> this.astHandler.getDeclaredFields(null));
+                () -> AstHandler.getDeclaredFields(null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -46,7 +40,7 @@ class AstHandlerTest {
     public void shouldTestMethodGetDeclaredFieldsForNoFields() {
         var node = new MethodDeclaration();
 
-        var result = this.astHandler.getDeclaredFields(node);
+        var result = AstHandler.getDeclaredFields(node);
 
         assertTrue(result.isEmpty());
     }
@@ -65,7 +59,7 @@ class AstHandlerTest {
                 NodeList.nodeList(),
                 NodeList.nodeList(new FieldDeclaration()));
 
-        var result = this.astHandler.getDeclaredFields(node);
+        var result = AstHandler.getDeclaredFields(node);
 
         assertEquals(1, result.size());
     }
@@ -74,7 +68,7 @@ class AstHandlerTest {
     @DisplayName("Should test get object creation expr with node null")
     public void shouldTestGetObjectCreationExprWithNodeNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> this.astHandler.getObjectCreationExpr(null));
+                () -> AstHandler.getObjectCreationExpr(null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -84,7 +78,7 @@ class AstHandlerTest {
     public void shouldTestGetObjectCreationExprWithNoObjectCreationExpr() {
         var node = new MethodDeclaration();
 
-        var result = this.astHandler.getObjectCreationExpr(node);
+        var result = AstHandler.getObjectCreationExpr(node);
 
         assertTrue(result.isEmpty());
     }
@@ -95,7 +89,7 @@ class AstHandlerTest {
         var objectCreationExpr = new ObjectCreationExpr();
         var node = new ObjectCreationExpr(null, new ClassOrInterfaceType(), NodeList.nodeList(objectCreationExpr));
 
-        var result = this.astHandler.getObjectCreationExpr(node);
+        var result = AstHandler.getObjectCreationExpr(node);
 
         assertEquals(objectCreationExpr, result.get());
     }
@@ -104,7 +98,7 @@ class AstHandlerTest {
     @DisplayName("Should test get return stmt null")
     public void shouldTestGetReturnStmtNull() {
         var result = assertThrows(NullIfStmtException.class,
-                () -> this.astHandler.getReturnStmt(null));
+                () -> AstHandler.getReturnStmt(null));
 
         assertEquals("IfStmt cannot be null", result.getMessage());
     }
@@ -114,7 +108,7 @@ class AstHandlerTest {
     public void shouldTestGetReturnStmtWithNoThenBlock() {
         var node = new IfStmt();
 
-        var result = this.astHandler.getReturnStmt(node);
+        var result = AstHandler.getReturnStmt(node);
 
         assertTrue(result.isEmpty());
     }
@@ -127,7 +121,7 @@ class AstHandlerTest {
                 new BlockStmt(null, NodeList.nodeList(returnStmt)),
                 new BlockStmt());
 
-        var result = this.astHandler.getReturnStmt(node);
+        var result = AstHandler.getReturnStmt(node);
 
         assertEquals(returnStmt, result.get());
     }
@@ -136,7 +130,7 @@ class AstHandlerTest {
     @DisplayName("Should test get name expr for null")
     public void shouldTestGetNameExprForNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> this.astHandler.getNameExpr(null));
+                () -> AstHandler.getNameExpr(null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -146,7 +140,7 @@ class AstHandlerTest {
     public void shouldTestGetNameExprForNoChildNodes() {
         var node = new SimpleName();
 
-        var result = this.astHandler.getNameExpr(node);
+        var result = AstHandler.getNameExpr(node);
 
         assertTrue(result.isEmpty());
     }
@@ -157,7 +151,7 @@ class AstHandlerTest {
         var node = new VariableDeclarator();
         node.setInitializer("method");
 
-        var result = this.astHandler.getNameExpr(node);
+        var result = AstHandler.getNameExpr(node);
 
         assertEquals("method", result.get().toString());
     }
@@ -166,7 +160,7 @@ class AstHandlerTest {
     @DisplayName("Should test for get variable simple name with null")
     public void shouldTestForGetVariableSimpleNameWithNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> this.astHandler.getVariableSimpleName(null));
+                () -> AstHandler.getVariableSimpleName(null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -176,7 +170,7 @@ class AstHandlerTest {
     public void shouldTestForGetVariableSimpleName() {
         var node = new VariableDeclarationExpr(PrimitiveType.intType(), "i");
 
-        var result = this.astHandler.getVariableSimpleName(node);
+        var result = AstHandler.getVariableSimpleName(node);
 
         assertEquals("i", result.get().toString());
     }
@@ -185,7 +179,7 @@ class AstHandlerTest {
     @DisplayName("Should test for get simple name with null")
     public void shouldTestForGetSimpleNameWithNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> this.astHandler.getSimpleName(null));
+                () -> AstHandler.getSimpleName(null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -195,7 +189,7 @@ class AstHandlerTest {
     public void shouldTetForGetSimpleName() {
         var clazz = new ClassOrInterfaceDeclaration();
 
-        var result = this.astHandler.getSimpleName(clazz);
+        var result = AstHandler.getSimpleName(clazz);
 
         assertThat(result.get(), instanceOf(SimpleName.class));
         assertEquals("empty", result.get().toString());
@@ -207,7 +201,7 @@ class AstHandlerTest {
         CompilationUnit cu = null;
 
         var result = assertThrows(NoClassOrInterfaceException.class,
-                () -> this.astHandler.getParentType(cu));
+                () -> AstHandler.getParentType(cu));
 
         assertEquals("No class or interface found in the compilation unit", result.getMessage());
     }
@@ -220,7 +214,7 @@ class AstHandlerTest {
         var cu = new CompilationUnit();
         cu.getTypes().add(clazz);
 
-        var result = this.astHandler.getParentType(cu);
+        var result = AstHandler.getParentType(cu);
 
         assertEquals("Interface", result.get().getNameAsString());
     }
@@ -231,7 +225,7 @@ class AstHandlerTest {
         ClassOrInterfaceDeclaration clazz = null;
 
         var result = assertThrows(NoClassOrInterfaceDeclarationException.class,
-                () -> this.astHandler.getParentType(clazz));
+                () -> AstHandler.getParentType(clazz));
 
         assertEquals("No class or interface declaration found", result.getMessage());
     }
@@ -241,7 +235,7 @@ class AstHandlerTest {
     public void shouldTestForGetParentTypeFromClassOrInterfaceDeclarationWithoutParentType() {
         var clazz = new ClassOrInterfaceDeclaration();
 
-        var result = this.astHandler.getParentType(clazz);
+        var result = AstHandler.getParentType(clazz);
 
         assertTrue(result.isEmpty());
     }
@@ -252,7 +246,7 @@ class AstHandlerTest {
         var clazz = new ClassOrInterfaceDeclaration();
         clazz.setParentNode(new ClassOrInterfaceType("Parent"));
 
-        var result = this.astHandler.getParentType(clazz);
+        var result = AstHandler.getParentType(clazz);
 
         assertEquals("Parent", result.get().getNameAsString());
     }
@@ -261,7 +255,7 @@ class AstHandlerTest {
     @DisplayName("Should test for get parent from compilation unit and all classes with null")
     public void shouldTestForGetParentFromCompilationUnitAndAllClassesWithNull() {
         var result = assertThrows(NoClassOrInterfaceException.class,
-                () -> this.astHandler.getParent(null, List.of()));
+                () -> AstHandler.getParent(null, List.of()));
 
         assertEquals("No class or interface found in the compilation unit", result.getMessage());
     }
@@ -271,7 +265,7 @@ class AstHandlerTest {
     public void shouldTestForGetParentWithoutParentClass() {
         var cu = new CompilationUnit();
 
-        var result = this.astHandler.getParent(cu, List.of());
+        var result = AstHandler.getParent(cu, List.of());
 
         assertTrue(result.isEmpty());
     }
@@ -284,7 +278,7 @@ class AstHandlerTest {
         var cu = new CompilationUnit();
         cu.getTypes().add(clazz);
 
-        var result = this.astHandler.getParent(cu, List.of(cu));
+        var result = AstHandler.getParent(cu, List.of(cu));
 
         assertTrue(result.isEmpty());
     }
@@ -301,7 +295,7 @@ class AstHandlerTest {
         clazzDeclaration.setName("Interface");
         cuList.get(0).getTypes().add(clazzDeclaration);
 
-        var result = this.astHandler.getParent(cu, cuList);
+        var result = AstHandler.getParent(cu, cuList);
 
         assertTrue(result.isPresent());
     }
@@ -310,7 +304,7 @@ class AstHandlerTest {
     @DisplayName("Should test for get package declaration null")
     public void shouldTestForGetPackageDeclarationNull() {
         var result = assertThrows(NullCompilationUnitException.class,
-                () -> astHandler.getPackageDeclaration(null));
+                () -> AstHandler.getPackageDeclaration(null));
 
         assertEquals("Compilation unit cannot be null", result.getMessage());
     }
@@ -321,7 +315,7 @@ class AstHandlerTest {
         var cu = new CompilationUnit();
 
         var result = assertThrows(NoPackageDeclarationException.class,
-                () -> astHandler.getPackageDeclaration(cu));
+                () -> AstHandler.getPackageDeclaration(cu));
 
         assertEquals("Package declaration not be found", result.getMessage());
     }
@@ -332,7 +326,7 @@ class AstHandlerTest {
         var cu = new CompilationUnit();
         cu.setPackageDeclaration("br.com.detection.detectionagent.domain.dataExtractions.ast.utils");
 
-        var result = astHandler.getPackageDeclaration(cu);
+        var result = AstHandler.getPackageDeclaration(cu);
 
         assertEquals("br.com.detection.detectionagent.domain.dataExtractions.ast.utils", result.getNameAsString());
     }
@@ -341,7 +335,7 @@ class AstHandlerTest {
     @DisplayName("Should test get class or interface declaration with null")
     public void shouldTestGetClassOrInterfaceDeclarationWithNull() {
         var result = assertThrows(NoClassOrInterfaceException.class,
-                () -> astHandler.getClassOrInterfaceDeclaration(null));
+                () -> AstHandler.getClassOrInterfaceDeclaration(null));
 
         assertEquals("No class or interface found in the compilation unit", result.getMessage());
     }
@@ -353,7 +347,7 @@ class AstHandlerTest {
         var cu = new CompilationUnit();
         cu.getTypes().add(clazz);
 
-        var result = astHandler.getClassOrInterfaceDeclaration(cu);
+        var result = AstHandler.getClassOrInterfaceDeclaration(cu);
 
         assertEquals(clazz, result.get());
     }
@@ -362,7 +356,7 @@ class AstHandlerTest {
     @DisplayName("Should test get methods with null")
     public void shouldTestGetMethodsWithNull() {
         var result = assertThrows(NullCompilationUnitException.class,
-                () -> astHandler.getMethods(null));
+                () -> AstHandler.getMethods(null));
 
         assertEquals("Compilation unit cannot be null", result.getMessage());
     }
@@ -372,7 +366,7 @@ class AstHandlerTest {
     public void shouldTestGetMethodsWithoutMethods() {
         var cu = new CompilationUnit();
 
-        var result = astHandler.getMethods(cu);
+        var result = AstHandler.getMethods(cu);
 
         assertTrue(result.isEmpty());
     }
@@ -385,7 +379,7 @@ class AstHandlerTest {
         clazz.addMethod("method");
         cu.getTypes().add(clazz);
 
-        var result = astHandler.getMethods(cu);
+        var result = AstHandler.getMethods(cu);
 
         assertFalse(result.isEmpty());
     }
@@ -393,7 +387,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get block statement with null")
     public void shouldTestGetBlockStatementWithNull() {
-        var result = astHandler.getBlockStatement(null);
+        var result = AstHandler.getBlockStatement(null);
 
         assertTrue(result.isEmpty());
     }
@@ -403,7 +397,7 @@ class AstHandlerTest {
     public void shouldTestGetBlockStatementWithoutBlockStatement() {
         var node = new ClassOrInterfaceDeclaration();
 
-        var result = astHandler.getBlockStatement(node);
+        var result = AstHandler.getBlockStatement(node);
 
         assertTrue(result.isEmpty());
     }
@@ -413,7 +407,7 @@ class AstHandlerTest {
     public void shouldTestGetBlockStatement() {
         var node = new MethodDeclaration();
 
-        var result = astHandler.getBlockStatement(node);
+        var result = AstHandler.getBlockStatement(node);
 
         assertThat(result.get(), instanceOf(BlockStmt.class));
     }
@@ -421,7 +415,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get expression statement with null")
     public void shouldTestGetExpressionStatementWithNull() {
-        var result = astHandler.getExpressionStatement(null);
+        var result = AstHandler.getExpressionStatement(null);
 
         assertTrue(result.isEmpty());
     }
@@ -431,7 +425,7 @@ class AstHandlerTest {
     public void shouldTestGetExpressionStatementForBlockstmt() {
         var node = new BlockStmt();
 
-        var result = astHandler.getExpressionStatement(node);
+        var result = AstHandler.getExpressionStatement(node);
 
         assertTrue(result.isEmpty());
     }
@@ -441,7 +435,7 @@ class AstHandlerTest {
     public void shouldTestGetExpressionStatementForClassOrInterfaceDeclaration() {
         var node = new ClassOrInterfaceDeclaration();
 
-        var result = astHandler.getExpressionStatement(node);
+        var result = AstHandler.getExpressionStatement(node);
 
         assertTrue(result.isEmpty());
     }
@@ -451,7 +445,7 @@ class AstHandlerTest {
     public void shouldTestGetExpressionStatementForExpressionStatement() {
         var node = new ExpressionStmt();
 
-        var result = astHandler.getExpressionStatement(node);
+        var result = AstHandler.getExpressionStatement(node);
 
         assertThat(result.get(), instanceOf(ExpressionStmt.class));
     }
@@ -462,7 +456,7 @@ class AstHandlerTest {
         var node = new IfStmt();
         node.setParentNode(new ExpressionStmt());
 
-        var result = astHandler.getExpressionStatement(node);
+        var result = AstHandler.getExpressionStatement(node);
 
         assertThat(result.get(), instanceOf(ExpressionStmt.class));
     }
@@ -471,7 +465,7 @@ class AstHandlerTest {
     @DisplayName("Should test get super calls with null")
     public void shouldTestGetSuperCallsWithNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.getSuperCalls(null));
+                () -> AstHandler.getSuperCalls(null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -481,7 +475,7 @@ class AstHandlerTest {
     public void shouldTestGetSuperCallsForSuperExpr() {
         var node = new SuperExpr();
 
-        var result = astHandler.getSuperCalls(node);
+        var result = AstHandler.getSuperCalls(node);
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
@@ -493,7 +487,7 @@ class AstHandlerTest {
         var node = new BlockStmt(NodeList.nodeList(new ExpressionStmt(new SuperExpr()),
                 new ExpressionStmt(new SuperExpr())));
 
-        var result = astHandler.getSuperCalls(node);
+        var result = AstHandler.getSuperCalls(node);
 
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
@@ -503,7 +497,7 @@ class AstHandlerTest {
     @DisplayName("Should test retrieve overridden method for both parameters null")
     public void shouldTestRetrieveOverriddenMethodForBothParametersNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.retrieveOverriddenMethod(null, null));
+                () -> AstHandler.retrieveOverriddenMethod(null, null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -514,7 +508,7 @@ class AstHandlerTest {
         var cu = new CompilationUnit();
 
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.retrieveOverriddenMethod(cu, null));
+                () -> AstHandler.retrieveOverriddenMethod(cu, null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -525,7 +519,7 @@ class AstHandlerTest {
         var method = new MethodDeclaration();
 
         var result = assertThrows(NullCompilationUnitException.class,
-                () -> astHandler.retrieveOverriddenMethod(null, method));
+                () -> AstHandler.retrieveOverriddenMethod(null, method));
 
         assertEquals("Compilation unit cannot be null", result.getMessage());
     }
@@ -542,7 +536,7 @@ class AstHandlerTest {
         cu.getTypes().add(clazz);
         var overriddenMethod = new MethodDeclaration();
 
-        var result = astHandler.retrieveOverriddenMethod(cu, overriddenMethod);
+        var result = AstHandler.retrieveOverriddenMethod(cu, overriddenMethod);
 
         assertNull(result);
     }
@@ -561,7 +555,7 @@ class AstHandlerTest {
         overriddenMethod.setName("metodo");
         overriddenMethod.setParameters(NodeList.nodeList(new Parameter(PrimitiveType.intType(), "i")));
 
-        var result = astHandler.retrieveOverriddenMethod(cu, overriddenMethod);
+        var result = AstHandler.retrieveOverriddenMethod(cu, overriddenMethod);
 
         assertNotNull(result);
         assertEquals("metodo", result.getNameAsString());
@@ -571,7 +565,7 @@ class AstHandlerTest {
     @DisplayName("Should test methods params match for null")
     public void shouldTestMethodsParamsMatchForNull() {
         var result = assertThrows(NullMethodException.class,
-                () -> astHandler.methodsParamsMatch(null, null));
+                () -> AstHandler.methodsParamsMatch(null, null));
 
         assertEquals("Method cannot be null", result.getMessage());
     }
@@ -580,7 +574,7 @@ class AstHandlerTest {
     @DisplayName("Should test methods params match for m1 null")
     public void shouldTestMethodsParamsMatchForM1Null() {
         var result = assertThrows(NullMethodException.class,
-                () -> astHandler.methodsParamsMatch(new MethodDeclaration(), null));
+                () -> AstHandler.methodsParamsMatch(new MethodDeclaration(), null));
 
         assertEquals("Method cannot be null", result.getMessage());
     }
@@ -589,7 +583,7 @@ class AstHandlerTest {
     @DisplayName("Should test methods params match for m2 null")
     public void shouldTestMethodsParamsMatchForM2Null() {
         var result = assertThrows(NullMethodException.class,
-                () -> astHandler.methodsParamsMatch(null, new MethodDeclaration()));
+                () -> AstHandler.methodsParamsMatch(null, new MethodDeclaration()));
 
         assertEquals("Method cannot be null", result.getMessage());
     }
@@ -601,7 +595,7 @@ class AstHandlerTest {
         m1.setParameters(NodeList.nodeList(new Parameter(PrimitiveType.intType(), "i")));
         var m2 = new MethodDeclaration();
 
-        var result = astHandler.methodsParamsMatch(m1, m2);
+        var result = AstHandler.methodsParamsMatch(m1, m2);
 
         assertFalse(result);
     }
@@ -614,7 +608,7 @@ class AstHandlerTest {
         var m2 = new MethodDeclaration();
         m2.setParameters(NodeList.nodeList(new Parameter(PrimitiveType.intType(), "i")));
 
-        var result = astHandler.methodsParamsMatch(m1, m2);
+        var result = AstHandler.methodsParamsMatch(m1, m2);
 
         assertTrue(result);
     }
@@ -623,7 +617,7 @@ class AstHandlerTest {
     @DisplayName("Should test child has direct super call for null params")
     public void shouldTestChildHasDirectSuperCallForNullParams() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.childHasDirectSuperCall(null));
+                () -> AstHandler.childHasDirectSuperCall(null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -633,7 +627,7 @@ class AstHandlerTest {
     public void shouldTestChildHasDirectSuperCallForNodeWithCondition() {
         var node = new IfStmt();
 
-        var result = astHandler.childHasDirectSuperCall(node);
+        var result = AstHandler.childHasDirectSuperCall(node);
 
         assertFalse(result);
     }
@@ -643,7 +637,7 @@ class AstHandlerTest {
     public void shouldTestChildHasDirectSuperCallForNodeWithTryStmt() {
         var node = new TryStmt();
 
-        var result = astHandler.childHasDirectSuperCall(node);
+        var result = AstHandler.childHasDirectSuperCall(node);
 
         assertFalse(result);
     }
@@ -653,7 +647,7 @@ class AstHandlerTest {
     public void shouldTestChildHasDirectSuperCallForNodeWithCatchClause() {
         var node = new CatchClause();
 
-        var result = astHandler.childHasDirectSuperCall(node);
+        var result = AstHandler.childHasDirectSuperCall(node);
 
         assertFalse(result);
     }
@@ -663,7 +657,7 @@ class AstHandlerTest {
     public void shouldTestChildHasDirectSuperCallForNodeWithWithoutMethodCall() {
         var node = new BlockStmt();
 
-        var result = astHandler.childHasDirectSuperCall(node);
+        var result = AstHandler.childHasDirectSuperCall(node);
 
         assertFalse(result);
     }
@@ -673,7 +667,7 @@ class AstHandlerTest {
     public void shouldTestChildHasDirectSuperCallForNodeWithMethodCall() {
         var node = new ExpressionStmt(new SuperExpr());
 
-        var result = astHandler.childHasDirectSuperCall(node);
+        var result = AstHandler.childHasDirectSuperCall(node);
 
         assertTrue(result);
     }
@@ -683,7 +677,7 @@ class AstHandlerTest {
     public void shouldTestChildHasDirectSuperCallForNodeWithMethodCallInChild() {
         var node = new BlockStmt(NodeList.nodeList(new ExpressionStmt(new SuperExpr())));
 
-        var result = astHandler.childHasDirectSuperCall(node);
+        var result = AstHandler.childHasDirectSuperCall(node);
 
         assertTrue(result);
     }
@@ -691,7 +685,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test node has return statement with null")
     public void shouldTestNodeHasReturnStatementWithNull() {
-        var result = astHandler.nodeHasReturnStatement(null);
+        var result = AstHandler.nodeHasReturnStatement(null);
 
         assertFalse(result);
     }
@@ -699,7 +693,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test node has return statement with no return statement")
     public void shouldTestNodeHasReturnStatementWithNoReturnStatement() {
-        var result = astHandler.nodeHasReturnStatement(new BlockStmt());
+        var result = AstHandler.nodeHasReturnStatement(new BlockStmt());
 
         assertFalse(result);
     }
@@ -709,7 +703,7 @@ class AstHandlerTest {
     public void shouldTestNodeHasReturnStatement() {
         var blockStmt = new BlockStmt(NodeList.nodeList(new ReturnStmt()));
 
-        var result = astHandler.nodeHasReturnStatement(blockStmt);
+        var result = AstHandler.nodeHasReturnStatement(blockStmt);
 
         assertTrue(result);
     }
@@ -717,7 +711,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test node throws exception with null")
     public void shouldTestNodeThrowsExceptionWithNull() {
-        var result = astHandler.nodeThrowsException(null);
+        var result = AstHandler.nodeThrowsException(null);
 
         assertFalse(result);
     }
@@ -725,7 +719,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test node throws exception with no throw")
     public void shouldTestNodeThrowsExceptionWithNoThrow() {
-        var result = astHandler.nodeThrowsException(new BlockStmt());
+        var result = AstHandler.nodeThrowsException(new BlockStmt());
 
         assertFalse(result);
     }
@@ -735,7 +729,7 @@ class AstHandlerTest {
     public void shouldTestNodeThrowsException() {
         var blockStmt = new BlockStmt(NodeList.nodeList(new ThrowStmt()));
 
-        var result = astHandler.nodeThrowsException(blockStmt);
+        var result = AstHandler.nodeThrowsException(blockStmt);
 
         assertTrue(result);
     }
@@ -744,7 +738,7 @@ class AstHandlerTest {
     @DisplayName("Should test for node has clazz with null")
     public void shouldTestForNodeHasClazzWithNull() {
         var result = assertThrows(ClassExpectedException.class,
-                () -> astHandler.nodeHasClazz(null, null));
+                () -> AstHandler.nodeHasClazz(null, null));
 
         assertEquals("Class is expected as a parameter", result.getMessage());
     }
@@ -753,7 +747,7 @@ class AstHandlerTest {
     @DisplayName("Should test for node has clazz with null clazz")
     public void shouldTestForNodeHasClazzWithNullClazz() {
         var result = assertThrows(ClassExpectedException.class,
-                () -> astHandler.nodeHasClazz(new ClassOrInterfaceDeclaration(), null));
+                () -> AstHandler.nodeHasClazz(new ClassOrInterfaceDeclaration(), null));
 
         assertEquals("Class is expected as a parameter", result.getMessage());
     }
@@ -762,7 +756,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test for node has clazz with null node")
     public void shouldTestForNodeHasClazzWithNullNode() {
-        var result = astHandler.nodeHasClazz(null, ClassOrInterfaceDeclaration.class);
+        var result = AstHandler.nodeHasClazz(null, ClassOrInterfaceDeclaration.class);
 
         assertFalse(result);
     }
@@ -772,7 +766,7 @@ class AstHandlerTest {
     public void shouldTestForNodeHasClazz() {
         var clazz = new ClassOrInterfaceDeclaration();
 
-        var result = astHandler.nodeHasClazz(clazz, ClassOrInterfaceDeclaration.class);
+        var result = AstHandler.nodeHasClazz(clazz, ClassOrInterfaceDeclaration.class);
 
         assertTrue(result);
     }
@@ -781,7 +775,7 @@ class AstHandlerTest {
     @DisplayName("Should test extract variable dclr from node with null")
     public void shouldTestExtractVariableDclrFromNodeWithNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.extractVariableDclrFromNode(null));
+                () -> AstHandler.extractVariableDclrFromNode(null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -789,7 +783,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test extract variable dclr from node with no variable declaration")
     public void shouldTestExtractVariableDclrFromNodeWithNoVariableDeclaration() {
-        var result = astHandler.extractVariableDclrFromNode(new BlockStmt());
+        var result = AstHandler.extractVariableDclrFromNode(new BlockStmt());
 
         assertTrue(result.isEmpty());
     }
@@ -804,7 +798,7 @@ class AstHandlerTest {
         expressionStmt.setExpression(variableDeclarationExpr);
         blockStmt.setStatements(NodeList.nodeList(expressionStmt));
 
-        var result = astHandler.extractVariableDclrFromNode(blockStmt);
+        var result = AstHandler.extractVariableDclrFromNode(blockStmt);
 
         assertEquals(1, result.size());
     }
@@ -813,7 +807,7 @@ class AstHandlerTest {
     @DisplayName("Should test variable is present in method call with both parameters null")
     public void shouldTestVariableIsPresentInMethodCallWithBothParametersNull() {
         var result = assertThrows(MethodCallExpectedException.class,
-                () -> astHandler.variableIsPresentInMethodCall(null, null));
+                () -> AstHandler.variableIsPresentInMethodCall(null, null));
 
         assertEquals("Method is expected as a parameter", result.getMessage());
     }
@@ -822,7 +816,7 @@ class AstHandlerTest {
     @DisplayName("Should test variable is present in method call with null method call")
     public void shouldTestVariableIsPresentInMethodCallWithNullMethodCall() {
         var result = assertThrows(MethodCallExpectedException.class,
-                () -> astHandler.variableIsPresentInMethodCall(new VariableDeclarationExpr(), null));
+                () -> AstHandler.variableIsPresentInMethodCall(new VariableDeclarationExpr(), null));
 
         assertEquals("Method is expected as a parameter", result.getMessage());
     }
@@ -830,7 +824,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test variable is present in method call with null variable declaration exp")
     public void shouldTestVariableIsPresentInMethodCallWithNullVariableDeclarationExp() {
-        var result = astHandler.variableIsPresentInMethodCall(null, new MethodCallExpr());
+        var result = AstHandler.variableIsPresentInMethodCall(null, new MethodCallExpr());
 
         assertFalse(result);
     }
@@ -843,7 +837,7 @@ class AstHandlerTest {
         variableDeclarationExpr.setVariables(NodeList.nodeList(variableDeclarator));
         var methodCallExpr = new MethodCallExpr("method", new NameExpr("i"));
 
-        var result = astHandler.variableIsPresentInMethodCall(variableDeclarationExpr, methodCallExpr);
+        var result = AstHandler.variableIsPresentInMethodCall(variableDeclarationExpr, methodCallExpr);
 
         assertTrue(result);
     }
@@ -852,7 +846,7 @@ class AstHandlerTest {
     @DisplayName("Should test get variable name with null")
     public void shouldTestGetVariableNameWithNull() {
         var result = assertThrows(VariableDeclarationExpectedException.class,
-                () -> astHandler.getVariableName(null));
+                () -> AstHandler.getVariableName(null));
 
         assertEquals("Variable declaration is expected as a parameter", result.getMessage());
     }
@@ -865,7 +859,7 @@ class AstHandlerTest {
         variableDeclarator.setName("i");
         variableDeclaratorExpr.setVariables(NodeList.nodeList(variableDeclarator));
 
-        var result = astHandler.getVariableName(variableDeclaratorExpr);
+        var result = AstHandler.getVariableName(variableDeclaratorExpr);
 
         assertEquals("i", result.toString());
     }
@@ -874,7 +868,7 @@ class AstHandlerTest {
     @DisplayName("Should test node has simple name with parameters null")
     public void shouldTestNodeHasSimpleNameWithParametersNull() {
         var result = assertThrows(SimpleNameException.class,
-                () -> astHandler.nodeHasSimpleName(null, null));
+                () -> AstHandler.nodeHasSimpleName(null, null));
 
         assertEquals("Simple name not found", result.getMessage());
     }
@@ -883,7 +877,7 @@ class AstHandlerTest {
     @DisplayName("Should test node has simple name with node null")
     public void shouldTestNodeHasSimpleNameWithNodeNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.nodeHasSimpleName(new SimpleName(), null));
+                () -> AstHandler.nodeHasSimpleName(new SimpleName(), null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -892,7 +886,7 @@ class AstHandlerTest {
     @DisplayName("Should test node has simple name with name null")
     public void shouldTestNodeHasSimpleNameWithNameNull() {
         var result = assertThrows(SimpleNameException.class,
-                () -> astHandler.nodeHasSimpleName(null, new SimpleName()));
+                () -> AstHandler.nodeHasSimpleName(null, new SimpleName()));
 
         assertEquals("Simple name not found", result.getMessage());
     }
@@ -903,7 +897,7 @@ class AstHandlerTest {
         var name = new SimpleName();
         var node = new ArrayCreationLevel();
 
-        var result = astHandler.nodeHasSimpleName(name, node);
+        var result = AstHandler.nodeHasSimpleName(name, node);
 
         assertFalse(result);
     }
@@ -914,7 +908,7 @@ class AstHandlerTest {
         var name = new SimpleName();
         var node = new MethodDeclaration();
 
-        var result = astHandler.nodeHasSimpleName(name, node);
+        var result = AstHandler.nodeHasSimpleName(name, node);
 
         assertTrue(result);
     }
@@ -923,7 +917,7 @@ class AstHandlerTest {
     @DisplayName("Should test get node by type with both parameters null")
     public void shouldTestGetNodeByTypeWithBothParametersNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.getNodeByType(null, null));
+                () -> AstHandler.getNodeByType(null, null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -932,7 +926,7 @@ class AstHandlerTest {
     @DisplayName("Should test get node by type with type null")
     public void shouldTestGetNodeByTypeWithTypeNull() {
         var result = assertThrows(ClassExpectedException.class,
-                () -> astHandler.getNodeByType(new BlockStmt(), null));
+                () -> AstHandler.getNodeByType(new BlockStmt(), null));
 
         assertEquals("Class is expected as a parameter", result.getMessage());
     }
@@ -941,7 +935,7 @@ class AstHandlerTest {
     @DisplayName("Should test get node by type with node null")
     public void shouldTestGetNodeByTypeWithNodeNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.getNodeByType(null, ClassOrInterfaceDeclaration.class));
+                () -> AstHandler.getNodeByType(null, ClassOrInterfaceDeclaration.class));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -949,7 +943,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get node by type for node without type")
     public void shouldTestGetNodeByTypeForNodeWithoutType() {
-        var result = astHandler.getNodeByType(new BlockStmt(),
+        var result = AstHandler.getNodeByType(new BlockStmt(),
                 ClassOrInterfaceDeclaration.class);
 
         assertTrue(result.isEmpty());
@@ -958,7 +952,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get node by type for node with existing type")
     public void shouldTestGetNodeByTypeForNodeWithExistingType() {
-        var result = astHandler.getNodeByType(new ClassOrInterfaceDeclaration(),
+        var result = AstHandler.getNodeByType(new ClassOrInterfaceDeclaration(),
                 SimpleName.class);
 
         assertEquals(1, result.size());
@@ -967,7 +961,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get method call expr with null node")
     public void shouldTestGetMethodCallExprWithNullNode() {
-        var result = astHandler.getMethodCallExpr(null);
+        var result = AstHandler.getMethodCallExpr(null);
 
         assertTrue(result.isEmpty());
     }
@@ -975,7 +969,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get method call expr with no method call expr")
     public void shouldTestGetMethodCallExprWithNoMethodCallExpr() {
-        var result = astHandler.getMethodCallExpr(new BlockStmt());
+        var result = AstHandler.getMethodCallExpr(new BlockStmt());
 
         assertTrue(result.isEmpty());
     }
@@ -984,7 +978,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get method call expr for MethodCallExpr")
     public void shouldTestGetMethodCallExprForMethodCallExpr() {
-        var result = astHandler.getMethodCallExpr(new MethodCallExpr());
+        var result = AstHandler.getMethodCallExpr(new MethodCallExpr());
 
         assertEquals(1, result.size());
     }
@@ -1004,7 +998,7 @@ class AstHandlerTest {
         clazz.setMembers(NodeList.nodeList(method));
         cu.getTypes().add(clazz);
 
-        var result = astHandler.getMethodCallExpr(methodCallExpr);
+        var result = AstHandler.getMethodCallExpr(methodCallExpr);
 
         assertEquals(1, result.size());
     }
@@ -1013,7 +1007,7 @@ class AstHandlerTest {
     @DisplayName("Should test do variable name match with both parameters null")
     public void shouldTestDoVariableNameMatchWithBothParametersNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.doVariablesNameMatch(null, null));
+                () -> AstHandler.doVariablesNameMatch(null, null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -1022,7 +1016,7 @@ class AstHandlerTest {
     @DisplayName("Should test do variable name match with first parameter null")
     public void shouldTestDoVariableNameMatchWithFirstParameterNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.doVariablesNameMatch(null, new VariableDeclarationExpr()));
+                () -> AstHandler.doVariablesNameMatch(null, new VariableDeclarationExpr()));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -1031,7 +1025,7 @@ class AstHandlerTest {
     @DisplayName("Should test do variable name match with second parameter null")
     public void shouldTestDoVariableNameMatchWithSecondParameterNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.doVariablesNameMatch(new VariableDeclarationExpr(), null));
+                () -> AstHandler.doVariablesNameMatch(new VariableDeclarationExpr(), null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -1043,7 +1037,7 @@ class AstHandlerTest {
         var1.setVariables(NodeList.nodeList(new VariableDeclarator(PrimitiveType.intType(), "i")));
         var var2 = new VariableDeclarationExpr();
 
-        var result = astHandler.doVariablesNameMatch(var1, var2);
+        var result = AstHandler.doVariablesNameMatch(var1, var2);
 
         assertFalse(result);
     }
@@ -1056,7 +1050,7 @@ class AstHandlerTest {
         var var2 = new VariableDeclarationExpr();
         var2.setVariables(NodeList.nodeList(new VariableDeclarator(PrimitiveType.intType(), "i")));
 
-        var result = astHandler.doVariablesNameMatch(var1, var2);
+        var result = AstHandler.doVariablesNameMatch(var1, var2);
 
         assertTrue(result);
     }
@@ -1064,7 +1058,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test does node contain matching method with both parameters null")
     public void shouldTestDoesNodeContainMatchingMethodWithBothParametersNull() {
-        var result = astHandler.doesNodeContainMatchingMethodCall(null, null);
+        var result = AstHandler.doesNodeContainMatchingMethodCall(null, null);
 
         assertFalse(result);
     }
@@ -1073,7 +1067,7 @@ class AstHandlerTest {
     @DisplayName("Should test does node contain matching method with second parameter null")
     public void shouldTestDoesNodeContainMatchingMethodWithSecondParameterNull() {
         var result = assertThrows(NullMethodException.class,
-                () -> astHandler.doesNodeContainMatchingMethodCall(new MethodCallExpr(), null));
+                () -> AstHandler.doesNodeContainMatchingMethodCall(new MethodCallExpr(), null));
 
         assertEquals("Method cannot be null", result.getMessage());
     }
@@ -1081,7 +1075,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test does node contain matching method with first parameter null")
     public void shouldTestDoesNodeContainMatchingMethodWithFirstParameterNull() {
-        var result = astHandler.doesNodeContainMatchingMethodCall(null, new MethodCallExpr());
+        var result = AstHandler.doesNodeContainMatchingMethodCall(null, new MethodCallExpr());
 
         assertFalse(result);
     }
@@ -1092,7 +1086,7 @@ class AstHandlerTest {
         var cu = new CompilationUnit();
         var method = new MethodCallExpr("method", new VariableDeclarationExpr());
 
-        var result = astHandler.doesNodeContainMatchingMethodCall(cu, method);
+        var result = AstHandler.doesNodeContainMatchingMethodCall(cu, method);
 
         assertFalse(result);
     }
@@ -1104,7 +1098,7 @@ class AstHandlerTest {
         var method = new MethodCallExpr();
         body.setStatements(NodeList.nodeList(new ExpressionStmt(new MethodCallExpr())));
 
-        var result = astHandler.doesNodeContainMatchingMethodCall(body, method);
+        var result = AstHandler.doesNodeContainMatchingMethodCall(body, method);
 
         assertTrue(result);
     }
@@ -1174,7 +1168,7 @@ class AstHandlerTest {
     @DisplayName("Should test does compilation unit match with both parameters null")
     public void shouldTestDoesCompilationUnitMatchWithBothParametersNull() {
         var result = assertThrows(NoClassOrInterfaceException.class,
-                () -> astHandler.doesCompilationUnitsMatch(null, null));
+                () -> AstHandler.doesCompilationUnitsMatch(null, null));
 
         assertEquals("No class or interface found in the compilation unit", result.getMessage());
     }
@@ -1183,7 +1177,7 @@ class AstHandlerTest {
     @DisplayName("Should test does compilation unit match for first parameter null")
     public void shouldTestDoesCompilationUnitMatchForFirstParameterNull() {
         var result = assertThrows(NoClassOrInterfaceException.class,
-                () -> astHandler.doesCompilationUnitsMatch(null, new CompilationUnit()));
+                () -> AstHandler.doesCompilationUnitsMatch(null, new CompilationUnit()));
 
         assertEquals("No class or interface found in the compilation unit", result.getMessage());
     }
@@ -1192,7 +1186,7 @@ class AstHandlerTest {
     @DisplayName("Should test does compilation unit match for second parameter null")
     public void shouldTestDoesCompilationUnitMatchForSecondParameterNull() {
         var result = assertThrows(NoClassOrInterfaceException.class,
-                () -> astHandler.doesCompilationUnitsMatch(new CompilationUnit(), null));
+                () -> AstHandler.doesCompilationUnitsMatch(new CompilationUnit(), null));
 
         assertEquals("No class or interface found in the compilation unit", result.getMessage());
     }
@@ -1204,7 +1198,7 @@ class AstHandlerTest {
         cu1.setPackageDeclaration("br.com.test");
         var cu2 = new CompilationUnit();
 
-        var result = astHandler.doesCompilationUnitsMatch(cu1, cu2);
+        var result = AstHandler.doesCompilationUnitsMatch(cu1, cu2);
 
         assertFalse(result);
     }
@@ -1220,7 +1214,7 @@ class AstHandlerTest {
         var cu2 = new CompilationUnit();
         cu2.setPackageDeclaration("br.com.test");
 
-        var result = astHandler.doesCompilationUnitsMatch(cu1, cu2);
+        var result = AstHandler.doesCompilationUnitsMatch(cu1, cu2);
 
         assertFalse(result);
     }
@@ -1239,7 +1233,7 @@ class AstHandlerTest {
         cu2.getTypes().add(clazz2);
         cu2.setPackageDeclaration("br.com.test");
 
-        var result = astHandler.doesCompilationUnitsMatch(cu1, cu2);
+        var result = AstHandler.doesCompilationUnitsMatch(cu1, cu2);
 
         assertTrue(result);
     }
@@ -1248,7 +1242,7 @@ class AstHandlerTest {
     @DisplayName("Should test get if statement with null")
     public void shouldTestGetIfStatementWithNull() {
         var result = assertThrows(NullMethodException.class,
-                () -> astHandler.getIfStatements(null));
+                () -> AstHandler.getIfStatements(null));
 
         assertEquals("Method cannot be null", result.getMessage());
     }
@@ -1256,7 +1250,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get if statement for method declaration without ifStmt")
     public void shouldTestGetIfStatementForMethodDeclarationWithoutIfStmt() {
-        var result = astHandler.getIfStatements(new MethodDeclaration());
+        var result = AstHandler.getIfStatements(new MethodDeclaration());
 
         assertTrue(result.isEmpty());
     }
@@ -1267,7 +1261,7 @@ class AstHandlerTest {
         var method = new MethodDeclaration();
         method.setBody(new BlockStmt(NodeList.nodeList(new IfStmt())));
 
-        var result = astHandler.getIfStatements(method);
+        var result = AstHandler.getIfStatements(method);
 
         assertEquals(1, result.size());
     }
@@ -1280,7 +1274,7 @@ class AstHandlerTest {
         ifStmt.setElseStmt(new IfStmt());
         method.setBody(new BlockStmt(NodeList.nodeList(ifStmt)));
 
-        var result = astHandler.getIfStatements(method);
+        var result = AstHandler.getIfStatements(method);
 
         assertEquals(2, result.size());
     }
@@ -1289,7 +1283,7 @@ class AstHandlerTest {
     @DisplayName("Should test get literal expr with null")
     public void shouldTestGetLiteralExprWithNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.getLiteralExpr(null));
+                () -> AstHandler.getLiteralExpr(null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -1297,7 +1291,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get literal expr for node without literal expr")
     public void shouldTestGetLiteralExprForNodeWithoutLiteralExpr() {
-        var result = astHandler.getLiteralExpr(new BlockStmt());
+        var result = AstHandler.getLiteralExpr(new BlockStmt());
 
         assertTrue(result.isEmpty());
     }
@@ -1307,7 +1301,7 @@ class AstHandlerTest {
     public void shouldTestGetLiteralExprForNodeWithLiteralExpr() {
         var expression = new ExpressionStmt();
         expression.setExpression(new BooleanLiteralExpr());
-        var result = astHandler.getLiteralExpr(expression);
+        var result = AstHandler.getLiteralExpr(expression);
 
         assertTrue(result.isPresent());
     }
@@ -1316,7 +1310,7 @@ class AstHandlerTest {
     @DisplayName("Should test get variable declaration in node with both parameters null")
     public void shouldTestGetVariableDeclarationInNodeWithBothParametersNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.getVariableDeclarationInNode(null, null));
+                () -> AstHandler.getVariableDeclarationInNode(null, null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -1325,7 +1319,7 @@ class AstHandlerTest {
     @DisplayName("Should test get variable declaration in node with first param null")
     public void shouldTestGetVariableDeclarationInNodeWithFirstParamNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.getVariableDeclarationInNode(null, ""));
+                () -> AstHandler.getVariableDeclarationInNode(null, ""));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -1334,7 +1328,7 @@ class AstHandlerTest {
     @DisplayName("Should test get variable declaration in node with second param null")
     public void shouldTestGetVariableDeclarationInNodeWithSecondParamNull() {
         var result = assertThrows(IllegalArgumentException.class,
-                () -> astHandler.getVariableDeclarationInNode(new BlockStmt(), null));
+                () -> AstHandler.getVariableDeclarationInNode(new BlockStmt(), null));
 
         assertEquals("Return name cannot be null", result.getMessage());
     }
@@ -1342,7 +1336,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get variable declaration in node for no match")
     public void shouldTestGetVariableDeclarationInNodeForNoMatch() {
-        var result = astHandler.getVariableDeclarationInNode(new VariableDeclarationExpr(), "");
+        var result = AstHandler.getVariableDeclarationInNode(new VariableDeclarationExpr(), "");
 
         assertTrue(result.isEmpty());
     }
@@ -1353,7 +1347,7 @@ class AstHandlerTest {
         var variable = new VariableDeclarationExpr();
         variable.setVariables(NodeList.nodeList(new VariableDeclarator(PrimitiveType.intType(), "i")));
 
-        var result = astHandler.getVariableDeclarationInNode(variable, "i");
+        var result = AstHandler.getVariableDeclarationInNode(variable, "i");
 
         assertTrue(result.isPresent());
     }
@@ -1366,7 +1360,7 @@ class AstHandlerTest {
         variable.setVariables(NodeList.nodeList(new VariableDeclarator(PrimitiveType.intType(), "i")));
         expression.setExpression(variable);
 
-        var result = astHandler.getVariableDeclarationInNode(expression, "i");
+        var result = AstHandler.getVariableDeclarationInNode(expression, "i");
 
         assertTrue(result.isPresent());
     }
@@ -1374,7 +1368,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test for get method return class type for null")
     public void shouldTestForGetMethodReturnClassTypeForNull() {
-        var result = astHandler.getMethodReturnClassType(null);
+        var result = AstHandler.getMethodReturnClassType(null);
 
         assertTrue(result.isEmpty());
     }
@@ -1385,7 +1379,7 @@ class AstHandlerTest {
         var method = new MethodDeclaration();
         method.setType(new ClassOrInterfaceType("Custom"));
 
-        var result = astHandler.getMethodReturnClassType(method);
+        var result = AstHandler.getMethodReturnClassType(method);
 
         assertEquals("Custom", result.get().toString());
     }
@@ -1394,7 +1388,7 @@ class AstHandlerTest {
     @DisplayName("Should test for does node uses var with both null")
     public void shouldTestForDoesNodeUsesVarWithBothNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.doesNodeUsesVar(null, null));
+                () -> AstHandler.doesNodeUsesVar(null, null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -1403,7 +1397,7 @@ class AstHandlerTest {
     @DisplayName("Should test for does node uses var with first null")
     public void shouldTestForDoesNodeUsesVarWithFirstNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.doesNodeUsesVar(null, new VariableDeclarator()));
+                () -> AstHandler.doesNodeUsesVar(null, new VariableDeclarator()));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -1412,7 +1406,7 @@ class AstHandlerTest {
     @DisplayName("Should test for does node uses var with second null")
     public void shouldTestForDoesNodeUsesVarWithSecondNull() {
         var result = assertThrows(VariableDeclarationExpectedException.class,
-                () -> astHandler.doesNodeUsesVar(new BlockStmt(), null));
+                () -> AstHandler.doesNodeUsesVar(new BlockStmt(), null));
 
         assertEquals("Variable declaration is expected as a parameter", result.getMessage());
     }
@@ -1420,7 +1414,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test does node uses var for no instance of nameExpr")
     public void shouldTestDoesNodeUsesVarForNoInstanceOfNameExpr() {
-        var result = astHandler.doesNodeUsesVar(new BlockStmt(), new VariableDeclarator());
+        var result = AstHandler.doesNodeUsesVar(new BlockStmt(), new VariableDeclarator());
 
         assertFalse(result);
     }
@@ -1432,7 +1426,7 @@ class AstHandlerTest {
         var variable = new VariableDeclarator();
         variable.setName("io");
 
-        var result = astHandler.doesNodeUsesVar(nameExpr, variable);
+        var result = AstHandler.doesNodeUsesVar(nameExpr, variable);
 
         assertFalse(result);
     }
@@ -1444,7 +1438,7 @@ class AstHandlerTest {
         var variable = new VariableDeclarator();
         variable.setName("i");
 
-        var result = astHandler.doesNodeUsesVar(nameExpr, variable);
+        var result = AstHandler.doesNodeUsesVar(nameExpr, variable);
 
         assertTrue(result);
     }
@@ -1456,7 +1450,7 @@ class AstHandlerTest {
         var variable = new VariableDeclarator();
         variable.setName("i");
 
-        var result = astHandler.doesNodeUsesVar(blockStmt, variable);
+        var result = AstHandler.doesNodeUsesVar(blockStmt, variable);
 
         assertTrue(result);
     }
@@ -1465,7 +1459,7 @@ class AstHandlerTest {
     @DisplayName("Should test get variable declarations with param null")
     public void shouldTestGetVariableDeclarationsWithParamNull() {
         var result = assertThrows(NullNodeException.class,
-                () -> astHandler.getVariableDeclarations(null));
+                () -> AstHandler.getVariableDeclarations(null));
 
         assertEquals("Node cannot be null", result.getMessage());
     }
@@ -1473,7 +1467,7 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get variable declaration for a node that is not a variable declarator")
     public void shouldTestGetVariableDeclarationForANodeThatIsNotAVariableDeclarator() {
-        var result = astHandler.getVariableDeclarations(new BlockStmt());
+        var result = AstHandler.getVariableDeclarations(new BlockStmt());
 
         assertTrue(result.isEmpty());
     }
@@ -1483,7 +1477,7 @@ class AstHandlerTest {
     public void shouldTestGetVariableDeclarationForNodeThatIsVariableDeclarator() {
         var variableDeclarator = new VariableDeclarator();
 
-        var result = astHandler.getVariableDeclarations(variableDeclarator);
+        var result = AstHandler.getVariableDeclarations(variableDeclarator);
 
         assertEquals(1, result.size());
     }
@@ -1494,7 +1488,7 @@ class AstHandlerTest {
         var variable = new VariableDeclarationExpr();
         variable.setVariables(NodeList.nodeList(new VariableDeclarator(), new VariableDeclarator()));
 
-        var result = astHandler.getVariableDeclarations(variable);
+        var result = AstHandler.getVariableDeclarations(variable);
 
         assertEquals(2, result.size());
     }

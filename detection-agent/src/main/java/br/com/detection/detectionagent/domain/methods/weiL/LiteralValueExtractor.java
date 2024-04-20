@@ -12,10 +12,8 @@ import java.util.function.Predicate;
 @Component
 public class LiteralValueExtractor {
 
-    private final AstHandler astHandler = new AstHandler();
-
     public Optional<Object> getNodeOtherThan(Node node, Parameter parameter) {
-        final Predicate<Node> isAValidChild = (value) -> this.astHandler.getNameExpr(value)
+        final Predicate<Node> isAValidChild = (value) -> AstHandler.getNameExpr(value)
                 .map(n -> n.getNameAsString().equals(parameter.getNameAsString()))
                 .isEmpty();
 

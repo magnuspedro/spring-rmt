@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SiblingPreconditions {
 
-    private final AstHandler astHandler;
-
     public boolean violates(Collection<ZafeirisEtAl2016Candidate> candidatesOfSameOverriddenMethod) {
         final List<ZafeirisEtAl2016Candidate.CandidateWithVariables> candidatesWithVariables = candidatesOfSameOverriddenMethod.stream()
                 .map(ZafeirisEtAl2016Candidate::toCandidateWithVariables)
@@ -63,7 +61,7 @@ public class SiblingPreconditions {
             } else if (candidatesWithVariables.get(i).variables().isEmpty()) {
                 areEqual = false;
             } else {
-                areEqual &= this.astHandler.doVariablesNameMatch(
+                areEqual &= AstHandler.doVariablesNameMatch(
                         candidatesWithVariables.get(i).variables()
                                 .stream()
                                 .findFirst()
@@ -101,7 +99,7 @@ public class SiblingPreconditions {
                     .getParentNode()
                     .orElseThrow(() -> new IllegalArgumentException("No method call found in candidate"));
 
-            isUsed &= this.astHandler.variableIsPresentInMethodCall(var, methodCall);
+            isUsed &= AstHandler.variableIsPresentInMethodCall(var, methodCall);
         }
         return isUsed;
     }
@@ -114,21 +112,21 @@ public class SiblingPreconditions {
         }
 
         private boolean isChild(ClassOrInterfaceDeclaration dclr) {
-            final Optional<ClassOrInterfaceType> parent = astHandler.getParentType(dclr);
+            final Optional<ClassOrInterfaceType> parent = AstHandler.getParentType(dclr);
             return parent.filter(classOrInterfaceType -> declarations.stream()
-                            .map(astHandler::getSimpleName)
+                            .map(AstHandler::getSimpleName)
                             .flatMap(Optional::stream)
-                            .anyMatch(n -> n.equals(astHandler.getSimpleName(classOrInterfaceType).orElseThrow(SimpleNameException::new))))
+                            .anyMatch(n -> n.equals(AstHandler.getSimpleName(classOrInterfaceType).orElseThrow(SimpleNameException::new))))
                     .isPresent();
         }
 
         private boolean isParent(ClassOrInterfaceDeclaration dclr) {
             return this.declarations.stream()
-                    .map(astHandler::getParentType)
+                    .map(AstHandler::getParentType)
                     .flatMap(Optional::stream)
-                    .map(astHandler::getSimpleName)
+                    .map(AstHandler::getSimpleName)
                     .flatMap(Optional::stream)
-                    .anyMatch(n -> n.equals(astHandler.getSimpleName(dclr).orElseThrow(SimpleNameException::new)));
+                    .anyMatch(n -> n.equals(AstHandler.getSimpleName(dclr).orElseThrow(SimpleNameException::new)));
         }
 
     }
