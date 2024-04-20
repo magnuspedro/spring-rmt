@@ -17,30 +17,29 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Slf4j
+@Getter
 public class FragmentsSplitter {
 
-    @Getter
     private final List<Node> beforeFragment = new ArrayList<>();
 
     private Node node = null;
 
-    @Getter
     private final List<Node> afterFragment = new ArrayList<>();
 
     public FragmentsSplitter(MethodDeclaration m) {
         final BlockStmt blockStmt = AstHandler.getBlockStatement(m)
                 .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
 
-        var superWasFound = false;
+        var hasSuper = false;
         for (Node child : blockStmt.getChildNodes()) {
 
             if (AstHandler.childHasDirectSuperCall(child)) {
-                superWasFound = true;
+                hasSuper = true;
                 this.node = child;
                 continue;
             }
 
-            this.addToFragment(superWasFound, child);
+            this.addToFragment(hasSuper, child);
         }
 
         if (this.node == null) {
