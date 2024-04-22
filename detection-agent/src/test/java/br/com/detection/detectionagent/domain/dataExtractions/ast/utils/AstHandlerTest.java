@@ -301,6 +301,58 @@ class AstHandlerTest {
     }
 
     @Test
+    @DisplayName("Should test for get parent from compilation unit and parent with null")
+    public void shouldTestForGetParentFromCompilationUnitAndParentWithNull() {
+        CompilationUnit parent = null;
+        var result = assertThrows(NoClassOrInterfaceException.class,
+                () -> AstHandler.getParent(null, parent));
+
+        assertEquals("No class or interface found in the compilation unit", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test for get parent without cu parent class")
+    public void shouldTestForGetParentWithoutCUParentClass() {
+        var cu = new CompilationUnit();
+        CompilationUnit parent = null;
+
+
+        var result = AstHandler.getParent(cu, parent);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test for get single parent with different names")
+    public void shouldTestForGetSingleParentWithDifferentNames() {
+        var clazz = new ClassOrInterfaceDeclaration();
+        clazz.setImplementedTypes(NodeList.nodeList(new ClassOrInterfaceType("Interface")));
+        var cu = new CompilationUnit();
+        cu.getTypes().add(clazz);
+
+        var result = AstHandler.getParent(cu, cu);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test for get parent with single parent class")
+    public void shouldTestForGetParentWithSingleParentClass() {
+        var clazz = new ClassOrInterfaceDeclaration();
+        clazz.setImplementedTypes(NodeList.nodeList(new ClassOrInterfaceType("Interface")));
+        var cu = new CompilationUnit();
+        cu.getTypes().add(clazz);
+        var cuList = List.of(new CompilationUnit());
+        var clazzDeclaration = new ClassOrInterfaceDeclaration();
+        clazzDeclaration.setName("Interface");
+        cuList.get(0).getTypes().add(clazzDeclaration);
+
+        var result = AstHandler.getParent(cu, cuList);
+
+        assertTrue(result.isPresent());
+    }
+
+    @Test
     @DisplayName("Should test for get package declaration null")
     public void shouldTestForGetPackageDeclarationNull() {
         var result = assertThrows(NullCompilationUnitException.class,
@@ -355,8 +407,10 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get methods with null")
     public void shouldTestGetMethodsWithNull() {
+        CompilationUnit cu = null;
+
         var result = assertThrows(NullCompilationUnitException.class,
-                () -> AstHandler.getMethods(null));
+                () -> AstHandler.getMethods(cu));
 
         assertEquals("Compilation unit cannot be null", result.getMessage());
     }
@@ -374,6 +428,40 @@ class AstHandlerTest {
     @Test
     @DisplayName("Should test get methods from compilation unit")
     public void shouldTestGetMethodsFromCompilationUnit() {
+        var cu = new CompilationUnit();
+        var clazz = new ClassOrInterfaceDeclaration();
+        clazz.addMethod("method");
+        cu.getTypes().add(clazz);
+
+        var result = AstHandler.getMethods(cu);
+
+        assertFalse(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get methods with null for Class")
+    public void shouldTestGetMethodsWithNullForClass() {
+        ClassOrInterfaceDeclaration cu = null;
+
+        var result = assertThrows(NoClassOrInterfaceException.class,
+                () -> AstHandler.getMethods(cu));
+
+        assertEquals("No class or interface found in the compilation unit", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test get methods without methods for Class")
+    public void shouldTestGetMethodsWithoutMethodsForClass() {
+        var cu = new ClassOrInterfaceDeclaration();
+
+        var result = AstHandler.getMethods(cu);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test get methods from compilation unit for class")
+    public void shouldTestGetMethodsFromCompilationUnitForClass() {
         var cu = new CompilationUnit();
         var clazz = new ClassOrInterfaceDeclaration();
         clazz.addMethod("method");
@@ -1491,5 +1579,105 @@ class AstHandlerTest {
         var result = AstHandler.getVariableDeclarations(variable);
 
         assertEquals(2, result.size());
+    }
+
+    @Test
+    @DisplayName("Should test class get method by name with both parameters null")
+    public void shouldTestClassGetMethodByNameWithBothParametersNull() {
+        ClassOrInterfaceDeclaration clazz = null;
+
+        assertThrows(NoClassOrInterfaceException.class,
+                () -> AstHandler.getMethodByName(clazz, null));
+    }
+
+    @Test
+    @DisplayName("Should test class get method by name with clazz null")
+    public void shouldTestClassGetMethodByNameWithClazzNull() {
+        ClassOrInterfaceDeclaration clazz = null;
+
+        assertThrows(NoClassOrInterfaceException.class,
+                () -> AstHandler.getMethodByName(clazz, "test"));
+    }
+
+    @Test
+    @DisplayName("Should test class get method by name with name null")
+    public void shouldTestClassGetMethodByNameWithNameNull() {
+        var clazz = new ClassOrInterfaceDeclaration();
+
+        var result = AstHandler.getMethodByName(clazz, null);
+
+        assertNull(result);
+    }
+
+    @Test
+    @DisplayName("Should test class get method by name for no match")
+    public void shouldTestClassGetMethodByNameForNoMatch() {
+        var clazz = new ClassOrInterfaceDeclaration();
+
+        var result = AstHandler.getMethodByName(clazz, "method");
+
+        assertNull(result);
+    }
+
+    @Test
+    @DisplayName("Should test class get method by name for match")
+    public void shouldTestClassGetMethodByNameForMatch() {
+        var clazz = new ClassOrInterfaceDeclaration();
+        clazz.setMembers(NodeList.nodeList(new MethodDeclaration()));
+
+        var result = AstHandler.getMethodByName(clazz, "empty");
+
+        assertEquals(result.getNameAsString(), "empty");
+    }
+
+    @Test
+    @DisplayName("Should test compilation unit get method by name with both parameters null")
+    public void shouldTestCompilationUnitGetMethodByNameWithBothParametersNull() {
+        CompilationUnit clazz = null;
+
+        assertThrows(NullCompilationUnitException.class,
+                () -> AstHandler.getMethodByName(clazz, null));
+    }
+
+    @Test
+    @DisplayName("Should test compilation unit get method by name with clazz null")
+    public void shouldTestCompilationUnitGetMethodByNameWithClazzNull() {
+        CompilationUnit clazz = null;
+
+        assertThrows(NullCompilationUnitException.class,
+                () -> AstHandler.getMethodByName(clazz, "test"));
+    }
+
+    @Test
+    @DisplayName("Should test compilation unit get method by name with name null")
+    public void shouldTestCompilationUnitGetMethodByNameWithNameNull() {
+        var clazz = new CompilationUnit();
+
+        var result = AstHandler.getMethodByName(clazz, null);
+
+        assertNull(result);
+    }
+
+    @Test
+    @DisplayName("Should test compilation unit get method by name for no match")
+    public void shouldTestCompilationUnitGetMethodByNameForNoMatch() {
+        var clazz = new CompilationUnit();
+
+        var result = AstHandler.getMethodByName(clazz, "method");
+
+        assertNull(result);
+    }
+
+    @Test
+    @DisplayName("Should test compilation Unit get method by name for match")
+    public void shouldTestCompilationUnitGetMethodByNameForMatch() {
+        var cu = new CompilationUnit();
+        var clazz = new ClassOrInterfaceDeclaration();
+        clazz.setMembers(NodeList.nodeList(new MethodDeclaration()));
+        cu.getTypes().add(clazz);
+
+        var result = AstHandler.getMethodByName(clazz, "empty");
+
+        assertEquals(result.getNameAsString(), "empty");
     }
 }

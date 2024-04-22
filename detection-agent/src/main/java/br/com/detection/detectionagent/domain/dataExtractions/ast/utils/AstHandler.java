@@ -139,6 +139,27 @@ public class AstHandler {
         return Optional.empty();
     }
 
+    public static Optional<CompilationUnit> getParent(CompilationUnit cUnit, CompilationUnit parent) {
+        final Optional<ClassOrInterfaceType> parentDef = getParentType(cUnit);
+
+        if (parentDef.isPresent()) {
+
+            var typeName = getSimpleName(parentDef.get())
+                    .orElseThrow(SimpleNameException::new);
+
+            final var declaration = getClassOrInterfaceDeclaration(parent);
+            var isClassNameEqualsTypeName = declaration.map(dcl -> getSimpleName(dcl)
+                            .orElseThrow(SimpleNameException::new))
+                    .filter(typeName::equals)
+                    .isPresent();
+
+            if (isClassNameEqualsTypeName) {
+                return Optional.of(parent);
+            }
+        }
+        return Optional.empty();
+    }
+
     public static PackageDeclaration getPackageDeclaration(CompilationUnit cUnit) {
         return Optional.ofNullable(cUnit)
                 .map(Node::getChildNodes)
@@ -172,6 +193,16 @@ public class AstHandler {
                 .collect(Collectors.toList());
     }
 
+    public static Collection<MethodDeclaration> getMethods(ClassOrInterfaceDeclaration classOrInterfaceDeclaration) {
+        return Optional.ofNullable(classOrInterfaceDeclaration)
+                .map(Node::getChildNodes)
+                .orElseThrow(NoClassOrInterfaceException::new)
+                .stream()
+                .filter(n -> n instanceof MethodDeclaration)
+                .map(MethodDeclaration.class::cast)
+                .collect(Collectors.toList());
+    }
+
     public static Optional<BlockStmt> getBlockStatement(Node n) {
         return Optional.ofNullable(n)
                 .map(Node::getChildNodes)
@@ -191,7 +222,7 @@ public class AstHandler {
         return getExpressionStatement(node.getParentNode().orElse(null));
     }
 
-    public static Collection<SuperExpr> getSuperCalls(Node node) {
+    public static List<SuperExpr> getSuperCalls(Node node) {
         final List<SuperExpr> superCalls = new ArrayList<>();
 
         if (node == null) {
@@ -206,7 +237,9 @@ public class AstHandler {
             return superCalls;
         }
 
-        superCalls.addAll(node.getChildNodes().stream().flatMap(cn -> getSuperCalls(cn).stream())
+        superCalls.addAll(node.getChildNodes()
+                .stream()
+                .flatMap(cn -> getSuperCalls(cn).stream())
                 .toList());
 
         return superCalls;
@@ -415,7 +448,7 @@ public class AstHandler {
 
     public static boolean doesNodeContainMatchingMethodCall(Node node, MethodCallExpr methodCall) {
 
-        final Collection<MethodCallExpr> methodCalls = getMethodCallExpr(node);
+        final var methodCalls = getMethodCallExpr(node);
 
         return methodCalls.stream().anyMatch(m -> doesMethodCallsMatch(m, methodCall));
     }
@@ -578,5 +611,19 @@ public class AstHandler {
         return node.getChildNodes().stream()
                 .flatMap(c -> getVariableDeclarations(c).stream())
                 .toList();
+    }
+
+    public static MethodDeclaration getMethodByName(ClassOrInterfaceDeclaration clazz, String method) {
+        return getMethods(clazz).stream()
+                .filter(m -> m.getNameAsString().equals(method))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static MethodDeclaration getMethodByName(CompilationUnit cUnit, String method) {
+        return getMethods(cUnit).stream()
+                .filter(m -> m.getNameAsString().equals(method))
+                .findFirst()
+                .orElse(null);
     }
 }
