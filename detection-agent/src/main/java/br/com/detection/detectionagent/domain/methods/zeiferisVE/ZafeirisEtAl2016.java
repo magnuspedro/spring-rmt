@@ -22,6 +22,9 @@ public class ZafeirisEtAl2016 implements DetectionMethod, AbstractSyntaxTreeDepe
     private final ZafeirisEtAl2016Verifier zafeirisEtAl2016Verifier;
 
     private final ExtractionMethodFactory extractionMethodFactory;
+
+    private final ZafeirisEtAl2016Executor zafeirisEtAl2016Executor;
+
     private final Set<DesignPattern> designPatterns = Set.of(DesignPattern.TEMPLATE_METHOD);
 
     @Override
@@ -34,15 +37,16 @@ public class ZafeirisEtAl2016 implements DetectionMethod, AbstractSyntaxTreeDepe
 
     @Override
     public void refactor(List<JavaFile> javaFiles, RefactoringCandidate candidate) {
-        var extractMethod = extractionMethodFactory.build(this);
-        new ZafeirisEtAl2016Executor().refactor((ZafeirisEtAl2016Candidate) candidate, javaFiles, extractMethod);
+        this.zafeirisEtAl2016Executor.refactor((ZafeirisEtAl2016Candidate) candidate, javaFiles);
     }
-
-    ;
 
     @Override
     public Set<DesignPattern> getDesignPatterns() {
         return designPatterns;
     }
 
+    @Override
+    public boolean supports(RefactoringCandidate refactoringCandidate) {
+        return refactoringCandidate instanceof ZafeirisEtAl2016Candidate;
+    }
 }

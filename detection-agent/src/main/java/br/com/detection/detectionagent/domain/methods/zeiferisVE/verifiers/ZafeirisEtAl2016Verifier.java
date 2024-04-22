@@ -51,29 +51,25 @@ public class ZafeirisEtAl2016Verifier {
         final var candidates = new ArrayList<ZafeirisEtAl2016Candidate>();
 
         var cus = javaFiles.stream()
-                .map(JavaFile::getCU)
+                .map(JavaFile::getCompilationUnit)
                 .toList();
 
         javaFiles.forEach(file -> {
-            final var parent = AstHandler.getParent(file.getCU(), cus);
-            file.getCU().setParentNode(parent.orElse(null));
+            final var parent = AstHandler.getParent(file.getCompilationUnit(), cus).orElse(null);
 
-            this.retrieveCandidate(file).ifPresent(candidates::add);
+            this.retrieveCandidate(file, parent).ifPresent(candidates::add);
         });
 
         return candidates;
     }
 
-    private Optional<ZafeirisEtAl2016Candidate> retrieveCandidate(JavaFile file) {
-        var parent = (CompilationUnit) file.getCU()
-                .getParentNode()
-                .orElse(null);
+    private Optional<ZafeirisEtAl2016Candidate> retrieveCandidate(JavaFile file, CompilationUnit parent) {
 
         if (this.violatesClassPreconditions(parent)) {
             return Optional.empty();
         }
 
-        final var methods = AstHandler.getMethods(file.getCU());
+        final var methods = AstHandler.getMethods(file.getCompilationUnit());
         final var nonStaticOrConstructorMethodsList = methods.stream()
                 .filter(m -> !m.isConstructorDeclaration() && !m.isStatic())
                 .toList();
@@ -107,14 +103,14 @@ public class ZafeirisEtAl2016Verifier {
     }
 
     private ZafeirisEtAl2016Candidate createCandidate(JavaFile file, MethodDeclaration overriddenMethod, MethodDeclaration method, SuperExpr superCall) {
-        final var pkgDcl = AstHandler.getPackageDeclaration(file.getCU());
+        final var pkgDcl = AstHandler.getPackageDeclaration(file.getCompilationUnit());
 
-        final var classDcl = AstHandler.getClassOrInterfaceDeclaration(file.getCU())
+        final var classDcl = AstHandler.getClassOrInterfaceDeclaration(file.getCompilationUnit())
                 .orElseThrow(() -> new IllegalArgumentException("Could not find class declaration for candidate"));
 
         return ZafeirisEtAl2016Candidate.builder()
                 .file(file)
-                .compilationUnit(file.getCU())
+                .compilationUnit(file.getCompilationUnit())
                 .packageDcl(pkgDcl)
                 .classDcl(classDcl)
                 .overridenMethod(overriddenMethod)

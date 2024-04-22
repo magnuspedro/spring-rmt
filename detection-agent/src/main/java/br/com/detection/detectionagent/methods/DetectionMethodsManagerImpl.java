@@ -45,6 +45,8 @@ public class DetectionMethodsManagerImpl implements DetectionMethodsManager {
     @Override
     public String refactor(String id, List<JavaFile> javaFiles, Collection<RefactoringCandidate> candidates) {
         candidates.forEach(candidate -> detectionMethod
+                .stream()
+                .filter(m -> m.supports(candidate))
                 .forEach(f -> f.refactor(javaFiles, candidate)));
         return id;
     }

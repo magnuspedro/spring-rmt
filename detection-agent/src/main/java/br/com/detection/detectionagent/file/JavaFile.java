@@ -14,7 +14,7 @@ public class JavaFile {
     private final String originalClass;
     private Object parsed;
 
-    public CompilationUnit getCU() {
+    public CompilationUnit getCompilationUnit() {
         if (this.parsed instanceof CompilationUnit)
             return (CompilationUnit) this.parsed;
         return null;

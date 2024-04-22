@@ -15,4 +15,6 @@ public interface DetectionMethod {
     void refactor(List<JavaFile> javaFiles, RefactoringCandidate candidates);
 
     Set<DesignPattern> getDesignPatterns();
+
+    boolean supports(RefactoringCandidate refactoringCandidate);
 }

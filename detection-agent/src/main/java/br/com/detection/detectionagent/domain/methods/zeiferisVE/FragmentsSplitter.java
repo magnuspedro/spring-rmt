@@ -6,6 +6,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.Type;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -51,16 +52,16 @@ public class FragmentsSplitter {
         final BlockStmt blockStmt = AstHandler.getBlockStatement(m)
                 .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
 
-        boolean methodCallWasFound = false;
+        boolean hasMethodCall = false;
         for (Node child : blockStmt.getChildNodes()) {
 
             if (AstHandler.doesNodeContainMatchingMethodCall(child, methodCall)) {
-                methodCallWasFound = true;
+                hasMethodCall = true;
                 this.node = child;
                 continue;
             }
 
-            this.addToFragment(methodCallWasFound, child);
+            this.addToFragment(hasMethodCall, child);
         }
 
         if (this.node == null) {
@@ -141,6 +142,20 @@ public class FragmentsSplitter {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Variable name is not the same"))
                 .getType();
+    }
+
+    public List<Statement> getBeforeStatements() {
+        return this.beforeFragment.stream()
+                .filter(Statement.class::isInstance)
+                .map(Statement.class::cast)
+                .toList();
+    }
+
+    public List<Statement> getAfterStatements() {
+        return this.afterFragment.stream()
+                .filter(Statement.class::isInstance)
+                .map(Statement.class::cast)
+                .toList();
     }
 
     @Getter

@@ -53,4 +53,9 @@ public class WeiEtAl2014 implements DetectionMethod, AbstractSyntaxTreeDependent
         return designPatterns;
     }
 
+    @Override
+    public boolean supports(RefactoringCandidate refactoringCandidate) {
+        return refactoringCandidate instanceof WeiEtAl2014Candidate;
+    }
+
 }

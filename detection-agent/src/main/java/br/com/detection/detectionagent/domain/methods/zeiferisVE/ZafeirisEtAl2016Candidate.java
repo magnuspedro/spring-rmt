@@ -20,6 +20,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.List;
 import java.util.UUID;
 
+@Getter
 @Builder
 @ToString
 @RequiredArgsConstructor
@@ -37,20 +38,16 @@ public class ZafeirisEtAl2016Candidate implements RefactoringCandidate {
 
     private final JavaFile file;
 
-    @Getter
     private final CompilationUnit compilationUnit;
 
     private final PackageDeclaration packageDcl;
 
     private final ClassOrInterfaceDeclaration classDcl;
 
-    @Getter
     private final MethodDeclaration overridenMethod;
 
-    @Getter
     private final MethodDeclaration overridingMethod;
 
-    @Getter
     private final SuperExpr superCall;
 
     @Override
