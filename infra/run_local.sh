@@ -1,4 +1,4 @@
 cd local
-docker-compose up --build -d
+podman compose up -d
 cd ..
 tflocal apply -auto-approve
