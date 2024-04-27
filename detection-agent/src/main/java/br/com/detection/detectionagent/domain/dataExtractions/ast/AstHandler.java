@@ -1,6 +1,6 @@
-package br.com.detection.detectionagent.domain.dataExtractions.ast.utils;
+package br.com.detection.detectionagent.domain.dataExtractions.ast;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.*;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.exceptions.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;

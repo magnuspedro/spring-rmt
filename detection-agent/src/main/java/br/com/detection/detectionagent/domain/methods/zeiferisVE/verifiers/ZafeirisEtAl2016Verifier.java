@@ -1,6 +1,6 @@
 package br.com.detection.detectionagent.domain.methods.zeiferisVE.verifiers;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions.ExtractMethodPreconditions;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions.SiblingPreconditions;

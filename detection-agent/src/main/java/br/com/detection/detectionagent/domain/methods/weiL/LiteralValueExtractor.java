@@ -1,6 +1,6 @@
 package br.com.detection.detectionagent.domain.methods.weiL;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.*;

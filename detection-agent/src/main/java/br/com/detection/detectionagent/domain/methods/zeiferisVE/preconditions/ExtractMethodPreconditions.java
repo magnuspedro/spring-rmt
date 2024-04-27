@@ -1,6 +1,6 @@
 package br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.FragmentsSplitter;
 import com.github.javaparser.ast.DataKey;
 import com.github.javaparser.ast.body.MethodDeclaration;

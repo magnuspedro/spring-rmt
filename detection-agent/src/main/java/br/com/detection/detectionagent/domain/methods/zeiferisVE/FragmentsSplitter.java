@@ -1,7 +1,7 @@
 package br.com.detection.detectionagent.domain.methods.zeiferisVE;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.NodeConverter;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.NodeConverter;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;

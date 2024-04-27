@@ -1,6 +1,6 @@
 package br.com.detection.detectionagent.domain.methods.zeiferisVE.executors;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.FragmentsSplitter;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
 import br.com.detection.detectionagent.file.JavaFile;

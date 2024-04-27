@@ -1,5 +1,6 @@
 package br.com.detection.detectionagent.domain.dataExtractions.ast.utils;
 
+import br.com.detection.detectionagent.domain.dataExtractions.ast.NodeConverter;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.SimpleName;

@@ -1,7 +1,7 @@
 package br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.SimpleNameException;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.exceptions.SimpleNameException;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;

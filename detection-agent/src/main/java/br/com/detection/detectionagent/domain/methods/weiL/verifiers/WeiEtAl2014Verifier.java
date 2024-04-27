@@ -1,6 +1,6 @@
 package br.com.detection.detectionagent.domain.methods.weiL.verifiers;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
 import br.com.detection.detectionagent.domain.methods.RefactoringCandidatesVerifier;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.file.JavaFile;

@@ -1,6 +1,7 @@
 package br.com.detection.detectionagent.domain.dataExtractions.ast.utils;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.exceptions.*;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.exceptions.*;
 import com.github.javaparser.ast.ArrayCreationLevel;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;

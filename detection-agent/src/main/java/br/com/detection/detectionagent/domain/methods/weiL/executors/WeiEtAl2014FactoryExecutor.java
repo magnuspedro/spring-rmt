@@ -1,6 +1,6 @@
 package br.com.detection.detectionagent.domain.methods.weiL.executors;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.utils.AstHandler;
+import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014FactoryCandidate;
 import br.com.detection.detectionagent.file.JavaFile;

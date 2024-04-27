@@ -1,4 +1,4 @@
-package br.com.detection.detectionagent.domain.dataExtractions.ast.utils;
+package br.com.detection.detectionagent.domain.dataExtractions.ast;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.Name;
