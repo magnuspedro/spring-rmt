@@ -7,6 +7,7 @@ import br.com.detection.detectionagent.file.JavaFile;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -73,9 +74,12 @@ public class ZafeirisEtAl2016Executor {
         overriddenMethodDclr.setBody(new BlockStmt());
 
         overridingMethodDclr.getBody()
-                .ifPresent(b -> b.getStatements().forEach(overriddenMethodDclr.getBody().get()::addStatement));
+                .ifPresent(b -> b.getStatements()
+                        .forEach(overriddenMethodDclr.getBody()
+                                .orElseThrow(IllegalArgumentException::new)::addStatement));
 
-        final var childClass = AstHandler.getClassOrInterfaceDeclaration(candidate.getCompilationUnit()).get();
+        final var childClass = AstHandler.getClassOrInterfaceDeclaration(candidate.getCompilationUnit())
+                .orElseThrow(IllegalArgumentException::new);
 
         childClass.remove(overridingMethodDclr);
     }
@@ -136,7 +140,6 @@ public class ZafeirisEtAl2016Executor {
                                                     MethodDeclaration childMethodDclr, FragmentsSplitter fragmentsSplitter) {
 
         final var variables = fragmentsSplitter.getVariablesOnBeforeFragmentsMethodCalss();
-
         if (variables.size() > 1) {
             throw new IllegalStateException();
         }
@@ -155,23 +158,19 @@ public class ZafeirisEtAl2016Executor {
         childMethodDclr.getThrownExceptions().forEach(newMethod::addThrownException);
 
         final var methodCallExpr = new MethodCallExpr(beforeMethodName);
-        newMethod.getParameters().stream().map(Parameter::getName).map(NameExpr::new)
+        newMethod.getParameters().stream()
+                .map(Parameter::getName)
+                .map(NameExpr::new)
                 .forEach(methodCallExpr.getArguments()::add);
 
-
         if (variables.size() == 1) {
-
             final var varDclrExpr = variables.stream().findFirst().get();
             final var varDclr = varDclrExpr.getVariables().getFirst();
             final var returnStmt = new ReturnStmt(new NameExpr(varDclr.getName().asString()));
+            final var thisMethodCallDclrExpr = new VariableDeclarationExpr(new VariableDeclarator(varDclr.getType(), varDclr.getName(), methodCallExpr));
 
             block.addStatement(returnStmt);
-
             newMethod.setType(varDclr.getType());
-
-            final var thisMethodCallDclrExpr = new VariableDeclarationExpr(
-                    new VariableDeclarator(varDclr.getType(), varDclr.getName(), methodCallExpr));
-
             createHookMethod(parentCU, newMethod, fragmentsSplitter);
 
             return thisMethodCallDclrExpr;
@@ -218,11 +217,11 @@ public class ZafeirisEtAl2016Executor {
                                                                 Optional<VariableDeclarationExpr> beforeFragmentReturnValue) {
 
         final var childClassDclr = AstHandler.getClassOrInterfaceDeclaration(childCU).orElseThrow(IllegalArgumentException::new);
-        final var block = new BlockStmt();
         final var afterMethodName = String.format("after%s%s",
                 childMethodDclr.getName().asString().substring(0, 1).toUpperCase(),
                 childMethodDclr.getName().asString().substring(1));
         final var newMethod = childClassDclr.addMethod(afterMethodName, Modifier.PROTECTED);
+        final var block = new BlockStmt();
 
         fragmentsSplitter.getAfterStatements().forEach(block::addStatement);
         newMethod.setBody(block);
@@ -245,8 +244,8 @@ public class ZafeirisEtAl2016Executor {
     private MethodCallExpr replaceSuperCallByDoOverridden(ZafeirisEtAl2016Candidate candidate, MethodDeclaration newOverriddenMethod) {
 
         final var superExpr = AstHandler.getSuperCalls(candidate.getCompilationUnit()).getFirst();
-        final var superMethodCall = (MethodCallExpr) superExpr.getParentNode().get();
-        final var node = AstHandler.getExpressionStatement(superExpr).get();
+        final var superMethodCall = (MethodCallExpr) superExpr.getParentNode().orElseThrow(IllegalArgumentException::new);
+        final var node = AstHandler.getExpressionStatement(superExpr).orElseThrow(IllegalArgumentException::new);
         final var newMethodCall = new MethodCallExpr(newOverriddenMethod.getNameAsString());
 
         superMethodCall.getArguments().forEach(newMethodCall::addArgument);
@@ -272,45 +271,33 @@ public class ZafeirisEtAl2016Executor {
 
     private MethodDeclaration extractMethodOnOverriddenMethod(ZafeirisEtAl2016Candidate candidate, CompilationUnit parentCu) {
 
-        final var parentClassDclr = AstHandler.getClassOrInterfaceDeclaration(parentCu)
+        final var parentClass = AstHandler.getClassOrInterfaceDeclaration(parentCu)
                 .orElseThrow(IllegalArgumentException::new);
-        final var oldMethodDclr = AstHandler.getMethods(parentClassDclr).stream()
+        final var parentMethod = AstHandler.getMethods(parentClass).stream()
                 .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverridenMethod()))
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
         final var newMethodName = String.format("do%s%s",
-                oldMethodDclr.getName().asString().substring(0, 1).toUpperCase(),
-                oldMethodDclr.getName().asString().substring(1));
+                parentMethod.getName().asString().substring(0, 1).toUpperCase(),
+                parentMethod.getName().asString().substring(1));
 
         final var doMethod = AstHandler.getMethodByName(parentCu, newMethodName);
         if (doMethod != null) {
             return doMethod;
         }
 
-        parentClassDclr.addMethod(newMethodName, Modifier.PRIVATE);
-
-        final var methods = AstHandler.getMethods(parentCu);
-
-        final var newMethodDclr = methods.stream()
-                .filter(m -> AstHandler.getSimpleName(m)
-                        .filter(sn -> sn.asString().equals(newMethodName))
-                        .isPresent())
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
-
-        newMethodDclr.setBody(oldMethodDclr.getBody().orElseThrow(IllegalArgumentException::new));
-        newMethodDclr.setType(oldMethodDclr.getType());
-        oldMethodDclr.getTypeParameters().forEach(tparam -> newMethodDclr.getTypeParameters().add(tparam));
-        oldMethodDclr.getParameters().forEach(newMethodDclr::addParameter);
-        oldMethodDclr.getThrownExceptions().forEach(newMethodDclr::addThrownException);
+        final var newMethod = parentClass.addMethod(newMethodName, Modifier.PRIVATE);
+        newMethod.setBody(parentMethod.getBody().orElseThrow(IllegalArgumentException::new));
+        newMethod.setType(parentMethod.getType());
+        parentMethod.getTypeParameters().forEach(typeParam -> newMethod.getTypeParameters().add(typeParam));
+        parentMethod.getParameters().forEach(newMethod::addParameter);
+        parentMethod.getThrownExceptions().forEach(newMethod::addThrownException);
 
         final var methodCallExpr = new MethodCallExpr(newMethodName);
-        oldMethodDclr.getParameters().forEach(p -> methodCallExpr.addArgument(p.getName().asString()));
+        parentMethod.getParameters().forEach(p -> methodCallExpr.addArgument(p.getName().asString()));
         final var returnStmt = new ReturnStmt(methodCallExpr);
+        parentMethod.setBody(new BlockStmt(NodeList.nodeList(returnStmt)));
 
-        oldMethodDclr.setBody(new BlockStmt());
-        oldMethodDclr.getBody().get().addStatement(returnStmt);
-
-        return newMethodDclr;
+        return newMethod;
     }
 }
