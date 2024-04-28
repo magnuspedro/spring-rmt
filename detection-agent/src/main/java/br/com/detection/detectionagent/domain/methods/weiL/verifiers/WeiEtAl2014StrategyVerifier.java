@@ -4,9 +4,9 @@ import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014StrategyCandidate;
 import br.com.detection.detectionagent.file.JavaFile;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.PackageDeclaration;
-import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
@@ -23,15 +23,13 @@ import java.util.function.Function;
 @Component
 public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
 
-    protected boolean ifStmtsAreValid(List<JavaFile> dataHandler, CompilationUnit parsedClazz,
-                                      ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method, Collection<IfStmt> ifStatements) {
+    protected boolean ifStmtsAreValid(List<JavaFile> dataHandler, JavaFile file, MethodDeclaration method, Collection<IfStmt> ifStatements) {
         return !ifStatements.isEmpty()
                 && ifStatements.stream()
-                .allMatch(s -> ifStmtIsValid(parsedClazz, classOrInterface, method, s));
+                .allMatch(s -> ifStmtIsValid(file, method, s));
     }
 
-    private boolean ifStmtIsValid(CompilationUnit parsedClazz, ClassOrInterfaceDeclaration classOrInterface,
-                                  MethodDeclaration method, IfStmt ifStmt) {
+    private boolean ifStmtIsValid(JavaFile file, MethodDeclaration method, IfStmt ifStmt) {
 
         final var parameter = method.getParameters()
                 .stream()
@@ -54,7 +52,7 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
                 .map(MethodCallExpr.class::cast)
                 .findFirst();
 
-        final var variables = this.classVariablesUsedInItsBody(parsedClazz, classOrInterface, ifStmt);
+        final var variables = this.classVariablesUsedInItsBody(file, ifStmt);
 
         return (binaryExpr.isPresent() || methodCallExpr.isPresent())
                 && this.isParameterUsedInIfStmtConditional(parameter, binaryExpr, methodCallExpr)
@@ -77,10 +75,9 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
                 );
     }
 
-    private Collection<VariableDeclarator> classVariablesUsedInItsBody(CompilationUnit parsedClazz,
-                                                                       ClassOrInterfaceDeclaration classOrInterface, IfStmt ifStmt) {
-
-        final Collection<FieldDeclaration> fields = AstHandler.getDeclaredFields(classOrInterface);
+    private Collection<VariableDeclarator> classVariablesUsedInItsBody(JavaFile file, IfStmt ifStmt) {
+        final var classOrInterface = AstHandler.getClassOrInterfaceDeclaration(file.getCompilationUnit()).orElseThrow(IllegalArgumentException::new);
+        final var fields = AstHandler.getDeclaredFields(classOrInterface);
 
         return fields.stream()
                 .flatMap(f -> f.getVariables().stream())
@@ -126,23 +123,24 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
     }
 
     @Override
-    protected WeiEtAl2014Candidate createCandidate(JavaFile file, CompilationUnit parsedClazz,
-                                                   PackageDeclaration pkgDcl, ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method,
-                                                   Collection<IfStmt> ifStatements) {
+    protected WeiEtAl2014Candidate createCandidate(JavaFile file, MethodDeclaration method, Collection<IfStmt> ifStatements) {
 
         final var variables = new ArrayList<VariableDeclarator>();
-
+        final var classOrInterface = AstHandler.getClassOrInterfaceDeclaration(file.getCompilationUnit()).orElseThrow(IllegalArgumentException::new);
+        final var packageDeclaration = file.getCompilationUnit().getPackageDeclaration().orElseThrow(IllegalArgumentException::new);
         final Function<VariableDeclarator, Boolean> isVariableRegistered = (var) -> variables.stream()
                 .anyMatch(v -> v.getNameAsString().equals(var.getNameAsString()));
 
-        ifStatements.stream().flatMap(s -> this.classVariablesUsedInItsBody(parsedClazz, classOrInterface, s).stream())
+        ifStatements.stream()
+                .flatMap(s -> this.classVariablesUsedInItsBody(file, s)
+                        .stream())
                 .forEach(v -> {
                     if (!isVariableRegistered.apply(v)) {
                         variables.add(v);
                     }
                 });
 
-        return new WeiEtAl2014StrategyCandidate(file, parsedClazz, pkgDcl, classOrInterface, method, ifStatements, variables);
+        return new WeiEtAl2014StrategyCandidate(file, file.getCompilationUnit(), packageDeclaration, classOrInterface, method, ifStatements, variables);
     }
 
 }

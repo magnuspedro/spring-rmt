@@ -5,16 +5,11 @@ import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014FactoryCandidate;
 import br.com.detection.detectionagent.file.JavaFile;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.PackageDeclaration;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
-import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
 import com.github.javaparser.ast.stmt.IfStmt;
-import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import org.springframework.stereotype.Component;
 
@@ -25,11 +20,8 @@ import java.util.Optional;
 @Component
 public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
 
-    protected boolean ifStmtsAreValid(List<JavaFile> dataHandler, CompilationUnit parsedClazz,
-                                      ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method, Collection<IfStmt> ifStatements) {
-        final var baseType = AstHandler
-                .getMethodReturnClassType(method);
-
+    protected boolean ifStmtsAreValid(List<JavaFile> dataHandler, JavaFile file, MethodDeclaration method, Collection<IfStmt> ifStatements) {
+        final var baseType = AstHandler.getMethodReturnClassType(method);
         if (baseType.isEmpty()) {
             return false;
         }
@@ -40,14 +32,17 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
                 && ifStatements.stream().allMatch(s -> ifStmtIsValid(dataHandler, baseType.get(), parameter, s));
     }
 
-    private boolean ifStmtIsValid(List<JavaFile> dataHandler, ClassOrInterfaceType baseType, Parameter parameter,
-                                  IfStmt ifStmt) {
+    private boolean ifStmtIsValid(List<JavaFile> dataHandler, ClassOrInterfaceType baseType, Parameter parameter, IfStmt ifStmt) {
 
-        final Optional<BinaryExpr> binaryExpr = ifStmt.getChildNodes().stream().filter(BinaryExpr.class::isInstance)
-                .map(BinaryExpr.class::cast).findFirst();
+        final var binaryExpr = ifStmt.getChildNodes().stream()
+                .filter(BinaryExpr.class::isInstance)
+                .map(BinaryExpr.class::cast)
+                .findFirst();
 
-        final Optional<MethodCallExpr> methodCallExpr = ifStmt.getChildNodes().stream()
-                .filter(MethodCallExpr.class::isInstance).map(MethodCallExpr.class::cast).findFirst();
+        final var methodCallExpr = ifStmt.getChildNodes().stream()
+                .filter(MethodCallExpr.class::isInstance)
+                .map(MethodCallExpr.class::cast)
+                .findFirst();
 
         final boolean parameterIsUsed = (binaryExpr.isPresent() || methodCallExpr.isPresent())
                 && isParameterUsedInIfStmtConditional(parameter, binaryExpr, methodCallExpr);
@@ -57,28 +52,23 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
         return parameterIsUsed && hasValidReturn;
     }
 
-    private boolean hasReturnTypeAndHasValidSubtype(List<JavaFile> dataHandler, ClassOrInterfaceType baseType,
-                                                    IfStmt ifStmt) {
-        final Optional<ReturnStmt> returnStmt = AstHandler.getReturnStmt(ifStmt);
+    private boolean hasReturnTypeAndHasValidSubtype(List<JavaFile> dataHandler, ClassOrInterfaceType baseType, IfStmt ifStmt) {
 
+        final var returnStmt = AstHandler.getReturnStmt(ifStmt);
         if (returnStmt.isPresent()) {
-            final Optional<Node> node = returnStmt.get().getChildNodes().stream().findFirst();
 
+            final var node = returnStmt.get().getChildNodes().stream().findFirst();
             if (node.filter(NameExpr.class::isInstance).isPresent()) {
-
-                final String returnName = node.map(NameExpr.class::cast).get().getNameAsString();
-
-                final Optional<VariableDeclarator> varDclr = AstHandler.getVariableDeclarationInNode(ifStmt.getThenStmt(),
-                        returnName);
-
-                final Optional<ObjectCreationExpr> objectCreationExpr = varDclr
-                        .map(AstHandler::getObjectCreationExpr).filter(Optional::isPresent).map(Optional::get);
+                final var returnName = node.map(NameExpr.class::cast).get().getNameAsString();
+                final var varDclr = AstHandler.getVariableDeclarationInNode(ifStmt.getThenStmt(), returnName);
+                final var objectCreationExpr = varDclr.map(AstHandler::getObjectCreationExpr)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get);
 
                 return this.isOfTypeOrIsSubtype(dataHandler, baseType, objectCreationExpr);
             } else if (node.filter(ObjectCreationExpr.class::isInstance).isPresent()) {
 
-                final Optional<ObjectCreationExpr> objCreationExpr = node.map(ObjectCreationExpr.class::cast);
-
+                final var objCreationExpr = node.map(ObjectCreationExpr.class::cast);
                 return this.isOfTypeOrIsSubtype(dataHandler, baseType, objCreationExpr);
             }
         }
@@ -92,20 +82,21 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
             return false;
         }
 
-        final Optional<ClassOrInterfaceType> classOrInterfaceType = objCreationExpr.map(ObjectCreationExpr::getType);
-
+        final var classOrInterfaceType = objCreationExpr.map(ObjectCreationExpr::getType);
         if (classOrInterfaceType.isEmpty()) {
             return false;
         }
 
-        final Optional<CompilationUnit> cu =
-                dataHandler.stream().filter(f -> f.getName().equals(classOrInterfaceType.map(NodeWithSimpleName::getNameAsString).orElse("")))
+        final var cu = dataHandler.stream()
+                        .filter(f -> f.getName().equals(classOrInterfaceType.map(NodeWithSimpleName::getNameAsString)
+                                .orElse("")))
                         .map(m -> (CompilationUnit) m.getParsed())
                         .findFirst();
 
-        final Optional<ClassOrInterfaceDeclaration> declaration = cu.flatMap(AstHandler::getClassOrInterfaceDeclaration);
+        final var declaration = cu.flatMap(AstHandler::getClassOrInterfaceDeclaration);
 
-        return declaration.isPresent() && (declaration.get().getExtendedTypes().stream().anyMatch(t -> t.equals(type)) || declaration.get().getImplementedTypes().stream().anyMatch(t -> t.equals(type)));
+        return declaration.isPresent() && (declaration.get().getExtendedTypes().stream().anyMatch(t -> t.equals(type))
+                || declaration.get().getImplementedTypes().stream().anyMatch(t -> t.equals(type)));
     }
 
     private boolean isParameterUsedInIfStmtConditional(Parameter parameter, Optional<BinaryExpr> binaryExpr,
@@ -131,14 +122,13 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
     }
 
     @Override
-    protected WeiEtAl2014Candidate createCandidate(JavaFile file, CompilationUnit parsedClazz,
-                                                   PackageDeclaration pkgDcl, ClassOrInterfaceDeclaration classOrInterface, MethodDeclaration method,
-                                                   Collection<IfStmt> ifStatements) {
+    protected WeiEtAl2014Candidate createCandidate(JavaFile file, MethodDeclaration method, Collection<IfStmt> ifStatements) {
 
-        final ClassOrInterfaceType methodReturnType = AstHandler.getMethodReturnClassType(method)
-                .orElse(null);
+        final var methodReturnType = AstHandler.getMethodReturnClassType(method).orElse(null);
+        final var classOrInterface = AstHandler.getClassOrInterfaceDeclaration(file.getCompilationUnit()).orElseThrow(IllegalArgumentException::new);
+        final var packageDeclaration = file.getCompilationUnit().getPackageDeclaration().orElseThrow(IllegalArgumentException::new);
 
-        return new WeiEtAl2014FactoryCandidate(file, parsedClazz, pkgDcl, classOrInterface, method,
+        return new WeiEtAl2014FactoryCandidate(file, file.getCompilationUnit(), packageDeclaration, classOrInterface, method,
                 methodReturnType, ifStatements);
     }
 
