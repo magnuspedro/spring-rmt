@@ -55,10 +55,33 @@ class AbstractSyntaxTreeTest {
     }
 
     @Test
+    @DisplayName("Should test parse single string static for param null")
+    public void shouldTestParseSingleStringStaticForParamNull() {
+        String javaFile = null;
+
+        var result = assertThrows(IllegalArgumentException.class
+                , () -> AbstractSyntaxTree.parseSingle(javaFile));
+
+        assertEquals("File cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test parse single for java file for static")
+    public void shouldTestParseSingleForJavaFileForStatic() {
+        var javaFile = new String(clazz.getBytes());
+
+        var result = AbstractSyntaxTree.parseSingle(javaFile);
+
+        assertThat(result, instanceOf(CompilationUnit.class));
+    }
+
+    @Test
     @DisplayName("Should test parse single string for param null")
     public void shouldTestParseSingleStringForParamNull() {
+        JavaFile javaFile = null;
+
         assertThrows(NullJavaFileException.class
-                , () -> this.abstractSyntaxTree.parseSingle(null));
+                , () -> this.abstractSyntaxTree.parseSingle(javaFile));
     }
 
     @Test

@@ -7,6 +7,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +39,18 @@ public class AbstractSyntaxTree implements ExtractionMethod {
             file.setParsed(parsed);
         } catch (Exception e) {
             log.error("Error parsing file: {}", file.getPath(), e);
+        }
+        return parsed;
+    }
+
+    public static Object parseSingle(String file) {
+        Assert.notNull(file, "File cannot be null");
+        CompilationUnit parsed = null;
+
+        try {
+            parsed = JavaParser.parse(file);
+        } catch (Exception e) {
+            log.error("Error parsing file: {}", file, e);
         }
         return parsed;
     }
