@@ -1356,6 +1356,18 @@ class AstHandlerTest {
     }
 
     @Test
+    @DisplayName("Should test get if statement for method declaration with two ifStmt")
+    public void shouldTestGetIfStatementForMethodDeclarationWithTwoIfStmt() {
+        var method = new MethodDeclaration();
+        method.setBody(new BlockStmt(NodeList.nodeList(new IfStmt(), new IfStmt())));
+
+        var result = AstHandler.getIfStatements(method);
+
+        assertEquals(2, result.size());
+    }
+
+
+    @Test
     @DisplayName("Should test get if statement for method declaration with inner ifStmt")
     public void shouldTestGetIfStatementForMethodDeclarationWithInnerIfStmt() {
         var method = new MethodDeclaration();
@@ -1680,5 +1692,36 @@ class AstHandlerTest {
         var result = AstHandler.getMethodByName(clazz, "empty");
 
         assertEquals(result.getNameAsString(), "empty");
+    }
+
+    @Test
+    @DisplayName("Should test getObjectCreationExprList with null")
+    public void shouldTestGetObjectCreationExprListWithNull() {
+        var result = assertThrows(NullNodeException.class,
+                () -> AstHandler.getObjectCreationExprList(null));
+
+        assertEquals("Node cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test getObjectCreationExprList for node without object creation expr")
+    public void shouldTestGetObjectCreationExprListForNodeWithoutObjectCreationExpr() {
+        var cu = new CompilationUnit();
+
+        var result = AstHandler.getObjectCreationExprList(cu);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test getObjectCreationExprList for node with object creation expr")
+    public void shouldTestGetObjectCreationExprListForNodeWithObjectCreationExpr() {
+        var expression = new ExpressionStmt();
+        expression.setExpression(new ObjectCreationExpr());
+
+        var result = AstHandler.getObjectCreationExprList(expression);
+
+
+        assertEquals(1, result.size());
     }
 }

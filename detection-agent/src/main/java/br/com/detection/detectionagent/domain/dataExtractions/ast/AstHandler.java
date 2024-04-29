@@ -501,20 +501,20 @@ public class AstHandler {
             throw new NullMethodException();
         }
 
-        final List<IfStmt> statements = new ArrayList<>();
-
         if (method.getBody().isEmpty()) {
-            return statements;
+            return List.of();
         }
 
-        final Optional<IfStmt> ifStmt = method.getBody()
+        final var ifStmts = method.getBody()
                 .get()
                 .getStatements()
                 .stream()
                 .filter(IfStmt.class::isInstance)
-                .map(IfStmt.class::cast).findFirst();
+                .map(IfStmt.class::cast)
+                .toList();
+        final var statements = new ArrayList<IfStmt>();
 
-        ifStmt.ifPresent(i -> {
+        ifStmts.forEach(i -> {
             statements.add(i);
             statements.addAll(getInnerIfStatements(i));
         });
@@ -625,5 +625,24 @@ public class AstHandler {
                 .filter(m -> m.getNameAsString().equals(method))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public static List<ObjectCreationExpr> getObjectCreationExprList(Node node) {
+        if(node == null) {
+            throw new NullNodeException();
+        }
+
+        var objectCreationExprs = new ArrayList<ObjectCreationExpr>();
+        if (node instanceof ObjectCreationExpr) {
+            objectCreationExprs.add((ObjectCreationExpr) node);
+        }
+
+        for (Node child : node.getChildNodes()) {
+            if (!(child instanceof IfStmt)) {
+                objectCreationExprs.addAll(getObjectCreationExprList(child));
+            }
+        }
+
+        return objectCreationExprs;
     }
 }
