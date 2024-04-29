@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
@@ -38,10 +38,9 @@ public class ExtractFiles {
 
             Optional.of(zipEntry)
                     .filter(f -> f.getName().endsWith(EXTENSION))
-                    .flatMap(entry -> createTempFile(entry.getName()))
                     .ifPresent(file -> javaFiles.add(JavaFile.builder()
-                            .name(file.getName())
-                            .path(file.getPath())
+                            .name(getName(file.getName()))
+                            .path(getPath(file.getName()))
                             .originalClass(getString(zipInputStream))
                             .build()));
         }
@@ -52,15 +51,16 @@ public class ExtractFiles {
         return javaFiles;
     }
 
-    private Optional<File> createTempFile(String name) {
-        var fullName = name.split(EXTENSION);
-        try {
-            var file = File.createTempFile(fullName[0], EXTENSION);
-            return Optional.of(file);
-        } catch (IOException e) {
-            log.warn("Error creating temp file, {}", name, e);
-        }
-        return Optional.empty();
+    private String getName(String name) {
+        var path = name.split(EXTENSION)[0].split("/");
+        return path[path.length - 1] + EXTENSION;
+    }
+
+    private String getPath(String name) {
+        var path = name.split(File.separator);
+        if (path.length == 1) return "";
+        path = Arrays.copyOfRange(path, 0, path.length - 1);
+        return String.join(File.separator, path) + File.separator;
     }
 
     @SneakyThrows

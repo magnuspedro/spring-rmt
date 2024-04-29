@@ -71,7 +71,7 @@ class ExtractFilesTest {
     @Test
     @DisplayName("Should test extract for project with class")
     public void shouldTestExtractForProjectWithClass() throws IOException {
-        var zip = createZipFile("Test.java", clazz);
+        var zip = createZipFile("test/Test.java", clazz);
         var project = Project.builder()
                 .bucket("bucket")
                 .id("id")
@@ -82,6 +82,8 @@ class ExtractFilesTest {
         var result = this.extractFiles.extract(project);
 
         assertEquals(1, result.size());
+        assertEquals("Test.java", result.getFirst().getName());
+        assertEquals("test/", result.getFirst().getPath());
     }
 
     @SneakyThrows
