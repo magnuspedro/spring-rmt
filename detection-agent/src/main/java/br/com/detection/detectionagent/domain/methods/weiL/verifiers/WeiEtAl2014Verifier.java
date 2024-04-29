@@ -4,7 +4,6 @@ import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
 import br.com.detection.detectionagent.domain.methods.RefactoringCandidatesVerifier;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.file.JavaFile;
-import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethod;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.IfStmt;
@@ -17,9 +16,8 @@ import java.util.Optional;
 
 public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifier {
 
-    public List<RefactoringCandidate> retrieveCandidatesFrom(List<JavaFile> javaFiles, ExtractionMethod extractionMethod) {
-        final List<RefactoringCandidate> candidates = new ArrayList<>();
-        extractionMethod.parseAll(javaFiles);
+    public List<RefactoringCandidate> retrieveCandidatesFrom(List<JavaFile> javaFiles) {
+        final var candidates = new ArrayList<RefactoringCandidate>();
 
         javaFiles.forEach(file -> {
             var classOrInterface = AstHandler.getClassOrInterfaceDeclaration(file.getCompilationUnit());
@@ -52,7 +50,7 @@ public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifi
 
         final var ifStatements = AstHandler.getIfStatements(method);
 
-        if (!this.ifStmtsAreValid(javaFiles, file,method, ifStatements)) {
+        if (!this.areIfStmtsValid(javaFiles, file,method, ifStatements)) {
             return Optional.empty();
         }
 
@@ -61,6 +59,6 @@ public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifi
 
     protected abstract WeiEtAl2014Candidate createCandidate(JavaFile file, MethodDeclaration method, Collection<IfStmt> ifStatements);
 
-    protected abstract boolean ifStmtsAreValid(List<JavaFile> javaFiles, JavaFile file, MethodDeclaration method, Collection<IfStmt> ifStatements);
+    protected abstract boolean areIfStmtsValid(List<JavaFile> javaFiles, JavaFile file, MethodDeclaration method, Collection<IfStmt> ifStatements);
 
 }

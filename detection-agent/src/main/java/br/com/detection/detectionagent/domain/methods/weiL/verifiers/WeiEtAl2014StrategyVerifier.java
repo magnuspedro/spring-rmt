@@ -23,18 +23,18 @@ import java.util.function.Function;
 @Component
 public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
 
-    protected boolean ifStmtsAreValid(List<JavaFile> dataHandler, JavaFile file, MethodDeclaration method, Collection<IfStmt> ifStatements) {
+    protected boolean areIfStmtsValid(List<JavaFile> dataHandler, JavaFile file, MethodDeclaration method, Collection<IfStmt> ifStatements) {
         return !ifStatements.isEmpty()
                 && ifStatements.stream()
-                .allMatch(s -> ifStmtIsValid(file, method, s));
+                .allMatch(s -> isIfStmtValid(file, method, s));
     }
 
-    private boolean ifStmtIsValid(JavaFile file, MethodDeclaration method, IfStmt ifStmt) {
+    private boolean isIfStmtValid(JavaFile file, MethodDeclaration method, IfStmt ifStmt) {
 
         final var parameter = method.getParameters()
                 .stream()
                 .findFirst()
-                .get();
+                .orElseThrow(IllegalArgumentException::new);
 
         if (AstHandler.getReturnStmt(ifStmt).isEmpty()) {
             return false;
@@ -142,5 +142,4 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
 
         return new WeiEtAl2014StrategyCandidate(file, file.getCompilationUnit(), packageDeclaration, classOrInterface, method, ifStatements, variables);
     }
-
 }

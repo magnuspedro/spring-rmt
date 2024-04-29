@@ -47,7 +47,7 @@ public abstract class WeiEtAl2014Candidate implements RefactoringCandidate {
                                 PackageDeclaration packageDcl, ClassOrInterfaceDeclaration classDcl, MethodDeclaration methodDcl,
                                 Collection<IfStmt> ifStatements, DesignPattern eligiblePattern) {
         this.reference = Reference.builder()
-                .title("Automated pattern­directed refactoring for complex conditional statements")
+                .title("Automated pattern directed refactoring for complex conditional statements")
                 .year(2014)
                 .authors(List.of("Liu Wei", "Hu Zhi-gang", "Liu Hong-tao", "Yang Liu"))
                 .build();

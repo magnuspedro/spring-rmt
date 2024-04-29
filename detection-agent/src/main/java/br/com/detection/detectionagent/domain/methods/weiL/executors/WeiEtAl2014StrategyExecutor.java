@@ -5,7 +5,7 @@ import br.com.detection.detectionagent.domain.methods.weiL.LiteralValueExtractor
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014StrategyCandidate;
 import br.com.detection.detectionagent.file.JavaFile;
-import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethod;
+import br.com.detection.detectionagent.methods.dataExtractions.AbstractSyntaxTree;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.patterns.DesignPattern;
 import com.github.javaparser.ast.CompilationUnit;
@@ -24,8 +24,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
@@ -37,17 +35,15 @@ import java.util.stream.Collectors;
 public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
 
     @Override
-    public void refactor(RefactoringCandidate candidate, List<JavaFile> dataHandler, ExtractionMethod extractionMethod) {
-        final WeiEtAl2014StrategyCandidate weiCandidate = (WeiEtAl2014StrategyCandidate) candidate;
-        extractionMethod.parseAll(dataHandler);
+    public void refactor(RefactoringCandidate candidate, List<JavaFile> javaFiles) {
+        final var weiCandidate = (WeiEtAl2014StrategyCandidate) candidate;
 
         try {
-            var path = dataHandler.stream()
-                    .filter(f -> AstHandler.doesCompilationUnitsMatch((CompilationUnit) f.getParsed(), weiCandidate.getCompilationUnit()))
+            var path = javaFiles.stream()
+                    .filter(f -> AstHandler.doesCompilationUnitsMatch(f.getCompilationUnit(), weiCandidate.getCompilationUnit()))
                     .map(JavaFile::getPath)
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
-            final var file = Path.of(path);
 
             final var method = new MethodDeclaration();
             method.setName(weiCandidate.getMethodDcl().getName());
@@ -62,25 +58,27 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
             createdStrategy.addMember(method);
             createdStrategy.setAbstract(true);
 
-            final var strategyFile = file.getParent().resolve("Strategy.java");
+            var file = JavaFile.builder()
+                    .name("Strategy.java")
+                    .path(path)
+                    .originalClass(strategyCu.toString())
+                    .parsed(AbstractSyntaxTree.parseSingle(strategyCu.toString()))
+                    .build();
 
-            writeChanges(strategyCu, strategyFile);
+            javaFiles.add(file);
 
-            int i = 1;
-            for (var ifStmt : weiCandidate.getIfStatements()) {
-                this.changesIfStmtCandidate(i++, file, weiCandidate, ifStmt, dataHandler);
+            for (var i = 0; i < weiCandidate.getIfStatements().size(); i++) {
+                this.changesIfStmtCandidate(i, javaFiles, file, weiCandidate, weiCandidate.getIfStatements().get(i));
             }
 
-            changeBaseClazz(weiCandidate, createdStrategy, dataHandler);
+            changeBaseClazz(weiCandidate, createdStrategy, javaFiles);
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
-
     }
 
-    private void changesIfStmtCandidate(int idx, Path file, WeiEtAl2014StrategyCandidate candidate, IfStmt ifStmt,
-                                        List<JavaFile> dataHandler) throws IOException {
+    private void changesIfStmtCandidate(int idx, List<JavaFile> javaFiles, JavaFile file, WeiEtAl2014StrategyCandidate candidate, IfStmt ifStmt) {
 
         final var concreteStrategyClassName = "ConcreteStrategy"
                 .concat(this.getNameSuffix(idx, candidate.getMethodDcl(), ifStmt));
@@ -98,7 +96,12 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
         type.addMember(method);
         type.addExtendedType("Strategy");
 
-        writeChanges(cu, file.getParent().resolve(String.format("%s.java", concreteStrategyClassName)));
+        javaFiles.add(JavaFile.builder()
+                .name(String.format("%s.java", concreteStrategyClassName))
+                .path(file.getPath())
+                .originalClass(cu.toString())
+                .parsed(AbstractSyntaxTree.parseSingle(cu.toString()))
+                .build());
     }
 
     private String getNameSuffix(int idx, MethodDeclaration method, IfStmt ifStmt) {
@@ -106,7 +109,7 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
         final var parameter = method.getParameters()
                 .stream()
                 .findFirst()
-                .get();
+                .orElseThrow(IllegalArgumentException::new);
 
         final var binaryExpr = ifStmt.getChildNodes()
                 .stream()
@@ -155,22 +158,12 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
         );
 
         final var returnStmt = new ReturnStmt();
-        returnStmt.setExpression(methodCall);
-
         final var block = new BlockStmt();
+
+        returnStmt.setExpression(methodCall);
         block.addStatement(returnStmt);
         candidateMethod.setBody(block);
-        candidateMethod.setParameter(0,
-                new Parameter(new TypeParameter(createdStrategy.getNameAsString()), "strategy"));
-
-        var path = dataHandler.stream()
-                .filter(f -> AstHandler.doesCompilationUnitsMatch((CompilationUnit) f.getParsed(), baseCu))
-                .map(JavaFile::getPath)
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
-
-        final Path file = Path.of(path);
-//        writeCanges(baseCu, file);
+        candidateMethod.setParameter(0, new Parameter(new TypeParameter(createdStrategy.getNameAsString()), "strategy"));
     }
 
     private FieldAccessExpr parseVariableToFieldAccess(VariableDeclarator var) {
@@ -186,7 +179,8 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
                 .filter(c -> AstHandler.doesCompilationUnitsMatch(c, Optional.of(candidate.getClassDeclaration()),
                         Optional.of(candidate.getPackageDeclaration())))
                 .findFirst()
-                .get();
+                .orElseThrow(IllegalArgumentException::new);
+
     }
 
     @Override
@@ -194,5 +188,4 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
         return candidate instanceof WeiEtAl2014StrategyCandidate
                 && DesignPattern.STRATEGY.equals(candidate.getEligiblePattern());
     }
-
 }

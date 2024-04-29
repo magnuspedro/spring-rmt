@@ -27,21 +27,20 @@ public class WeiEtAl2014 implements DetectionMethod, AbstractSyntaxTreeDependent
 
     @Override
     public Collection<RefactoringCandidate> extractCandidates(List<JavaFile> javaFiles) {
-        var extractionMethod = this.extractionMethodFactory.build(this);
+        this.extractionMethodFactory.build(this).parseAll(javaFiles);
         return this.refactoringCandidatesVerifier.stream()
-                .map(f -> f.retrieveCandidatesFrom(javaFiles, extractionMethod))
+                .map(f -> f.retrieveCandidatesFrom(javaFiles))
                 .flatMap(List::stream)
                 .toList();
     }
 
     @Override
     public void refactor(List<JavaFile> javaFiles, RefactoringCandidate candidate) {
-        var extractionMethod = this.extractionMethodFactory.build(this);
         this.getExecutors()
                 .filter(e -> e.isApplicable(candidate))
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new)
-                .refactor(candidate, javaFiles, extractionMethod);
+                .refactor(candidate, javaFiles);
     }
 
     private Stream<WeiEtAl2014Executor> getExecutors() {
