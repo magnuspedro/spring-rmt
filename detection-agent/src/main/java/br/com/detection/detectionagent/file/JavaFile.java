@@ -19,4 +19,8 @@ public class JavaFile {
             return (CompilationUnit) this.parsed;
         return null;
     }
+
+    public String getFileNameWithoutExtension() {
+        return this.name.substring(0, this.name.lastIndexOf('.'));
+    }
 }
