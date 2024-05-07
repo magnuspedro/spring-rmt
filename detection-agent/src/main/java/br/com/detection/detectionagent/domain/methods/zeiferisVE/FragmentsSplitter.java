@@ -29,7 +29,7 @@ public class FragmentsSplitter {
 
     private final List<Node> afterFragment = new ArrayList<>();
 
-    public static FragmentsSplitter splitByMethod(MethodDeclaration method){
+    public static FragmentsSplitter splitByMethod(MethodDeclaration method) {
         var fragment = new FragmentsSplitter();
         final BlockStmt blockStmt = AstHandler.getBlockStatement(method)
                 .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
@@ -52,7 +52,7 @@ public class FragmentsSplitter {
         return fragment;
     }
 
-    public static FragmentsSplitter splitByMethodAndMethodCall(MethodDeclaration method, MethodCallExpr methodCall){
+    public static FragmentsSplitter splitByMethodAndMethodCall(MethodDeclaration method, MethodCallExpr methodCall) {
         var fragment = new FragmentsSplitter();
         final BlockStmt blockStmt = AstHandler.getBlockStatement(method)
                 .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
@@ -117,7 +117,7 @@ public class FragmentsSplitter {
     }
 
     public Optional<SuperReturnVar> getSuperReturnVariable() {
-        if (this.node.getChildNodes() == null || this.node.getChildNodes().isEmpty()) {
+        if (this.node == null || this.node.getChildNodes() == null || this.node.getChildNodes().isEmpty()) {
             return Optional.empty();
         }
 
