@@ -84,12 +84,12 @@ public class ZafeirisEtAl2016Candidate implements RefactoringCandidate {
     }
 
     public FragmentsSplitter toFragment() {
-        return new FragmentsSplitter(this.getOverridingMethod());
+        return FragmentsSplitter.splitByMethod(this.getOverridingMethod());
     }
 
     public CandidateWithVariables toCandidateWithVariables() {
         return new CandidateWithVariables(this,
-                this.toFragment().getVariablesOnBeforeFragmentsMethodCalss());
+                this.toFragment().getVariablesOnBeforeFragmentsMethodClass());
     }
 
     public record CandidateWithVariables(ZafeirisEtAl2016Candidate candidate,

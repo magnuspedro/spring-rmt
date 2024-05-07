@@ -18,7 +18,7 @@ import java.util.Optional;
 public class ExtractMethodPreconditions {
 
     public boolean isValid(MethodDeclaration overriddenMethod, MethodDeclaration m) {
-        final var fragmentsSplitter = new FragmentsSplitter(m);
+        final var fragmentsSplitter =  FragmentsSplitter.splitByMethod(m);
 
         return fragmentsSplitter.hasSpecificNode()
                 && this.superCallIsNotNested(m)
@@ -58,7 +58,7 @@ public class ExtractMethodPreconditions {
     }
 
     private boolean hasMultipleVariablesInBeforeFragmentsMethodCalls(FragmentsSplitter fragmentsSplitter) {
-        final Collection<VariableDeclarationExpr> variables = fragmentsSplitter.getVariablesOnBeforeFragmentsMethodCalss();
+        final Collection<VariableDeclarationExpr> variables = fragmentsSplitter.getVariablesOnBeforeFragmentsMethodClass();
         return variables.size() > 1 || (variables.size() == 1 && variables.stream().findFirst().get().getVariables().size() > 1);
     }
 

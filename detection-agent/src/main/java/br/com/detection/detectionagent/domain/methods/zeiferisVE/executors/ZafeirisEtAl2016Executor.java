@@ -92,7 +92,7 @@ public class ZafeirisEtAl2016Executor {
                 .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverridenMethod())).findFirst()
                 .orElseThrow(IllegalArgumentException::new);
 
-        final var fragmentsSplitter = new FragmentsSplitter(childMethodDclr, newDoOverriddenCall);
+        final var fragmentsSplitter = FragmentsSplitter.splitByMethodAndMethodCall(childMethodDclr, newDoOverriddenCall);
 
         final var beforeFragmentReturnValue = this.applyExtractMethodOnBeforeFragment(parentCU, candidate.getCompilationUnit(),
                 childMethodDclr, fragmentsSplitter);
@@ -139,7 +139,7 @@ public class ZafeirisEtAl2016Executor {
     private Node applyExtractMethodOnBeforeFragment(CompilationUnit parentCU, CompilationUnit childCU,
                                                     MethodDeclaration childMethodDclr, FragmentsSplitter fragmentsSplitter) {
 
-        final var variables = fragmentsSplitter.getVariablesOnBeforeFragmentsMethodCalss();
+        final var variables = fragmentsSplitter.getVariablesOnBeforeFragmentsMethodClass();
         if (variables.size() > 1) {
             throw new IllegalStateException();
         }
@@ -198,7 +198,7 @@ public class ZafeirisEtAl2016Executor {
         hookMethod.setBody(new BlockStmt());
         final var body = hookMethod.getBody().orElseThrow(() -> new IllegalArgumentException("Body is null"));
 
-        fragmentsSplitter.getVariablesOnBeforeFragmentsMethodCalss()
+        fragmentsSplitter.getVariablesOnBeforeFragmentsMethodClass()
                 .stream()
                 .findFirst()
                 .ifPresent(body::addStatement);

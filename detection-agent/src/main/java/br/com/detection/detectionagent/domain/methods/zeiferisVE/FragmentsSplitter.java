@@ -9,6 +9,7 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.Type;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Getter
+@NoArgsConstructor
 public class FragmentsSplitter {
 
     private final List<Node> beforeFragment = new ArrayList<>();
@@ -27,8 +29,9 @@ public class FragmentsSplitter {
 
     private final List<Node> afterFragment = new ArrayList<>();
 
-    public FragmentsSplitter(MethodDeclaration m) {
-        final BlockStmt blockStmt = AstHandler.getBlockStatement(m)
+    public static FragmentsSplitter splitByMethod(MethodDeclaration method){
+        var fragment = new FragmentsSplitter();
+        final BlockStmt blockStmt = AstHandler.getBlockStatement(method)
                 .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
 
         var hasSuper = false;
@@ -36,20 +39,22 @@ public class FragmentsSplitter {
 
             if (AstHandler.childHasDirectSuperCall(child)) {
                 hasSuper = true;
-                this.node = child;
+                fragment.node = child;
                 continue;
             }
 
-            this.addToFragment(hasSuper, child);
+            fragment.addToFragment(hasSuper, child);
         }
 
-        if (this.node == null) {
-            log.warn("Fragment Splitter node is null");
+        if (fragment.node == null) {
+            log.warn("Fragment Splitter node is null, in method splitByMethod");
         }
+        return fragment;
     }
 
-    public FragmentsSplitter(MethodDeclaration m, MethodCallExpr methodCall) {
-        final BlockStmt blockStmt = AstHandler.getBlockStatement(m)
+    public static FragmentsSplitter splitByMethodAndMethodCall(MethodDeclaration method, MethodCallExpr methodCall){
+        var fragment = new FragmentsSplitter();
+        final BlockStmt blockStmt = AstHandler.getBlockStatement(method)
                 .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
 
         boolean hasMethodCall = false;
@@ -57,16 +62,17 @@ public class FragmentsSplitter {
 
             if (AstHandler.doesNodeContainMatchingMethodCall(child, methodCall)) {
                 hasMethodCall = true;
-                this.node = child;
+                fragment.node = child;
                 continue;
             }
 
-            this.addToFragment(hasMethodCall, child);
+            fragment.addToFragment(hasMethodCall, child);
         }
 
-        if (this.node == null) {
+        if (fragment.node == null) {
             log.warn("Fragment Splitter node is null");
         }
+        return fragment;
     }
 
     private void addToFragment(boolean hasSuper, Node node) {
@@ -81,7 +87,7 @@ public class FragmentsSplitter {
         return this.node != null;
     }
 
-    public List<VariableDeclarationExpr> getVariablesOnBeforeFragmentsMethodCalss() {
+    public List<VariableDeclarationExpr> getVariablesOnBeforeFragmentsMethodClass() {
         final var variables = this.getBeforeFragment()
                 .stream()
                 .flatMap(n -> AstHandler.extractVariableDclrFromNode(n).stream())
