@@ -181,7 +181,7 @@ public class AstHandler {
                 .findFirst();
     }
 
-    public static Collection<MethodDeclaration> getMethods(CompilationUnit cUnit) {
+    public static List<MethodDeclaration> getMethods(CompilationUnit cUnit) {
         return Optional.ofNullable(cUnit)
                 .map(Node::getChildNodes)
                 .orElseThrow(NullCompilationUnitException::new)
@@ -190,17 +190,17 @@ public class AstHandler {
                 .flatMap(n -> n.getChildNodes().stream())
                 .filter(cn -> cn instanceof MethodDeclaration)
                 .map(MethodDeclaration.class::cast)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    public static Collection<MethodDeclaration> getMethods(ClassOrInterfaceDeclaration classOrInterfaceDeclaration) {
+    public static List<MethodDeclaration> getMethods(ClassOrInterfaceDeclaration classOrInterfaceDeclaration) {
         return Optional.ofNullable(classOrInterfaceDeclaration)
                 .map(Node::getChildNodes)
                 .orElseThrow(NoClassOrInterfaceException::new)
                 .stream()
                 .filter(n -> n instanceof MethodDeclaration)
                 .map(MethodDeclaration.class::cast)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static Optional<BlockStmt> getBlockStatement(Node n) {
@@ -423,8 +423,8 @@ public class AstHandler {
         return methodCalls;
     }
 
-    public static Collection<MethodCallExpr> getMethodCallExpr(Node node) {
-        final Collection<MethodCallExpr> methodCalls = new ArrayList<>();
+    public static List<MethodCallExpr> getMethodCallExpr(Node node) {
+        final List<MethodCallExpr> methodCalls = new ArrayList<>();
 
         if (node == null) {
             return methodCalls;
