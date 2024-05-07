@@ -25,7 +25,6 @@ public class DetectionMethodsManagerImpl implements DetectionMethodsManager {
 
     @Override
     public List<RefactoringCandidate> extractCandidates(String projectId) {
-
         var project = projectsRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
 
