@@ -252,3 +252,6 @@ target
 **/target/**
 target/**
 .DS_Store
+.terraform
+metrics-agent/target
+metrics-agent/target/**
