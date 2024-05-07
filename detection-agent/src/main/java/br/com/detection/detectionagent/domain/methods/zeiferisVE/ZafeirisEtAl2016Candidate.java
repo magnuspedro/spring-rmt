@@ -44,7 +44,7 @@ public class ZafeirisEtAl2016Candidate implements RefactoringCandidate {
 
     private final ClassOrInterfaceDeclaration classDcl;
 
-    private final MethodDeclaration overridenMethod;
+    private final MethodDeclaration overriddenMethod;
 
     private final MethodDeclaration overridingMethod;
 

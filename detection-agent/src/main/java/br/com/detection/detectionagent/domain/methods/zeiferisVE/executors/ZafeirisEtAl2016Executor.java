@@ -17,6 +17,7 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,8 @@ import java.util.Optional;
 public class ZafeirisEtAl2016Executor {
 
     public void refactor(ZafeirisEtAl2016Candidate candidate, List<JavaFile> javaFiles) {
+        Assert.notNull(candidate, "Candidate cannot be null");
+        Assert.notNull(javaFiles, "JavaFiles cannot be null");
 
         var parent = this.getParent(javaFiles, candidate);
 
@@ -49,7 +52,7 @@ public class ZafeirisEtAl2016Executor {
 
         final MethodDeclaration overriddenMethodDclr = AstHandler.getMethods(parentCU)
                 .stream()
-                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverridenMethod()))
+                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverriddenMethod()))
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
 
@@ -61,7 +64,7 @@ public class ZafeirisEtAl2016Executor {
 
         final var overriddenMethodDclr = AstHandler.getMethods(parentCU)
                 .stream()
-                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverridenMethod()))
+                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverriddenMethod()))
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
 
@@ -88,8 +91,8 @@ public class ZafeirisEtAl2016Executor {
 
         final var childMethodDclr = AstHandler.getMethods(candidate.getCompilationUnit())
                 .stream()
-                .filter(m -> m.getNameAsString().equals(candidate.getOverridenMethod().getNameAsString()))
-                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverridenMethod())).findFirst()
+                .filter(m -> m.getNameAsString().equals(candidate.getOverriddenMethod().getNameAsString()))
+                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverriddenMethod())).findFirst()
                 .orElseThrow(IllegalArgumentException::new);
 
         final var fragmentsSplitter = FragmentsSplitter.splitByMethodAndMethodCall(childMethodDclr, newDoOverriddenCall);
@@ -274,7 +277,7 @@ public class ZafeirisEtAl2016Executor {
         final var parentClass = AstHandler.getClassOrInterfaceDeclaration(parentCu)
                 .orElseThrow(IllegalArgumentException::new);
         final var parentMethod = AstHandler.getMethods(parentClass).stream()
-                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverridenMethod()))
+                .filter(m -> AstHandler.methodsParamsMatch(m, candidate.getOverriddenMethod()))
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
         final var newMethodName = String.format("do%s%s",

@@ -29,17 +29,17 @@ public class ZafeirisEtAl2016Verifier {
 
         final var candidates = this.retrieveCandidates(javaFiles);
         var candidatesWithOverriddenMethods = candidates.stream()
-                .map(ZafeirisEtAl2016Candidate::getOverridenMethod)
+                .map(ZafeirisEtAl2016Candidate::getOverriddenMethod)
                 .toList();
 
         for (var overriddenMethod : candidatesWithOverriddenMethods) {
             final var candidateWithSameOverriddenMethod = candidates.stream()
-                    .filter(c -> c.getOverridenMethod().equals(overriddenMethod))
+                    .filter(c -> c.getOverriddenMethod().equals(overriddenMethod))
                     .toList();
 
             if (siblingPreconditions.violates(candidateWithSameOverriddenMethod)) {
                 candidates.removeAll(candidates.stream()
-                        .filter(c -> c.getOverridenMethod().equals(overriddenMethod))
+                        .filter(c -> c.getOverriddenMethod().equals(overriddenMethod))
                         .toList()
                 );
             }
@@ -113,7 +113,7 @@ public class ZafeirisEtAl2016Verifier {
                 .compilationUnit(file.getCompilationUnit())
                 .packageDcl(pkgDcl)
                 .classDcl(classDcl)
-                .overridenMethod(overriddenMethod)
+                .overriddenMethod(overriddenMethod)
                 .overridingMethod(method)
                 .superCall(superCall)
                 .build();
