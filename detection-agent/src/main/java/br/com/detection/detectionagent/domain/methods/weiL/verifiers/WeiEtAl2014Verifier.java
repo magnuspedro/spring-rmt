@@ -8,6 +8,7 @@ import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.type.VoidType;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +18,7 @@ import java.util.Optional;
 public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifier {
 
     public List<RefactoringCandidate> retrieveCandidatesFrom(List<JavaFile> javaFiles) {
+        Assert.notNull(javaFiles, "JavaFiles cannot be null");
         final var candidates = new ArrayList<RefactoringCandidate>();
 
         javaFiles.forEach(file -> {
