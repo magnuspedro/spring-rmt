@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static fixtures.Wei.createJavaFiles;
+import static fixtures.Wei.createJavaFilesFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -152,7 +152,7 @@ class WeiEtAl2014FactoryVerifierTest {
     @Test
     @DisplayName("Should test retrieveCandidateFrom with ifStatements valid")
     public void shouldTestRetrieveCandidateFromWithIfStatementsValid() {
-        var files = createJavaFiles();
+        var files = createJavaFilesFactory();
 
         var result = this.weiEtAl2014FactoryVerifier.retrieveCandidatesFrom(files);
 

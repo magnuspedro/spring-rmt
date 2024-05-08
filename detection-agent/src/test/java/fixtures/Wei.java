@@ -57,7 +57,41 @@ public class Wei {
             }
             """;
 
-    public static List<JavaFile> createJavaFiles() {
+    private static final String STRATEGY_CLAZZ = """
+            package stratety;
+
+            class MovieTicket {
+
+              private Double price; 
+
+              public Double calculate(char type){
+
+                if(type == 'S'){
+                    return price * 0.8;
+
+                }
+
+                if(type == 'C'){
+                    return price - 10;
+                }
+
+                else if (type == 'M'){
+                    return price * 0.5;
+                }
+
+                else {
+                    return -1;
+                }
+              }
+
+              public void setPrice(Double price) {
+                this.price = price;
+              }
+
+            }
+            """;
+
+    public static List<JavaFile> createJavaFilesFactory() {
         return List.of(
                 JavaFile.builder()
                         .name("Logger.java")
@@ -82,6 +116,16 @@ public class Wei {
                         .path("factory/")
                         .originalClass(FACTORY)
                         .parsed(AbstractSyntaxTree.parseSingle(FACTORY))
+                        .build());
+    }
+
+    public static List<JavaFile> createJavaFilesStrategy() {
+        return List.of(
+                JavaFile.builder()
+                        .name("MovieTicket.java")
+                        .path("stratety/")
+                        .originalClass(STRATEGY_CLAZZ)
+                        .parsed(AbstractSyntaxTree.parseSingle(STRATEGY_CLAZZ))
                         .build());
     }
 }
