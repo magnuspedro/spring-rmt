@@ -21,7 +21,6 @@ import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.TypeParameter;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -104,38 +103,15 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
                 .build());
     }
 
-    private String getNameSuffix(int idx, MethodDeclaration method, IfStmt ifStmt) {
-
-        final var parameter = method.getParameters()
-                .stream()
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
-
-        final var binaryExpr = ifStmt.getChildNodes()
+    private String getNameSuffix(int idx, MethodDeclaration methodDeclaration, IfStmt ifStmt) {
+        return String.valueOf(ifStmt.getChildNodes()
                 .stream()
                 .filter(BinaryExpr.class::isInstance)
                 .map(BinaryExpr.class::cast)
-                .findFirst();
-
-        final var methodCallExpr = ifStmt.getChildNodes()
-                .stream()
-                .filter(MethodCallExpr.class::isInstance)
-                .map(MethodCallExpr.class::cast)
-                .findFirst();
-
-        if (binaryExpr.isPresent()) {
-            return new LiteralValueExtractor()
-                    .getNodeOtherThan(binaryExpr.get(), parameter)
-                    .map(Object::toString)
-                    .orElse(String.valueOf(idx));
-        } else if (methodCallExpr.isPresent()) {
-            return new LiteralValueExtractor()
-                    .getNodeOtherThan(methodCallExpr.get(), parameter)
-                    .map(Object::toString)
-                    .orElse(String.valueOf(idx));
-        }
-
-        throw new NotImplementedException("Conditional not covered yet");
+                .map(m -> LiteralValueExtractor.extractValidLiteralFromNode(m, methodDeclaration))
+                .flatMap(Optional::stream)
+                .findFirst()
+                .orElse(idx));
     }
 
     private void changeBaseClazz(WeiEtAl2014StrategyCandidate candidate, ClassOrInterfaceDeclaration createdStrategy,

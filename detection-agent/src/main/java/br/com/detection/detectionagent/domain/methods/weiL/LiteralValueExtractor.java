@@ -1,33 +1,34 @@
 package br.com.detection.detectionagent.domain.methods.weiL;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.*;
-import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.function.Predicate;
 
-@Component
 public class LiteralValueExtractor {
 
-    public Optional<Object> getNodeOtherThan(Node node, Parameter parameter) {
-        final Predicate<Node> isAValidChild = (value) -> AstHandler.getNameExpr(value)
-                .map(n -> n.getNameAsString().equals(parameter.getNameAsString()))
-                .isEmpty();
+    public static Optional<Object> extractValidLiteralFromNode(BinaryExpr node, MethodDeclaration method) {
+        var variableName = AstHandler.getNameExpr(node)
+                .map(NameExpr::getNameAsString)
+                .orElse("");
+        var validVariable = method.getParameters().stream()
+                .filter(parameter -> parameter.getNameAsString().equals(variableName))
+                .toList();
+
+        if (validVariable.isEmpty()) {
+            return Optional.empty();
+        }
 
         return node.getChildNodes().stream()
-                .filter(isAValidChild)
                 .filter(LiteralExpr.class::isInstance)
                 .map(LiteralExpr.class::cast)
-                .map(this::extractLiteralValidValues)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(LiteralValueExtractor::extractLiteralValidValues)
+                .flatMap(Optional::stream)
                 .findFirst();
     }
 
-    private Optional<Object> extractLiteralValidValues(LiteralExpr expr) {
+    private static Optional<Object> extractLiteralValidValues(LiteralExpr expr) {
         if (expr instanceof CharLiteralExpr) {
             return Optional.ofNullable(((CharLiteralExpr) expr).getValue());
         } else if (expr instanceof IntegerLiteralExpr) {
@@ -39,5 +40,4 @@ public class LiteralValueExtractor {
         }
         return Optional.empty();
     }
-
 }
