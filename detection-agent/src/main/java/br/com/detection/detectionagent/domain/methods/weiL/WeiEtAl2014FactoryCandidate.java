@@ -9,12 +9,14 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.Collection;
 
 @Getter
+@SuperBuilder
 public class WeiEtAl2014FactoryCandidate extends WeiEtAl2014Candidate {
 
 	private final ClassOrInterfaceType methodReturnType;

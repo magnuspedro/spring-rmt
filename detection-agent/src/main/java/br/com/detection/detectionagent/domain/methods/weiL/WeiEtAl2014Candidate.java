@@ -11,6 +11,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.IfStmt;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 @ToString
+@SuperBuilder
 public abstract class WeiEtAl2014Candidate implements RefactoringCandidate {
 
     private final String id = UUID.randomUUID().toString();

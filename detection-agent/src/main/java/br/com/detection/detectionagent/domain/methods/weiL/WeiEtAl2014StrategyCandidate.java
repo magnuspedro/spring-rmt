@@ -9,6 +9,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.stmt.IfStmt;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -16,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Getter
+@SuperBuilder
 public class WeiEtAl2014StrategyCandidate extends WeiEtAl2014Candidate {
 
     private final List<VariableDeclarator> variables;
