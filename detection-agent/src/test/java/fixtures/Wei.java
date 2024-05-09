@@ -2,12 +2,14 @@ package fixtures;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014FactoryCandidate;
+import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014StrategyCandidate;
 import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.AbstractSyntaxTree;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Wei {
@@ -128,6 +130,57 @@ public class FileLoggerFactory extends LoggerFactory {
 }
 """;
 
+    public static final String MOVE_TICKET__REFACTORED = """
+package stratety;
+
+class MovieTicket {
+
+    private Double price;
+
+    public Double calculate(Strategy strategy) {
+        return strategy.calculate();
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+}
+""";
+
+    public static final String STRATEGY_REFACTORED = """
+public abstract class Strategy {
+
+    public abstract Double calculate() {
+    }
+}
+""";
+
+    public static final String STRATEGY_S_REFACTORED = """
+public class ConcreteStrategyS extends Strategy {
+
+    public Double calculate() {
+        return price * 0.8;
+    }
+}
+""";
+
+    public static final String STRATEGY_C_REFACTORED = """
+public class ConcreteStrategyC extends Strategy {
+
+    public Double calculate() {
+        return price - 10;
+    }
+}
+""";
+
+    public static final String STRATEGY_M_REFACTORED = """
+public class ConcreteStrategyM extends Strategy {
+
+    public Double calculate() {
+        return price * 0.5;
+    }
+}
+""";
 
     public static List<JavaFile> createJavaFilesFactory() {
         return new ArrayList<>(Arrays.asList(
@@ -177,12 +230,32 @@ public class FileLoggerFactory extends LoggerFactory {
     }
 
     public static List<JavaFile> createJavaFilesStrategy() {
-        return List.of(
+        return new ArrayList<>(Collections.singletonList(
                 JavaFile.builder()
                         .name("MovieTicket.java")
                         .path("stratety/")
                         .originalClass(STRATEGY_CLAZZ)
                         .parsed(AbstractSyntaxTree.parseSingle(STRATEGY_CLAZZ))
-                        .build());
+                        .build()));
+    }
+
+    public static RefactoringCandidate createStrategyCandidate() {
+        var file = JavaFile.builder()
+                .name("MovieTicket.java")
+                .path("stratety/")
+                .originalClass(STRATEGY_CLAZZ)
+                .parsed(AbstractSyntaxTree.parseSingle(STRATEGY_CLAZZ))
+                .build();
+        var method = AstHandler.getMethods(file.getCompilationUnit()).getFirst();
+
+        return WeiEtAl2014StrategyCandidate.builder()
+                .file(file)
+                .compilationUnit(file.getCompilationUnit())
+                .packageDcl(file.getCompilationUnit().getPackageDeclaration().orElse(null))
+                .classDcl(AstHandler.getClassOrInterfaceDeclaration(file.getCompilationUnit()).orElse(null))
+                .methodDcl(method)
+                .ifStatements(AstHandler.getIfStatements(method).stream().toList())
+                .variables(AstHandler.getVariableDeclarations(method).stream().toList())
+                .build();
     }
 }
