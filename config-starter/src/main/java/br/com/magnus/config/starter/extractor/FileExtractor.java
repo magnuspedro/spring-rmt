@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface FileExtractor {
    List<JavaFile> extract(Project project);
+
+    List<JavaFile> extract(String bucket, String id);
 }

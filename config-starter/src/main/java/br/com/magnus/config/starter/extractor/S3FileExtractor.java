@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,14 +24,20 @@ public class S3FileExtractor implements FileExtractor {
     private final S3ProjectRepository s3ProjectRepository;
 
     @Override
-    @SneakyThrows
     public List<JavaFile> extract(Project project) {
         Assert.notNull(project, "Project cannot be null");
+        return extract(project.getBucket(), project.getId());
+    }
+
+    @SneakyThrows
+    public List<JavaFile> extract(String bucket, String id) {
+        Assert.notNull(bucket, "Bucket cannot be null");
+        Assert.notNull(id, "Id cannot be null");
 
         ZipEntry zipEntry;
-        List<JavaFile> javaFiles = new ArrayList<>();
+        var javaFiles = new ArrayList<JavaFile>();
 
-        var compressedProject = s3ProjectRepository.download(project.getBucket(), project.getId());
+        var compressedProject = s3ProjectRepository.download(bucket, id);
 
         var zipInputStream = new ZipInputStream(compressedProject);
         while ((zipEntry = zipInputStream.getNextEntry()) != null) {

@@ -86,7 +86,42 @@ class S3FileExtractorTest {
             assertEquals("test/", result.getFirst().getPath());
         }
 
-        @SneakyThrows
+    @Test
+    @DisplayName("Should test extract with bucket null")
+    public void shouldTestExtractWithBucketNull() {
+       var result = assertThrows(IllegalArgumentException.class,
+               () -> this.fileExtractor.extract(null, "id"));
+
+       assertEquals("Bucket cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test extract with id null")
+    public void shouldTestExtractWithIdNull() {
+        var result = assertThrows(IllegalArgumentException.class,
+                () -> this.fileExtractor.extract("bucket", null));
+
+        assertEquals("Id cannot be null", result.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should test extract")
+    public void shouldTestExtract() {
+        var zip = createZipFile("test/Test.java", clazz);
+        var id = "id";
+        var bucket = "bucket";
+        when(this.s3ProjectRepository.download(bucket, id))
+                .thenReturn(zip);
+
+        var result = this.fileExtractor.extract(bucket, id);
+
+        assertEquals(1, result.size());
+        assertEquals("Test.java", result.getFirst().getName());
+        assertEquals("test/", result.getFirst().getPath());
+    }
+
+
+    @SneakyThrows
         private InputStream createZipFile(String fileName, String string) {
             var bos = new ByteArrayOutputStream();
             var zos = new ZipOutputStream(bos);
