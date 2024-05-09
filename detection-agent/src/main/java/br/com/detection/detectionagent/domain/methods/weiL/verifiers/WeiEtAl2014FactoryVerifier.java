@@ -26,8 +26,8 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
         final var baseType = AstHandler.getMethodReturnClassType(method);
 
         return baseType.filter(classOrInterfaceType -> !ifStatements.isEmpty()
-                && ifStatements.stream()
-                .allMatch(ifStmt -> ifStmtIsValid(javaFiles, classOrInterfaceType, method.getParameters(), ifStmt)))
+                        && ifStatements.stream()
+                        .allMatch(ifStmt -> ifStmtIsValid(javaFiles, classOrInterfaceType, method.getParameters(), ifStmt)))
                 .isPresent();
 
     }
@@ -40,17 +40,13 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
 
         final var objectCreationExpr = AstHandler.getObjectCreationExprList(ifStmt);
         final var hasReturn = AstHandler.getReturnStmt(ifStmt).isPresent();
-        final var hasValidReturn = this.hasReturnTypeAndHasValidSubtype(javaFiles, baseType, objectCreationExpr);
+        final var hasValidReturn = this.isOfTypeOrIsSubtype(javaFiles, baseType, objectCreationExpr);
 
         return ((binaryExpr.isPresent()
                 || !objectCreationExpr.isEmpty())
                 && isParameterUsedInIfStmtConditional(parameter, binaryExpr))
                 && hasReturn
                 && hasValidReturn;
-    }
-
-    private boolean hasReturnTypeAndHasValidSubtype(List<JavaFile> javaFiles, ClassOrInterfaceType baseType, List<ObjectCreationExpr> objectCreationExpr) {
-        return this.isOfTypeOrIsSubtype(javaFiles, baseType, objectCreationExpr);
     }
 
     private boolean isOfTypeOrIsSubtype(List<JavaFile> javaFiles, ClassOrInterfaceType type, List<ObjectCreationExpr> objCreationExpr) {
@@ -81,15 +77,14 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
     }
 
     private boolean isParameterUsedInIfStmtConditional(List<Parameter> parameter, Optional<BinaryExpr> binaryExpr) {
-        if (binaryExpr.isEmpty()) {
-            return false;
-        }
-        final var name = AstHandler.getNameExpr(binaryExpr.get())
-                .map(NodeWithSimpleName::getNameAsString)
-                .orElse("");
-
-        return parameter.stream().anyMatch(param -> param.getNameAsString().equals(name))
-                && BinaryExpr.Operator.EQUALS.equals(binaryExpr.get().getOperator());
+        return binaryExpr.filter(expr -> AstHandler.getNameExpr(expr)
+                        .map(NodeWithSimpleName::getNameAsString)
+                        .stream()
+                        .anyMatch(name -> parameter.stream()
+                                .map(Parameter::getNameAsString)
+                                .anyMatch(name::equals))
+                        && BinaryExpr.Operator.EQUALS.equals(expr.getOperator()))
+                .isPresent();
     }
 
     @Override
