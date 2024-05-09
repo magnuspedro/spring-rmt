@@ -1,8 +1,13 @@
 package fixtures;
 
+import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
+import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014FactoryCandidate;
 import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.AbstractSyntaxTree;
+import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Wei {
@@ -90,9 +95,42 @@ public class Wei {
 
             }
             """;
+    public static final String LOGGER_FACTORY_REFACTORED = """
+package factory;
+
+public abstract class LoggerFactory {
+
+    public abstract Logger createLogger();
+}
+""";
+
+    public static final String DATA_BASE_LOGGER_FACTORY_REFACTORED = """
+package factory;
+
+public class DataBaseLoggerFactory extends LoggerFactory {
+
+    public Logger createLogger() {
+        Logger logger = new DataBaseLogger();
+        return logger;
+    }
+}
+""";
+
+    public static final String FILE_LOGGER_FACTORY_REFACTORED = """
+package factory;
+
+public class FileLoggerFactory extends LoggerFactory {
+
+    public Logger createLogger() {
+        Logger logger = new FileLogger();
+        return logger;
+    }
+}
+""";
+
 
     public static List<JavaFile> createJavaFilesFactory() {
-        return List.of(
+        return new ArrayList<>(Arrays.asList(
                 JavaFile.builder()
                         .name("Logger.java")
                         .path("factory/")
@@ -116,7 +154,26 @@ public class Wei {
                         .path("factory/")
                         .originalClass(FACTORY)
                         .parsed(AbstractSyntaxTree.parseSingle(FACTORY))
-                        .build());
+                        .build()));
+    }
+
+    public static RefactoringCandidate createFactoryCandidate() {
+        var file = JavaFile.builder()
+                .name("LoggerFactory.java")
+                .path("factory/")
+                .originalClass(FACTORY)
+                .parsed(AbstractSyntaxTree.parseSingle(FACTORY))
+                .build();
+        var method = AstHandler.getMethods(file.getCompilationUnit()).getFirst();
+
+        return WeiEtAl2014FactoryCandidate.builder()
+                .file(file)
+                .compilationUnit(file.getCompilationUnit())
+                .packageDcl(file.getCompilationUnit().getPackageDeclaration().orElse(null))
+                .classDcl(AstHandler.getClassOrInterfaceDeclaration(file.getCompilationUnit()).orElse(null))
+                .methodDcl(method)
+                .ifStatements(AstHandler.getIfStatements(method).stream().toList())
+                .build();
     }
 
     public static List<JavaFile> createJavaFilesStrategy() {
