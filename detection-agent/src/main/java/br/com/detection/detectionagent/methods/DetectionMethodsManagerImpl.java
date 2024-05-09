@@ -1,9 +1,9 @@
 package br.com.detection.detectionagent.methods;
 
 import br.com.detection.detectionagent.domain.methods.DetectionMethod;
-import br.com.detection.detectionagent.file.JavaFile;
-import br.com.detection.detectionagent.refactor.ExtractFiles;
 import br.com.detection.detectionagent.repository.ProjectRepository;
+import br.com.magnus.config.starter.extractor.FileExtractor;
+import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class DetectionMethodsManagerImpl implements DetectionMethodsManager {
 
     private final ProjectRepository projectsRepository;
 
-    private final ExtractFiles extractFiles;
+    private final FileExtractor fileExtractor;
 
     private final List<DetectionMethod> detectionMethod;
 
@@ -28,7 +28,7 @@ public class DetectionMethodsManagerImpl implements DetectionMethodsManager {
         var project = projectsRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
 
-        var javaFiles = this.extractFiles.extract(project);
+        var javaFiles = this.fileExtractor.extract(project);
         var candidates = detectionMethod.stream()
                 .map(f -> f.extractCandidates(javaFiles))
                 .flatMap(Collection::stream)

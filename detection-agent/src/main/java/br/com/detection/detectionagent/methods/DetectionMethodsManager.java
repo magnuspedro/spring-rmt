@@ -1,6 +1,6 @@
 package br.com.detection.detectionagent.methods;
 
-import br.com.detection.detectionagent.file.JavaFile;
+import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 
 import java.util.Collection;

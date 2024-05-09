@@ -1,8 +1,8 @@
 package br.com.detection.detectionagent.methods.dataExtractions;
 
-import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.exception.NullJavaFileException;
 import br.com.detection.detectionagent.methods.dataExtractions.forks.AbstractSyntaxTreeDependent;
+import br.com.magnus.config.starter.file.JavaFile;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import lombok.extern.slf4j.Slf4j;

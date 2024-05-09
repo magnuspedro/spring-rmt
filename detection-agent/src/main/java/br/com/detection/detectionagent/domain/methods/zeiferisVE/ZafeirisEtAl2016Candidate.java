@@ -1,6 +1,6 @@
 package br.com.detection.detectionagent.domain.methods.zeiferisVE;
 
-import br.com.detection.detectionagent.file.JavaFile;
+import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.members.detectors.methods.Reference;
 import br.com.magnus.config.starter.patterns.DesignPattern;

@@ -3,7 +3,7 @@ package br.com.detection.detectionagent.domain.methods.weiL.verifiers;
 import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014StrategyCandidate;
-import br.com.detection.detectionagent.file.JavaFile;
+import br.com.magnus.config.starter.file.JavaFile;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;

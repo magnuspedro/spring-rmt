@@ -1,6 +1,6 @@
 package br.com.detection.detectionagent.methods.dataExtractions;
 
-import br.com.detection.detectionagent.file.JavaFile;
+import br.com.magnus.config.starter.file.JavaFile;
 
 import java.util.List;
 

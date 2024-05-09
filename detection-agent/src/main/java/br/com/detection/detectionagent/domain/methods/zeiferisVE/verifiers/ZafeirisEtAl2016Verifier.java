@@ -5,7 +5,7 @@ import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl201
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions.ExtractMethodPreconditions;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions.SiblingPreconditions;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.preconditions.SuperInvocationPreconditions;
-import br.com.detection.detectionagent.file.JavaFile;
+import br.com.magnus.config.starter.file.JavaFile;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.SuperExpr;

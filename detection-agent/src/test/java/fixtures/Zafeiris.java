@@ -2,8 +2,8 @@ package fixtures;
 
 import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
 import br.com.detection.detectionagent.domain.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
-import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.AbstractSyntaxTree;
+import br.com.magnus.config.starter.file.JavaFile;
 import com.github.javaparser.ast.CompilationUnit;
 
 import java.util.List;

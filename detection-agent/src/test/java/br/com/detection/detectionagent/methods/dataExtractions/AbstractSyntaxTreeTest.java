@@ -1,6 +1,5 @@
 package br.com.detection.detectionagent.methods.dataExtractions;
 
-import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.exception.NullJavaFileException;
 import br.com.detection.detectionagent.methods.dataExtractions.forks.AbstractSyntaxTreeDependent;
 import com.github.javaparser.ast.CompilationUnit;

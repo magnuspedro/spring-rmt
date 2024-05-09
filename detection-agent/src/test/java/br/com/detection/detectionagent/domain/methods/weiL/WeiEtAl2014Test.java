@@ -1,9 +1,9 @@
 package br.com.detection.detectionagent.domain.methods.weiL;
 
 import br.com.detection.detectionagent.domain.methods.weiL.executors.WeiEtAl2014Executor;
-import br.com.detection.detectionagent.file.JavaFile;
 import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethod;
 import br.com.detection.detectionagent.methods.dataExtractions.ExtractionMethodFactory;
+import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package br.com.detection.detectionagent.domain.methods.weiL;
 
-import br.com.detection.detectionagent.file.JavaFile;
+import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.patterns.DesignPattern;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;

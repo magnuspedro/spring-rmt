@@ -1,9 +1,9 @@
 package br.com.detection.detectionagent.methods;
 
 import br.com.detection.detectionagent.domain.methods.DetectionMethod;
-import br.com.detection.detectionagent.file.JavaFile;
-import br.com.detection.detectionagent.refactor.ExtractFiles;
 import br.com.detection.detectionagent.repository.ProjectRepository;
+import br.com.magnus.config.starter.extractor.FileExtractor;
+import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.projects.Project;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ class DetectionMethodsManagerImplTest {
     private ProjectRepository projectsRepository;
 
     @Mock
-    private ExtractFiles extractFiles;
+    private FileExtractor fileExtractor;
 
     @Mock
     private DetectionMethod detectionMethod;
@@ -42,14 +42,14 @@ class DetectionMethodsManagerImplTest {
     @BeforeEach
     void setUp() {
         List<DetectionMethod> detectionMethods = List.of(detectionMethod);
-        detectionMethodsManager = new DetectionMethodsManagerImpl(projectsRepository, extractFiles, detectionMethods);
+        detectionMethodsManager = new DetectionMethodsManagerImpl(projectsRepository, fileExtractor, detectionMethods);
     }
 
     @Test
     void extractCandidatesReturnsValidCandidates() {
         String projectId = "testProjectId";
         when(projectsRepository.findById(projectId)).thenReturn(Optional.of(Project.builder().build()));
-        when(extractFiles.extract(any())).thenReturn(List.of(javaFile));
+        when(fileExtractor.extract(any())).thenReturn(List.of(javaFile));
         when(detectionMethod.extractCandidates(any())).thenReturn(List.of(refactoringCandidate));
 
         List<RefactoringCandidate> result = detectionMethodsManager.extractCandidates(projectId);

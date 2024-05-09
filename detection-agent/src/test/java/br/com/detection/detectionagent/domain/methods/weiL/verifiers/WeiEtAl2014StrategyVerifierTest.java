@@ -1,6 +1,5 @@
 package br.com.detection.detectionagent.domain.methods.weiL.verifiers;
 
-import br.com.detection.detectionagent.file.JavaFile;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.Parameter;
