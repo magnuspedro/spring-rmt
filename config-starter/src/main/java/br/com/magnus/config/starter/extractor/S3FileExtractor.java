@@ -1,12 +1,11 @@
-package br.com.detection.detectionagent.refactor;
+package br.com.magnus.config.starter.extractor;
 
-import br.com.detection.detectionagent.file.JavaFile;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.repository.S3ProjectRepository;
+import br.com.magnus.config.starter.file.JavaFile;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.io.File;
@@ -18,12 +17,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
-public class ExtractFiles {
+public class S3FileExtractor implements FileExtractor {
     private static final String EXTENSION = ".java";
     private final S3ProjectRepository s3ProjectRepository;
 
+    @Override
     @SneakyThrows
     public List<JavaFile> extract(Project project) {
         Assert.notNull(project, "Project cannot be null");

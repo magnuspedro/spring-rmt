@@ -1,4 +1,4 @@
-package br.com.detection.detectionagent.file;
+package br.com.magnus.config.starter.file;
 
 import com.github.javaparser.ast.CompilationUnit;
 import lombok.Builder;
