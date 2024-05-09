@@ -48,7 +48,7 @@ class RefactorProjectImplTest {
         var project = Project.builder()
                 .id("id")
                 .contentType("String")
-                .content("Content".getBytes())
+                .zipContent("Content".getBytes())
                 .build();
 
         this.refactorProject.process(project);

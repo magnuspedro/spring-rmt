@@ -51,7 +51,7 @@ class IntermediaryControllerTest {
                                 () -> assertThat(it.getSize(), is(multipart.getSize())),
                                 () -> assertThat(it.getName(), is(multipart.getOriginalFilename())),
                                 () -> assertThat(it.getContentType(), is(multipart.getContentType())),
-                                () -> assertThat(it.getContent(), is(IoUtils.toByteArray(multipart.getInputStream()))))
+                                () -> assertThat(it.getZipContent(), is(IoUtils.toByteArray(multipart.getInputStream()))))
                 )
         );
     }

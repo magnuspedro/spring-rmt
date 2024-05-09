@@ -30,7 +30,7 @@ public class RefactorProjectImpl implements RefactorProject {
         project.setBucket(bucket.getProjectBucket());
 
 
-        s3ProjectRepository.upload(bucket.getProjectBucket(), project.getId(), project.getContentInputStream(), metadata);
+        s3ProjectRepository.upload(bucket.getProjectBucket(), project.getId(), project.getZipInputStreamContent(), metadata);
         projectRepository.save(project);
         sendProject.send(project);
 

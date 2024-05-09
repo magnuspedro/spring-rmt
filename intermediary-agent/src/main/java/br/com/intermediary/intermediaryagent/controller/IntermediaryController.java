@@ -36,7 +36,7 @@ public class IntermediaryController implements Serializable {
                 .size(file.getSize())
                 .name(file.getOriginalFilename())
                 .contentType(file.getContentType())
-                .content(IoUtils.toByteArray(file.getInputStream()))
+                .zipContent(IoUtils.toByteArray(file.getInputStream()))
                 .build();
 
         refactorProject.process(project);
