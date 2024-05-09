@@ -92,8 +92,7 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
                 .anyMatch(v -> v.getNameAsString().equals(var.getNameAsString()));
 
         ifStatements.stream()
-                .flatMap(s -> this.classVariablesUsedInItsBody(file, s)
-                        .stream())
+                .flatMap(s -> this.classVariablesUsedInItsBody(file, s).stream())
                 .forEach(v -> {
                     if (!isVariableRegistered.apply(v)) {
                         variables.add(v);

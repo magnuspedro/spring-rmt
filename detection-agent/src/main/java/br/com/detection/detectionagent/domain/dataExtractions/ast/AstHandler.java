@@ -628,7 +628,7 @@ public class AstHandler {
     }
 
     public static List<ObjectCreationExpr> getObjectCreationExprList(Node node) {
-        if(node == null) {
+        if (node == null) {
             throw new NullNodeException();
         }
 

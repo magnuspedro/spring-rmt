@@ -41,7 +41,7 @@ public abstract class WeiEtAl2014Candidate implements RefactoringCandidate {
     private final MethodDeclaration methodDcl;
 
     @Getter
-    private final List<IfStmt> ifStatements = new ArrayList<>();
+    private final List<IfStmt> ifStatements;
 
     private final DesignPattern eligiblePattern;
 
@@ -53,6 +53,7 @@ public abstract class WeiEtAl2014Candidate implements RefactoringCandidate {
                 .year(2014)
                 .authors(List.of("Liu Wei", "Hu Zhi-gang", "Liu Hong-tao", "Yang Liu"))
                 .build();
+        this.ifStatements = new ArrayList<>();
         this.file = file;
         this.compilationUnit = compilationUnit;
         this.packageDcl = packageDcl;

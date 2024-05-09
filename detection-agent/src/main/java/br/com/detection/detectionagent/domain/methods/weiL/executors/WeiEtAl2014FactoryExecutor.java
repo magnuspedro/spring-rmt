@@ -18,6 +18,7 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -29,18 +30,20 @@ import java.util.Optional;
 public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
 
     @Override
-    public void refactor(RefactoringCandidate candidate, List<JavaFile> dataHandler) {
-        final WeiEtAl2014FactoryCandidate weiCandidate = (WeiEtAl2014FactoryCandidate) candidate;
+    public void refactor(RefactoringCandidate candidate, List<JavaFile> javaFiles) {
+        Assert.notNull(candidate, "Candidate cannot be null");
+        Assert.notNull(javaFiles, "JavaFiles cannot be null");
+        final var weiCandidate = (WeiEtAl2014FactoryCandidate) candidate;
 
         try {
             for (var ifStmt : weiCandidate.getIfStatements()) {
-                this.changesIfStmtCandidate(weiCandidate, ifStmt, dataHandler);
+                this.changesIfStmtCandidate(weiCandidate, ifStmt, javaFiles);
             }
 
-            this.changeBaseClazz(weiCandidate, dataHandler);
+            this.changeBaseClazz(weiCandidate, javaFiles);
 
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new WeiEtAl2014ExecutorException("Error Refactoring Factory Method", ex);
         }
     }
 
