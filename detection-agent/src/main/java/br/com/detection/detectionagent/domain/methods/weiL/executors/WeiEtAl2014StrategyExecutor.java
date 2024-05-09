@@ -22,6 +22,7 @@ import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.TypeParameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -35,6 +36,8 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
 
     @Override
     public void refactor(RefactoringCandidate candidate, List<JavaFile> javaFiles) {
+        Assert.notNull(candidate, "Candidate cannot be null");
+        Assert.notNull(javaFiles, "JavaFiles cannot be null");
         final var weiCandidate = (WeiEtAl2014StrategyCandidate) candidate;
 
         try {
@@ -73,7 +76,7 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
             changeBaseClazz(weiCandidate, createdStrategy, javaFiles);
 
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new WeiEtAl2014ExecutorException("Error Refactoring Strategy Method", ex);
         }
     }
 
