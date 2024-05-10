@@ -10,9 +10,7 @@ import org.springframework.data.redis.core.RedisHash;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Builder
@@ -25,7 +23,7 @@ public class Project {
     private ObjectMetadata metadata;
     private List<RefactoringCandidate> refactoringCandidates;
     @Builder.Default
-    private Set<ProjectStatus> status = Set.of(ProjectStatus.RECEIVED);
+    private Set<ProjectStatus> status = new HashSet<>(Set.of(ProjectStatus.RECEIVED));
     @JsonIgnore
     private Long size;
     @JsonIgnore
