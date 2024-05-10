@@ -35,7 +35,7 @@ class ProjectUpdaterTest {
 
     @Test
     void shouldAddNoCandidatesStatusWhenNoRefactoringCandidates() {
-        projectUpdater.updateStatus(project);
+        projectUpdater.saveProject(project);
 
         verify(project, times(1)).addStatus(ProjectStatus.NO_CANDIDATES);
     }
@@ -44,7 +44,7 @@ class ProjectUpdaterTest {
     void shouldAddRefactoredStatusAndUploadWhenRefactoringCandidatesExist() {
         when(project.getRefactoringCandidates()).thenReturn(List.of(mock(RefactoringCandidate.class)));
 
-        projectUpdater.updateStatus(project);
+        projectUpdater.saveProject(project);
 
         verify(project, times(1)).addStatus(ProjectStatus.REFACTORED);
         verify(s3ProjectRepository, times(1)).upload(any(), any(), any(), any());
