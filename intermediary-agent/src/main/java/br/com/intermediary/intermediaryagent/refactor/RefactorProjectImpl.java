@@ -4,6 +4,7 @@ import br.com.intermediary.intermediaryagent.gateway.SendProject;
 import br.com.intermediary.intermediaryagent.repository.ProjectRepository;
 import br.com.magnus.config.starter.configuration.BucketProperties;
 import br.com.magnus.config.starter.projects.Project;
+import br.com.magnus.config.starter.projects.ProjectStatus;
 import br.com.magnus.config.starter.repository.S3ProjectRepository;
 import io.awspring.cloud.s3.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class RefactorProjectImpl implements RefactorProject {
 
         project.setMetadata(metadata.getMetadata());
         project.setBucket(bucket.getProjectBucket());
+        project.addStatus(ProjectStatus.EVALUATING_CANDIDATES);
 
 
         s3ProjectRepository.upload(bucket.getProjectBucket(), project.getId(), project.getZipInputStreamContent(), metadata);
