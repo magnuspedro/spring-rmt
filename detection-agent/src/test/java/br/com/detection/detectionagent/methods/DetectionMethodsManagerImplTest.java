@@ -3,8 +3,8 @@ package br.com.detection.detectionagent.methods;
 import br.com.detection.detectionagent.refactor.methods.DetectionMethod;
 import br.com.detection.detectionagent.refactor.methods.DetectionMethodsManagerImpl;
 import br.com.detection.detectionagent.repository.ProjectRepository;
-import br.com.magnus.config.starter.extractor.FileExtractor;
 import br.com.magnus.config.starter.file.JavaFile;
+import br.com.magnus.config.starter.file.extractor.FileExtractor;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.projects.Project;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,10 +53,10 @@ class DetectionMethodsManagerImplTest {
         when(fileExtractor.extract(any())).thenReturn(List.of(javaFile));
         when(detectionMethod.extractCandidates(any())).thenReturn(List.of(refactoringCandidate));
 
-        List<RefactoringCandidate> result = detectionMethodsManager.extractCandidates(projectId);
+        Project result = detectionMethodsManager.extractCandidates(projectId);
 
-        assertEquals(1, result.size());
-        assertEquals(refactoringCandidate, result.getFirst());
+        assertEquals(1, result.getRefactoringCandidates().size());
+        assertEquals(refactoringCandidate.getClassName(), result.getRefactoringCandidates().getFirst().getClassName());
     }
 
     @Test
@@ -69,12 +69,11 @@ class DetectionMethodsManagerImplTest {
 
     @Test
     void refactorCallsRefactorOnSupportedMethods() {
-        String id = "testId";
         List<JavaFile> javaFiles = List.of(javaFile);
         List<RefactoringCandidate> candidates = List.of(refactoringCandidate);
         when(detectionMethod.supports(refactoringCandidate)).thenReturn(true);
 
-        detectionMethodsManager.refactor(id, javaFiles, candidates);
+        detectionMethodsManager.refactor(javaFiles, candidates);
 
         verify(detectionMethod).refactor(javaFiles, refactoringCandidate);
     }

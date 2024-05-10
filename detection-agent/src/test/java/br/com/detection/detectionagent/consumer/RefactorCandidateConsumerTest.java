@@ -1,6 +1,7 @@
 package br.com.detection.detectionagent.consumer;
 
 import br.com.detection.detectionagent.refactor.methods.DetectionMethodsManager;
+import br.com.detection.detectionagent.repository.ProjectUpdater;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,14 +14,17 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 @ExtendWith(MockitoExtension.class)
 class RefactorCandidateConsumerTest {
 
-    private RefactorCandidateConsumer refactorCandidateConsumer;
 
     @Mock
     private DetectionMethodsManager detectionMethodsManager;
+    @Mock
+    private ProjectUpdater projectUpdater;
+    private RefactorCandidateConsumer refactorCandidateConsumer;
+
 
     @BeforeEach
     void setUp() {
-        refactorCandidateConsumer = new RefactorCandidateConsumer(detectionMethodsManager);
+        refactorCandidateConsumer = new RefactorCandidateConsumer(detectionMethodsManager, projectUpdater);
     }
 
     @Test

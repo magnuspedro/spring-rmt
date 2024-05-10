@@ -12,7 +12,7 @@ redis:
 
 s3:
   project-bucket: projects
-  refactored-projects-bucket: refactored-projects
+  refactored-project-bucket: refactored-projects
 
 sqs:
   detect-pattern: detect-pattern
