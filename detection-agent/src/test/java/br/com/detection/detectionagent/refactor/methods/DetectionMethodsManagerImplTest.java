@@ -1,7 +1,5 @@
-package br.com.detection.detectionagent.methods;
+package br.com.detection.detectionagent.refactor.methods;
 
-import br.com.detection.detectionagent.refactor.methods.DetectionMethod;
-import br.com.detection.detectionagent.refactor.methods.DetectionMethodsManagerImpl;
 import br.com.detection.detectionagent.repository.ProjectRepository;
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.file.extractor.FileExtractor;

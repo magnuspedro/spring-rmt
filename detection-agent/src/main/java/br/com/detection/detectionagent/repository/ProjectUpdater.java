@@ -16,7 +16,7 @@ public class ProjectUpdater {
     private final S3ProjectRepository s3ProjectRepository;
     private final BucketProperties bucketProperties;
 
-    public void updateStatus(Project project) {
+    public void saveProject(Project project) {
         project.setRefactoredBucket(bucketProperties.getRefactoredProjectBucket());
         saveFiles(project);
         projectRepository.save(project);

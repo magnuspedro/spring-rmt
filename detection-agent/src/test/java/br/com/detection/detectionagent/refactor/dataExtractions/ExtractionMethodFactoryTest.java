@@ -1,7 +1,5 @@
-package br.com.detection.detectionagent.methods.dataExtractions;
+package br.com.detection.detectionagent.refactor.dataExtractions;
 
-import br.com.detection.detectionagent.refactor.dataExtractions.ExtractionMethod;
-import br.com.detection.detectionagent.refactor.dataExtractions.ExtractionMethodFactory;
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AbstractSyntaxTreeExtraction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

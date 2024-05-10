@@ -1,4 +1,4 @@
-package br.com.detection.detectionagent.methods.dataExtractions;
+package br.com.detection.detectionagent.refactor.dataExtractions.ast.utils;
 
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AbstractSyntaxTree;
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AbstractSyntaxTreeExtraction;

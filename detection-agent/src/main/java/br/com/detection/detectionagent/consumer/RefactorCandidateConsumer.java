@@ -18,8 +18,6 @@ public class RefactorCandidateConsumer {
     public void listener(String id) {
         log.info("Message received id: {}", id);
         var project = detectionMethodsManager.extractCandidates(id);
-
-        projectUpdater.updateStatus(project);
-
+        projectUpdater.saveProject(project);
     }
 }
