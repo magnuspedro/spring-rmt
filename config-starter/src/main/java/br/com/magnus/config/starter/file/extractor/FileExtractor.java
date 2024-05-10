@@ -1,4 +1,4 @@
-package br.com.magnus.config.starter.extractor;
+package br.com.magnus.config.starter.file.extractor;
 
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.file.JavaFile;

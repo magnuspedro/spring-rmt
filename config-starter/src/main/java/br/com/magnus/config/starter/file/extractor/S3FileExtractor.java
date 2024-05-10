@@ -1,4 +1,4 @@
-package br.com.magnus.config.starter.extractor;
+package br.com.magnus.config.starter.file.extractor;
 
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.repository.S3ProjectRepository;
@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

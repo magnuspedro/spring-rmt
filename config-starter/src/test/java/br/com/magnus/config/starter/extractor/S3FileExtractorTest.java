@@ -1,5 +1,7 @@
 package br.com.magnus.config.starter.extractor;
 
+import br.com.magnus.config.starter.file.extractor.FileExtractor;
+import br.com.magnus.config.starter.file.extractor.S3FileExtractor;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import br.com.magnus.config.starter.projects.Project;
