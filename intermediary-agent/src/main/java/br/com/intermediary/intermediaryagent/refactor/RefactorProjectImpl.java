@@ -27,10 +27,9 @@ public class RefactorProjectImpl implements RefactorProject {
                 .metadata("FileName", project.getName())
                 .build();
 
-        project.setMetadata(metadata.getMetadata());
+        project.setMetadata(metadata);
         project.setBucket(bucket.getProjectBucket());
         project.addStatus(ProjectStatus.EVALUATING_CANDIDATES);
-
 
         s3ProjectRepository.upload(bucket.getProjectBucket(), project.getId(), project.getZipInputStreamContent(), metadata);
         projectRepository.save(project);
