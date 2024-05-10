@@ -1,9 +1,9 @@
 package fixtures;
 
-import br.com.detection.detectionagent.domain.dataExtractions.ast.AstHandler;
-import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014FactoryCandidate;
-import br.com.detection.detectionagent.domain.methods.weiL.WeiEtAl2014StrategyCandidate;
-import br.com.detection.detectionagent.methods.dataExtractions.AbstractSyntaxTree;
+import br.com.detection.detectionagent.refactor.dataExtractions.ast.AbstractSyntaxTree;
+import br.com.detection.detectionagent.refactor.dataExtractions.ast.AstHandler;
+import br.com.detection.detectionagent.refactor.methods.weiL.WeiEtAl2014FactoryCandidate;
+import br.com.detection.detectionagent.refactor.methods.weiL.WeiEtAl2014StrategyCandidate;
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 

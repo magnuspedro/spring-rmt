@@ -1,6 +1,8 @@
 package br.com.detection.detectionagent.methods.dataExtractions;
 
-import br.com.detection.detectionagent.methods.dataExtractions.forks.AbstractSyntaxTreeDependent;
+import br.com.detection.detectionagent.refactor.dataExtractions.ExtractionMethod;
+import br.com.detection.detectionagent.refactor.dataExtractions.ExtractionMethodFactory;
+import br.com.detection.detectionagent.refactor.dataExtractions.ast.AbstractSyntaxTreeExtraction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,7 +40,7 @@ class ExtractionMethodFactoryTest {
     @Test
     @DisplayName("Should test build")
     public void shouldTestBuild() {
-        var abstractSyntaxTreeDependent = new AbstractSyntaxTreeDependent() {};
+        var abstractSyntaxTreeDependent = new AbstractSyntaxTreeExtraction() {};
         when(this.extractionMethod.supports(abstractSyntaxTreeDependent))
                 .thenReturn(true);
 

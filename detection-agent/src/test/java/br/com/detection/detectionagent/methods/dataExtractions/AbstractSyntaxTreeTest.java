@@ -1,7 +1,9 @@
 package br.com.detection.detectionagent.methods.dataExtractions;
 
-import br.com.detection.detectionagent.methods.dataExtractions.exception.NullJavaFileException;
-import br.com.detection.detectionagent.methods.dataExtractions.forks.AbstractSyntaxTreeDependent;
+import br.com.detection.detectionagent.refactor.dataExtractions.ast.AbstractSyntaxTree;
+import br.com.detection.detectionagent.refactor.dataExtractions.ast.AbstractSyntaxTreeExtraction;
+import br.com.detection.detectionagent.refactor.dataExtractions.ast.exceptions.NullJavaFileException;
+import br.com.magnus.config.starter.file.JavaFile;
 import com.github.javaparser.ast.CompilationUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -106,12 +108,12 @@ class AbstractSyntaxTreeTest {
     @Test
     @DisplayName("Should test supports for object instance of AbstractSyntaxTreeDependent")
     public void shouldTestSupportsForObjectInstanceOfAbstractSyntaxTreeDependent() {
-        var result = this.abstractSyntaxTree.supports(new AbstractSyntaxTreeDependentImpl());
+        var result = this.abstractSyntaxTree.supports(new AbstractSyntaxTreeExtractionImpl());
 
         assertTrue(result);
     }
 
-    private static class AbstractSyntaxTreeDependentImpl implements AbstractSyntaxTreeDependent {
+    private static class AbstractSyntaxTreeExtractionImpl implements AbstractSyntaxTreeExtraction {
 
     }
 }
