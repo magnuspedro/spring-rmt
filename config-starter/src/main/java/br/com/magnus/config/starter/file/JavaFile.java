@@ -23,4 +23,8 @@ public class JavaFile {
     public String getFileNameWithoutExtension() {
         return this.name.substring(0, this.name.lastIndexOf('.'));
     }
+
+    public String getFullName() {
+        return this.path + this.name;
+    }
 }
