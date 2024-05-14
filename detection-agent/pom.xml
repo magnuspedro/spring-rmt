@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.3</version>
+        <version>3.2.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>br.com.detection</groupId>
@@ -16,7 +16,6 @@
         <java.version>21</java.version>
         <config-starter.version>1.1.0</config-starter.version>
         <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
-        <zt-zip.version>1.17</zt-zip.version>
         <spring.cloud-version>2023.0.0</spring.cloud-version>
         <logback-json-classic.version>0.1.5</logback-json-classic.version>
         <logback-jackson.version>0.1.5</logback-jackson.version>
@@ -81,12 +80,6 @@
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
             <version>${jakarta.validation-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.zeroturnaround</groupId>
-            <artifactId>zt-zip</artifactId>
-            <version>${zt-zip.version}</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback.contrib</groupId>

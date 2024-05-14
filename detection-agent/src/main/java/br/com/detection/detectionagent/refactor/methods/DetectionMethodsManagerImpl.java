@@ -1,9 +1,9 @@
 package br.com.detection.detectionagent.refactor.methods;
 
-import br.com.detection.detectionagent.repository.BasicRefactoringCandidate;
 import br.com.detection.detectionagent.repository.ProjectRepository;
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.file.extractor.FileExtractor;
+import br.com.magnus.config.starter.members.candidates.BasicRefactoringCandidate;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.projects.Project;
 import lombok.RequiredArgsConstructor;
