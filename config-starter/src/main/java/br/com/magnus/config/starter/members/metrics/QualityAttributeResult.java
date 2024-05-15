@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 
 public interface QualityAttributeResult {
 	
-	String getQualityAttributeName();
+	String qualityAttributeName();
 	
-	BigDecimal getChangePercentage();
+	BigDecimal changePercentage();
 
 }
