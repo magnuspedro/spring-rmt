@@ -1,25 +1,18 @@
-package br.com.metrics.metricsagent.domain.qualityAttributes;
+package br.com.metrics.metricsagent.metrics;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public enum Proportion {
-	INVERSE {
-		@Override
-		public BigDecimal calculateResult(int original, int refactored) {
+public class ProportionCalculator {
+
+		public static BigDecimal calculateInverse(int original, int refactored) {
 			return BigDecimal.valueOf(original, 2).multiply(BigDecimal.valueOf(100))
 					.divide(BigDecimal.valueOf(refactored, 2), RoundingMode.HALF_EVEN)
 					.subtract(BigDecimal.valueOf(100));
 		}
-	},
-	DIRECT {
-		@Override
-		public BigDecimal calculateResult(int original, int refactored) {
+		public static BigDecimal calculateDirect(int original, int refactored) {
 			return BigDecimal.valueOf(refactored, 2).multiply(BigDecimal.valueOf(100))
 					.divide(BigDecimal.valueOf(original, 2), RoundingMode.HALF_EVEN).subtract(BigDecimal.valueOf(100));
+
 		}
-	};
-
-	public abstract BigDecimal calculateResult(int original, int refactored);
-
 }

@@ -1,13 +1,12 @@
 package br.com.metrics.metricsagent;
 
+import br.com.magnus.config.starter.configuration.RedisProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@EnableScheduling
-@EnableFeignClients
+@EnableConfigurationProperties({RedisProperties.class})
 public class MetricsAgentApplication {
 
 	public static void main(String[] args) {
