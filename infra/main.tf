@@ -19,10 +19,6 @@ resource "aws_s3_bucket" "projects_bucket" {
   bucket = "projects"
 }
 
-resource "aws_s3_bucket" "refactored_projects_bucket" {
-  bucket = "refactored-projects"
-}
-
 # resource "aws_elasticache_cluster" "projects_redis" {
 #   cluster_id           = "projectsredis"
 #   engine               = "redis"
