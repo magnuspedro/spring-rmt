@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,7 +35,7 @@ public class DetectionMethodsManagerZaiferis implements DetectionMethodsManager 
         log.info("Candidates for zafeiris {}", candidatesGroup.keySet());
 
         var refactoredFiles = this.refactor(project.getOriginalContent(), candidatesGroup);
-        project.setRefactorFiles(refactoredFiles);
+        project.addAllRefactorFiles(refactoredFiles);
         log.info("Candidates Refactored with success");
     }
 

@@ -1,17 +1,16 @@
 package br.com.detection.detectionagent.refactor.methods;
 
 import br.com.detection.detectionagent.refactor.methods.weiL.WeiEtAl2014;
-import br.com.detection.detectionagent.refactor.methods.weiL.WeiEtAl2014Candidate;
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.RefactorFiles;
-import br.com.magnus.config.starter.members.candidates.BasicRefactoringCandidate;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.projects.Project;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,7 +31,7 @@ public class DetectionMethodsManagerWei implements DetectionMethodsManager {
 
         log.info("Candidates for Wei {}", candidates.stream().map(RefactoringCandidate::getClassName).toList());
         var refactoredFiles = this.refactor(project.getOriginalContent(), candidates);
-        project.setRefactorFiles(refactoredFiles);
+        project.addAllRefactorFiles(refactoredFiles);
         log.info("Candidates Refactored with success");
     }
 
