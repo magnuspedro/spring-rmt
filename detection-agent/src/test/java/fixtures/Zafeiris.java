@@ -2,7 +2,7 @@ package fixtures;
 
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AbstractSyntaxTree;
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AstHandler;
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
 import br.com.magnus.config.starter.file.JavaFile;
 import com.github.javaparser.ast.CompilationUnit;
 

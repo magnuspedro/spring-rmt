@@ -1,4 +1,4 @@
-package br.com.detection.detectionagent.refactor.methods.zeiferisVE.preconditions;
+package br.com.detection.detectionagent.refactor.methods.zaiferisVE.preconditions;
 
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;

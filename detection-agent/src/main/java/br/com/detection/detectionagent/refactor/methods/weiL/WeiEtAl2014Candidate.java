@@ -10,6 +10,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.IfStmt;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -28,7 +29,9 @@ public abstract class WeiEtAl2014Candidate implements RefactoringCandidate {
 
     private final Reference reference;
 
-    private final JavaFile file;
+    @Getter
+    @Setter
+    private JavaFile file;
 
     @Getter
     private final CompilationUnit compilationUnit;

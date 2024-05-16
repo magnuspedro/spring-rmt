@@ -2,7 +2,9 @@ package br.com.detection.detectionagent.consumer;
 
 import br.com.detection.detectionagent.gateway.SendProject;
 import br.com.detection.detectionagent.refactor.methods.DetectionMethodsManager;
+import br.com.detection.detectionagent.repository.ProjectRepository;
 import br.com.detection.detectionagent.repository.ProjectUpdater;
+import br.com.magnus.config.starter.file.extractor.FileExtractor;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.projects.ProjectStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,12 +30,16 @@ class RefactorCandidateConsumerTest {
     private ProjectUpdater projectUpdater;
     @Mock
     private SendProject sendProject;
+    @Mock
+    private ProjectRepository projectsRepository;
+    @Mock
+    private FileExtractor fileExtractor;
     private RefactorCandidateConsumer refactorCandidateConsumer;
-
 
     @BeforeEach
     void setUp() {
-        refactorCandidateConsumer = new RefactorCandidateConsumer(detectionMethodsManager, projectUpdater, sendProject);
+        List<DetectionMethodsManager> detectionMethodsManagerList = List.of(detectionMethodsManager);
+        refactorCandidateConsumer = new RefactorCandidateConsumer(detectionMethodsManagerList, projectUpdater, sendProject, projectsRepository, fileExtractor);
     }
 
     @Test
@@ -40,7 +48,7 @@ class RefactorCandidateConsumerTest {
         var result = assertThrows(IllegalArgumentException.class,
                 () -> refactorCandidateConsumer.listener(null));
 
-        verify(detectionMethodsManager, never()).extractCandidates(anyString());
+        verify(detectionMethodsManager, never()).refactor(any());
         verify(projectUpdater, never()).saveProject(any());
         verify(sendProject, never()).send(anyString());
         assertEquals("Id cannot be null", result.getMessage());
@@ -51,11 +59,11 @@ class RefactorCandidateConsumerTest {
     public void shouldTestConsumerWithNoCandidates() {
         var project = Project.builder().id("id").build();
         project.addStatus(ProjectStatus.NO_CANDIDATES);
-        when(detectionMethodsManager.extractCandidates(anyString())).thenReturn(project);
+        when(projectsRepository.findById(anyString())).thenReturn(java.util.Optional.of(project));
 
         assertDoesNotThrow(() -> refactorCandidateConsumer.listener("id"));
 
-        verify(detectionMethodsManager, atLeastOnce()).extractCandidates(anyString());
+        verify(detectionMethodsManager, atLeastOnce()).refactor(any());
         verify(projectUpdater, atLeastOnce()).saveProject(any());
         verify(sendProject, never()).send(anyString());
     }
@@ -65,11 +73,11 @@ class RefactorCandidateConsumerTest {
     public void shouldTestConsumerWithCandidates() {
         var project = Project.builder().id("id").build();
         project.addStatus(ProjectStatus.REFACTORED);
-        when(detectionMethodsManager.extractCandidates(anyString())).thenReturn(project);
+        when(projectsRepository.findById(anyString())).thenReturn(java.util.Optional.of(project));
 
         assertDoesNotThrow(() -> refactorCandidateConsumer.listener("id"));
 
-        verify(detectionMethodsManager, atLeastOnce()).extractCandidates(anyString());
+        verify(detectionMethodsManager, atLeastOnce()).refactor(any());
         verify(projectUpdater, atLeastOnce()).saveProject(any());
         verify(sendProject, atLeastOnce()).send(anyString());
     }

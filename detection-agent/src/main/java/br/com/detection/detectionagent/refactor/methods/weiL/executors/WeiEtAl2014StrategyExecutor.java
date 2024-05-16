@@ -2,6 +2,7 @@ package br.com.detection.detectionagent.refactor.methods.weiL.executors;
 
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AbstractSyntaxTree;
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AstHandler;
+import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.detection.detectionagent.refactor.methods.weiL.LiteralValueExtractor;
 import br.com.detection.detectionagent.refactor.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.refactor.methods.weiL.WeiEtAl2014StrategyCandidate;
@@ -26,7 +27,6 @@ import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,13 +35,15 @@ import java.util.stream.Collectors;
 public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
 
     @Override
-    public void refactor(RefactoringCandidate candidate, List<JavaFile> javaFiles) {
-        Assert.notNull(candidate, "Candidate cannot be null");
-        Assert.notNull(javaFiles, "JavaFiles cannot be null");
-        final var weiCandidate = (WeiEtAl2014StrategyCandidate) candidate;
+    public void refactor(RefactorFiles refactorFiles) {
+        Assert.notNull(refactorFiles, "RefactorFiles cannot be null");
+        Assert.notEmpty(refactorFiles.candidates(), "Candidate cannot be null");
+        Assert.notEmpty(refactorFiles.files(), "JavaFiles cannot be null");
+        final var weiCandidate = (WeiEtAl2014StrategyCandidate) refactorFiles.candidate();
+        refactorFiles.addFileChanged(weiCandidate.getFile().getFullName());
 
         try {
-            var path = javaFiles.stream()
+            var path = refactorFiles.files().stream()
                     .filter(f -> AstHandler.doesCompilationUnitsMatch(f.getCompilationUnit(), weiCandidate.getCompilationUnit()))
                     .map(JavaFile::getPath)
                     .findFirst()
@@ -60,27 +62,25 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
             createdStrategy.addMember(method);
             createdStrategy.setAbstract(true);
 
-            var file = JavaFile.builder()
+            var strategyFile = JavaFile.builder()
                     .name("Strategy.java")
                     .path(path)
                     .originalClass(strategyCu.toString())
                     .parsed(AbstractSyntaxTree.parseSingle(strategyCu.toString()))
                     .build();
 
-            javaFiles.add(file);
-
+            refactorFiles.add(strategyFile);
             for (var i = 0; i < weiCandidate.getIfStatements().size(); i++) {
-                this.changesIfStmtCandidate(i, javaFiles, file, weiCandidate, weiCandidate.getIfStatements().get(i));
+                this.changesIfStmtCandidate(i, refactorFiles, strategyFile, weiCandidate, weiCandidate.getIfStatements().get(i));
             }
 
-            changeBaseClazz(weiCandidate, createdStrategy, javaFiles);
-
+            changeBaseClazz(weiCandidate, createdStrategy, refactorFiles);
         } catch (Exception ex) {
             throw new WeiEtAl2014ExecutorException("Error Refactoring Strategy Method", ex);
         }
     }
 
-    private void changesIfStmtCandidate(int idx, List<JavaFile> javaFiles, JavaFile file, WeiEtAl2014StrategyCandidate candidate, IfStmt ifStmt) {
+    private void changesIfStmtCandidate(int idx, RefactorFiles files, JavaFile file, WeiEtAl2014StrategyCandidate candidate, IfStmt ifStmt) {
 
         final var concreteStrategyClassName = "ConcreteStrategy"
                 .concat(this.getNameSuffix(idx, candidate.getMethodDcl(), ifStmt));
@@ -98,7 +98,7 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
         type.addMember(method);
         type.addExtendedType("Strategy");
 
-        javaFiles.add(JavaFile.builder()
+        files.add(JavaFile.builder()
                 .name(String.format("%s.java", concreteStrategyClassName))
                 .path(file.getPath())
                 .originalClass(cu.toString())
@@ -117,9 +117,8 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
                 .orElse(idx));
     }
 
-    private void changeBaseClazz(WeiEtAl2014StrategyCandidate candidate, ClassOrInterfaceDeclaration createdStrategy,
-                                 List<JavaFile> dataHandler) {
-        final var allClasses = dataHandler.stream().map(m -> (CompilationUnit) m.getParsed()).toList();
+    private void changeBaseClazz(WeiEtAl2014StrategyCandidate candidate, ClassOrInterfaceDeclaration createdStrategy, RefactorFiles refactorFiles) {
+        final var allClasses = refactorFiles.files().stream().map(m -> (CompilationUnit) m.getParsed()).toList();
         final var baseCu = this.updateBaseCompilationUnit(allClasses, candidate);
 
         final var candidateMethod = AstHandler.getMethods(baseCu).stream()

@@ -1,10 +1,10 @@
-package br.com.detection.detectionagent.refactor.methods.zeiferisVE.verifiers;
+package br.com.detection.detectionagent.refactor.methods.zaiferisVE.verifiers;
 
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AstHandler;
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.preconditions.ExtractMethodPreconditions;
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.preconditions.SiblingPreconditions;
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.preconditions.SuperInvocationPreconditions;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.preconditions.ExtractMethodPreconditions;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.preconditions.SiblingPreconditions;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.preconditions.SuperInvocationPreconditions;
 import br.com.magnus.config.starter.file.JavaFile;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;

@@ -1,6 +1,6 @@
 package br.com.detection.detectionagent.repository;
 
-import br.com.magnus.config.starter.configuration.BucketProperties;
+import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.projects.ProjectStatus;
@@ -25,12 +25,10 @@ class ProjectUpdaterTest {
     private S3ProjectRepository s3ProjectRepository;
     @Mock
     private ProjectRepository projectRepository;
-    @Mock
-    private BucketProperties bucketProperties;
 
     @BeforeEach
     void setUp() {
-        projectUpdater = new ProjectUpdater(projectRepository, s3ProjectRepository, bucketProperties);
+        projectUpdater = new ProjectUpdater(projectRepository, s3ProjectRepository);
     }
 
     @Test
@@ -42,7 +40,9 @@ class ProjectUpdaterTest {
 
     @Test
     void shouldAddRefactoredStatusAndUploadWhenRefactoringCandidatesExist() {
-        when(project.getRefactoringCandidates()).thenReturn(List.of(mock(RefactoringCandidate.class)));
+        when(project.getRefactorFiles()).thenReturn(List.of(RefactorFiles.builder()
+                .candidates(List.of(mock(RefactoringCandidate.class)))
+                .build()));
 
         projectUpdater.saveProject(project);
 

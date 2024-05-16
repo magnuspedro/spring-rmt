@@ -1,12 +1,15 @@
-package br.com.detection.detectionagent.refactor.methods.zeiferisVE.executors;
+package br.com.detection.detectionagent.refactor.methods.zaiferisVE.executors;
 
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
+import br.com.magnus.config.starter.members.RefactorFiles;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
 import fixtures.Zafeiris;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,16 +28,20 @@ class ZafeirisEtAl2016ExecutorTest {
     @DisplayName("Should test refactor for both parameter null")
     public void shouldTestRefactorForBothParameterNull() {
         var result = assertThrows(IllegalArgumentException.class,
-                () -> zafeirisEtAl2016Executor.refactor(null, null));
+                () -> zafeirisEtAl2016Executor.refactor(null));
 
-        assertEquals("Candidate cannot be null", result.getMessage());
+        assertEquals("RefactorFiles cannot be null", result.getMessage());
     }
 
     @Test
     @DisplayName("Should test refactor for java files null")
     public void shouldTestRefactorForJavaFilesNull() {
+        var refactoredFiles = RefactorFiles.builder()
+                .candidates(List.of(ZafeirisEtAl2016Candidate.builder().build()))
+                .build();
+
         var result = assertThrows(IllegalArgumentException.class,
-                () -> zafeirisEtAl2016Executor.refactor(ZafeirisEtAl2016Candidate.builder().build(), null));
+                () -> zafeirisEtAl2016Executor.refactor(refactoredFiles));
 
         assertEquals("JavaFiles cannot be null", result.getMessage());
     }
@@ -42,12 +49,15 @@ class ZafeirisEtAl2016ExecutorTest {
     @Test
     @DisplayName("Should test refactor for candidate")
     public void shouldTestRefactorForCandidate() {
-        var candidate = Zafeiris.getCandidate();
-        var javaFiles = Zafeiris.createJavaFiles();
+        var refactoredFiles = RefactorFiles.builder()
+                .files(Zafeiris.createJavaFiles())
+                .candidates(List.of(Zafeiris.getCandidate()))
+                .build();
 
-        zafeirisEtAl2016Executor.refactor(candidate, javaFiles);
+        zafeirisEtAl2016Executor.refactor(refactoredFiles);
 
-        assertEquals(Zafeiris.REFACTORED_PARENT, javaFiles.getFirst().getCompilationUnit().toString());
-        assertEquals(Zafeiris.REFACTORED_CHILD, candidate.getCompilationUnit().toString());
+        assertEquals(Zafeiris.REFACTORED_PARENT, refactoredFiles.files().getFirst().getCompilationUnit().toString());
+        assertEquals(Zafeiris.REFACTORED_CHILD, ((ZafeirisEtAl2016Candidate) refactoredFiles.candidate()).getCompilationUnit().toString());
+        assertEquals(2, refactoredFiles.filesChanged().size());
     }
 }

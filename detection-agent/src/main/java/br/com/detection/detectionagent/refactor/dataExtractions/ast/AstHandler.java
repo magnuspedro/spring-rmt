@@ -148,8 +148,7 @@ public class AstHandler {
                     .orElseThrow(SimpleNameException::new);
 
             final var declaration = getClassOrInterfaceDeclaration(parent);
-            var isClassNameEqualsTypeName = declaration.map(dcl -> getSimpleName(dcl)
-                            .orElseThrow(SimpleNameException::new))
+            var isClassNameEqualsTypeName = declaration.map(dcl -> getSimpleName(dcl).orElseThrow(SimpleNameException::new))
                     .filter(typeName::equals)
                     .isPresent();
 

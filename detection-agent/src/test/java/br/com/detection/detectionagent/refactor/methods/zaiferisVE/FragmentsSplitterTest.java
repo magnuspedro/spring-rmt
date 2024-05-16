@@ -1,4 +1,4 @@
-package br.com.detection.detectionagent.refactor.methods.zeiferisVE;
+package br.com.detection.detectionagent.refactor.methods.zaiferisVE;
 
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AbstractSyntaxTree;
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AstHandler;

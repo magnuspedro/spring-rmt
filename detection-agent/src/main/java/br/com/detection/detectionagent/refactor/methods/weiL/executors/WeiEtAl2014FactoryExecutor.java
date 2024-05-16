@@ -5,6 +5,7 @@ import br.com.detection.detectionagent.refactor.dataExtractions.ast.AstHandler;
 import br.com.detection.detectionagent.refactor.methods.weiL.WeiEtAl2014Candidate;
 import br.com.detection.detectionagent.refactor.methods.weiL.WeiEtAl2014FactoryCandidate;
 import br.com.magnus.config.starter.file.JavaFile;
+import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.patterns.DesignPattern;
 import com.github.javaparser.ast.CompilationUnit;
@@ -22,7 +23,6 @@ import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -30,31 +30,33 @@ import java.util.Optional;
 public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
 
     @Override
-    public void refactor(RefactoringCandidate candidate, List<JavaFile> javaFiles) {
-        Assert.notNull(candidate, "Candidate cannot be null");
-        Assert.notNull(javaFiles, "JavaFiles cannot be null");
-        final var weiCandidate = (WeiEtAl2014FactoryCandidate) candidate;
+    public void refactor(RefactorFiles refactorFiles) {
+        Assert.notNull(refactorFiles, "RefactorFiles cannot be null");
+        Assert.notEmpty(refactorFiles.candidates(), "Candidate cannot be null");
+        Assert.notEmpty(refactorFiles.files(), "JavaFiles cannot be null");
+        final var weiCandidate = (WeiEtAl2014FactoryCandidate) refactorFiles.candidate();
+        refactorFiles.addFileChanged(weiCandidate.getFile().getFullName());
 
         try {
             for (var ifStmt : weiCandidate.getIfStatements()) {
-                this.changesIfStmtCandidate(weiCandidate, ifStmt, javaFiles);
+                this.changesIfStmtCandidate(weiCandidate, ifStmt, refactorFiles);
             }
 
-            this.changeBaseClazz(weiCandidate, javaFiles);
+            this.changeBaseClazz(weiCandidate, refactorFiles);
 
         } catch (Exception ex) {
             throw new WeiEtAl2014ExecutorException("Error Refactoring Factory Method", ex);
         }
     }
 
-    private void changesIfStmtCandidate(WeiEtAl2014FactoryCandidate candidate, IfStmt ifStmt, List<JavaFile> javaFiles) {
+    private void changesIfStmtCandidate(WeiEtAl2014FactoryCandidate candidate, IfStmt ifStmt, RefactorFiles refactorFiles) {
 
-        final var allClasses = javaFiles
+        final var allClasses = refactorFiles.files()
                 .stream()
                 .map(JavaFile::getCompilationUnit)
                 .toList();
         final var baseCu = this.updateBaseCompilationUnit(allClasses, candidate);
-        var path = javaFiles.stream()
+        var path = refactorFiles.files().stream()
                 .filter(file -> AstHandler.doesCompilationUnitsMatch(file.getCompilationUnit(), baseCu))
                 .map(JavaFile::getPath)
                 .findFirst()
@@ -62,7 +64,7 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
         final var classDclr = AstHandler.getClassOrInterfaceDeclaration(baseCu)
                 .orElseThrow(IllegalStateException::new);
 
-        final var createdClassName = this.getClassReturnTypeName(ifStmt, javaFiles);
+        final var createdClassName = this.getClassReturnTypeName(ifStmt, refactorFiles);
         final var newFactoryClassName = String.format("%sFactory", createdClassName);
 
         final var cu = new CompilationUnit();
@@ -76,7 +78,7 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
         type.addMember(method);
         type.addExtendedType(classDclr.getNameAsString());
 
-        javaFiles.add(JavaFile.builder()
+        refactorFiles.add(JavaFile.builder()
                 .name(String.format("%s.java", newFactoryClassName))
                 .originalClass(cu.toString())
                 .path(path)
@@ -84,7 +86,7 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
                 .build());
     }
 
-    private String getClassReturnTypeName(IfStmt ifStmt, List<JavaFile> javaFiles) {
+    private String getClassReturnTypeName(IfStmt ifStmt, RefactorFiles refactorFiles) {
         final var node = AstHandler.getReturnStmt(ifStmt)
                 .map(Node::getChildNodes)
                 .stream()
@@ -102,20 +104,20 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
                     .map(Optional::get)
                     .orElseThrow(IllegalStateException::new);
 
-            return this.getClassDeclarationName(objectCreationExpr, javaFiles);
+            return this.getClassDeclarationName(objectCreationExpr, refactorFiles);
         } else if (node.filter(ObjectCreationExpr.class::isInstance).isPresent()) {
             final var objCreationExpr = node
                     .map(ObjectCreationExpr.class::cast)
                     .orElseThrow(IllegalStateException::new);
 
-            return this.getClassDeclarationName(objCreationExpr, javaFiles);
+            return this.getClassDeclarationName(objCreationExpr, refactorFiles);
         } else {
             throw new IllegalStateException();
         }
     }
 
-    private String getClassDeclarationName(ObjectCreationExpr objectCreationExpr, List<JavaFile> javaFiles) {
-        return javaFiles.stream()
+    private String getClassDeclarationName(ObjectCreationExpr objectCreationExpr, RefactorFiles refactoredFiles) {
+        return refactoredFiles.files().stream()
                 .filter(f -> f.getFileNameWithoutExtension().equals(objectCreationExpr.getType().getNameAsString()))
                 .map(m -> (CompilationUnit) m.getParsed())
                 .map(AstHandler::getClassOrInterfaceDeclaration)
@@ -125,9 +127,9 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
                 .orElseThrow(IllegalStateException::new);
     }
 
-    private void changeBaseClazz(WeiEtAl2014Candidate candidate, List<JavaFile> javaFiles) {
+    private void changeBaseClazz(WeiEtAl2014Candidate candidate, RefactorFiles refactorFiles) {
 
-        final var allClasses = javaFiles
+        final var allClasses = refactorFiles.files()
                 .stream()
                 .map(JavaFile::getCompilationUnit)
                 .toList();

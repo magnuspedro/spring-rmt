@@ -1,4 +1,4 @@
-package br.com.detection.detectionagent.refactor.methods.zeiferisVE;
+package br.com.detection.detectionagent.refactor.methods.zaiferisVE;
 
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
@@ -10,10 +10,8 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.SuperExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
+import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -24,6 +22,7 @@ import java.util.UUID;
 @Builder
 @ToString
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class ZafeirisEtAl2016Candidate implements RefactoringCandidate {
 
     @Builder.Default
@@ -36,7 +35,8 @@ public class ZafeirisEtAl2016Candidate implements RefactoringCandidate {
             .authors(List.of("E. A. Giakoumakis", "N. A. Diamantidis", "Sotiris H. Poulias", "Vassilis E. Zafeiris"))
             .build();
 
-    private final JavaFile file;
+    @Setter
+    private JavaFile file;
 
     private final CompilationUnit compilationUnit;
 
@@ -90,6 +90,14 @@ public class ZafeirisEtAl2016Candidate implements RefactoringCandidate {
     public CandidateWithVariables toCandidateWithVariables() {
         return new CandidateWithVariables(this,
                 this.toFragment().getVariablesOnBeforeFragmentsMethodClass());
+    }
+
+    public String getParentType() {
+        return this.getClassDeclaration().getExtendedTypes()
+                .stream()
+                .map(NodeWithSimpleName::getNameAsString)
+                .findFirst()
+                .orElse(null);
     }
 
     public record CandidateWithVariables(ZafeirisEtAl2016Candidate candidate,

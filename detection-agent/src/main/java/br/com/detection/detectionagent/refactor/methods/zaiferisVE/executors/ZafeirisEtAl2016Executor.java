@@ -1,9 +1,9 @@
-package br.com.detection.detectionagent.refactor.methods.zeiferisVE.executors;
+package br.com.detection.detectionagent.refactor.methods.zaiferisVE.executors;
 
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AstHandler;
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.FragmentsSplitter;
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
-import br.com.magnus.config.starter.file.JavaFile;
+import br.com.magnus.config.starter.members.RefactorFiles;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.FragmentsSplitter;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
@@ -19,32 +19,39 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import java.util.List;
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class ZafeirisEtAl2016Executor {
 
-    public void refactor(ZafeirisEtAl2016Candidate candidate, List<JavaFile> javaFiles) {
-        Assert.notNull(candidate, "Candidate cannot be null");
-        Assert.notNull(javaFiles, "JavaFiles cannot be null");
+    public void refactor(RefactorFiles refactorFiles) {
+        Assert.notNull(refactorFiles, "RefactorFiles cannot be null");
+        Assert.notEmpty(refactorFiles.candidates(), "Candidate cannot be null");
+        Assert.notEmpty(refactorFiles.files(), "JavaFiles cannot be null");
 
-        var parent = this.getParent(javaFiles, candidate);
+        refactorFiles.candidates().forEach(refactoringCandidate -> {
+            var candidate = (ZafeirisEtAl2016Candidate) refactoringCandidate;
+            var parent = this.getParent(refactorFiles, candidate).orElseThrow(() -> new IllegalStateException("Parent not found"));
 
-        final var newOverriddenMethod = extractMethodOnOverriddenMethod(candidate, parent);
-        final var newDoOverriddenCall = replaceSuperCallByDoOverridden(candidate, newOverriddenMethod);
-        extractMethodOnBeforeAndAfterFragments(candidate, parent, newDoOverriddenCall);
-        pullUpOverridenMethod(candidate, parent);
-        applyFinalAdjustments(candidate, parent);
+            final var newOverriddenMethod = extractMethodOnOverriddenMethod(candidate, parent);
+            final var newDoOverriddenCall = replaceSuperCallByDoOverridden(candidate, newOverriddenMethod);
+            extractMethodOnBeforeAndAfterFragments(candidate, parent, newDoOverriddenCall);
+            pullUpOverriddenMethod(candidate, parent);
+            applyFinalAdjustments(candidate, parent);
+            refactorFiles.addFileChanged(candidate.getFile().getFullName());
+        });
     }
 
-    private CompilationUnit getParent(List<JavaFile> javaFile, ZafeirisEtAl2016Candidate candidate) {
-        var cus = javaFile.stream()
-                .map(JavaFile::getCompilationUnit)
-                .toList();
-
-        return AstHandler.getParent(candidate.getCompilationUnit(), cus).orElseThrow(IllegalStateException::new);
+    private Optional<CompilationUnit> getParent(RefactorFiles refactorFiles, ZafeirisEtAl2016Candidate candidate) {
+        for (var file : refactorFiles.files()) {
+            var parent = AstHandler.getParent(candidate.getCompilationUnit(), file.getCompilationUnit());
+            if (parent.isPresent()) {
+                refactorFiles.addFileChanged(file.getFullName());
+                return Optional.of(file.getCompilationUnit());
+            }
+        }
+        return Optional.empty();
     }
 
     private void applyFinalAdjustments(ZafeirisEtAl2016Candidate candidate,
@@ -59,8 +66,8 @@ public class ZafeirisEtAl2016Executor {
         overriddenMethodDclr.setFinal(true);
     }
 
-    private void pullUpOverridenMethod(ZafeirisEtAl2016Candidate candidate,
-                                       CompilationUnit parentCU) {
+    private void pullUpOverriddenMethod(ZafeirisEtAl2016Candidate candidate,
+                                        CompilationUnit parentCU) {
 
         final var overriddenMethodDclr = AstHandler.getMethods(parentCU)
                 .stream()

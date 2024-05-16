@@ -1,6 +1,6 @@
-package br.com.detection.detectionagent.refactor.methods.zeiferisVE.preconditions;
+package br.com.detection.detectionagent.refactor.methods.zaiferisVE.preconditions;
 
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.ZafeirisEtAl2016Candidate;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;

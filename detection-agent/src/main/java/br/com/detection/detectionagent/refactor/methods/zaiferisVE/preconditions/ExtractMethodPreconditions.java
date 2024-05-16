@@ -1,7 +1,7 @@
-package br.com.detection.detectionagent.refactor.methods.zeiferisVE.preconditions;
+package br.com.detection.detectionagent.refactor.methods.zaiferisVE.preconditions;
 
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AstHandler;
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.FragmentsSplitter;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.FragmentsSplitter;
 import com.github.javaparser.ast.DataKey;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;

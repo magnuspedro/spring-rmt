@@ -1,8 +1,8 @@
-package br.com.detection.detectionagent.refactor.methods.zeiferisVE.verifiers;
+package br.com.detection.detectionagent.refactor.methods.zaiferisVE.verifiers;
 
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.preconditions.ExtractMethodPreconditions;
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.preconditions.SiblingPreconditions;
-import br.com.detection.detectionagent.refactor.methods.zeiferisVE.preconditions.SuperInvocationPreconditions;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.preconditions.ExtractMethodPreconditions;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.preconditions.SiblingPreconditions;
+import br.com.detection.detectionagent.refactor.methods.zaiferisVE.preconditions.SuperInvocationPreconditions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

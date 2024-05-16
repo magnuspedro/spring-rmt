@@ -2,6 +2,7 @@ package br.com.detection.detectionagent.refactor.methods.weiL;
 
 import br.com.detection.detectionagent.refactor.dataExtractions.ExtractionMethod;
 import br.com.detection.detectionagent.refactor.dataExtractions.ExtractionMethodFactory;
+import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.detection.detectionagent.refactor.methods.weiL.executors.WeiEtAl2014Executor;
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
@@ -22,7 +23,7 @@ class WeiEtAl2014Test {
     @Mock
     private List<JavaFile> javaFiles;
     @Mock
-    private RefactoringCandidate candidate;
+    private RefactorFiles refactorFiles;
     @Mock
     private ExtractionMethodFactory extractionMethodFactory;
     @Mock
@@ -48,17 +49,17 @@ class WeiEtAl2014Test {
 
     @Test
     void shouldRefactorWhenExecutorIsApplicable() {
-        when(executor.isApplicable(candidate)).thenReturn(true);
+        when(executor.isApplicable(refactorFiles.candidate())).thenReturn(true);
 
-        weiEtAl2014.refactor(javaFiles, candidate);
+        weiEtAl2014.refactor(refactorFiles);
 
-        verify(executor, times(1)).refactor(candidate, javaFiles);
+        verify(executor, times(1)).refactor(refactorFiles);
     }
 
     @Test
     void shouldThrowExceptionWhenNoExecutorIsApplicable() {
-        when(executor.isApplicable(candidate)).thenReturn(false);
+        when(executor.isApplicable(refactorFiles.candidate())).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> weiEtAl2014.refactor(javaFiles, candidate));
+        assertThrows(IllegalArgumentException.class, () -> weiEtAl2014.refactor(refactorFiles));
     }
 }
