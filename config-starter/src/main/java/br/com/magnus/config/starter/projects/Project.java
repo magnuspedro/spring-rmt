@@ -1,7 +1,7 @@
 package br.com.magnus.config.starter.projects;
 
 import br.com.magnus.config.starter.file.JavaFile;
-import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
+import br.com.magnus.config.starter.members.RefactorFiles;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.awspring.cloud.s3.ObjectMetadata;
 import lombok.*;
@@ -30,16 +30,17 @@ public class Project extends BaseProject {
     private List<JavaFile> originalContent;
     @Transient
     @JsonIgnore
-    private List<JavaFile> refactoredContent;
+    private List<RefactorFiles> refactorFiles;
 
     @Builder
-    public Project(Long size, String contentType, byte[] zipContent, List<JavaFile> originalContent, List<JavaFile> refactoredContent, String id, String name, String bucket, String refactoredBucket, ObjectMetadata objectMetadata, List<RefactoringCandidate> refactoringCandidates) {
-        super(id, name, bucket, refactoredBucket, objectMetadata, refactoringCandidates, new HashSet<>(Set.of(ProjectStatus.RECEIVED)));
+    public Project(Long size, String contentType, byte[] zipContent, List<JavaFile> originalContent, String id, String name, String bucket, ObjectMetadata objectMetadata, List<RefactorFiles> refactorFiles) {
+        super(id, name, bucket, objectMetadata, new ArrayList<>(), new HashSet<>(Set.of(ProjectStatus.RECEIVED)));
+
         this.size = size;
         this.contentType = contentType;
         this.zipContent = zipContent;
         this.originalContent = originalContent;
-        this.refactoredContent = refactoredContent;
+        this.refactorFiles = refactorFiles;
     }
 
     @Transient
@@ -53,4 +54,13 @@ public class Project extends BaseProject {
     public void addStatus(ProjectStatus status) {
         super.getStatus().add(status);
     }
+
+    @Transient
+    @JsonIgnore
+    public void addCandidateInformation(CandidateInformation candidateInformation) {
+        if (super.getCandidatesInformation() == null)
+            super.setCandidatesInformation(new ArrayList<>());
+        super.getCandidatesInformation().add(candidateInformation);
+    }
+
 }

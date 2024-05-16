@@ -1,7 +1,7 @@
 package br.com.magnus.config.starter.projects;
 
 
-import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
+import br.com.magnus.config.starter.members.RefactorFiles;
 import io.awspring.cloud.s3.ObjectMetadata;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -20,8 +20,7 @@ public abstract class BaseProject {
     private String id;
     private String name;
     private String bucket;
-    private String refactoredBucket;
     private ObjectMetadata metadata;
-    private List<RefactoringCandidate> refactoringCandidates;
+    private List<CandidateInformation> candidatesInformation;
     private Set<ProjectStatus> status;
 }
