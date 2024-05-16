@@ -23,7 +23,7 @@ public class QualityAttributesProcessorCK implements QualityAttributesProcessor 
     private final List<QualityAttributeCalculator> qualityAttributeCalculators;
 
     @Override
-    public Collection<QualityAttributeResult> extract(Path originalPath, Path refactoredPath) {
+    public List<QualityAttributeResult> extract(Path originalPath, Path refactoredPath) {
         var original = new CKNotifierImpl();
         var refactored = new CKNotifierImpl();
         new CK().calculate(originalPath, original);

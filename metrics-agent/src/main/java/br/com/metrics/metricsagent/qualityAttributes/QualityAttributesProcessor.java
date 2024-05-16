@@ -4,10 +4,10 @@ package br.com.metrics.metricsagent.qualityAttributes;
 import br.com.magnus.config.starter.members.metrics.QualityAttributeResult;
 
 import java.nio.file.Path;
-import java.util.Collection;
+import java.util.List;
 
 public interface QualityAttributesProcessor {
 
-	Collection<QualityAttributeResult> extract(Path originalPath, Path refactoredPath);
+	List<QualityAttributeResult> extract(Path originalPath, Path refactoredPath);
 
 }
