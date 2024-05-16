@@ -57,6 +57,22 @@ public class Project extends BaseProject {
 
     @Transient
     @JsonIgnore
+    public void addRefactorFiles(RefactorFiles refactorFiles) {
+        if (this.refactorFiles == null)
+            this.refactorFiles = new ArrayList<>();
+        this.refactorFiles.add(refactorFiles);
+    }
+
+    @Transient
+    @JsonIgnore
+    public void addAllRefactorFiles(List<RefactorFiles> refactorFiles) {
+        if (this.refactorFiles == null)
+            this.refactorFiles = new ArrayList<>();
+        this.refactorFiles.addAll(refactorFiles);
+    }
+
+    @Transient
+    @JsonIgnore
     public void addCandidateInformation(CandidateInformation candidateInformation) {
         if (super.getCandidatesInformation() == null)
             super.setCandidatesInformation(new ArrayList<>());
