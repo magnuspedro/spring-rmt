@@ -1,15 +1,15 @@
 package br.com.intermediary.intermediaryagent.controller;
 
+import br.com.intermediary.intermediaryagent.refactor.ProjectResults;
 import br.com.intermediary.intermediaryagent.refactor.RefactorProject;
+import br.com.intermediary.intermediaryagent.repository.ProjectRepository;
 import br.com.magnus.config.starter.projects.Project;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.utils.IoUtils;
 
@@ -25,6 +25,7 @@ import java.util.UUID;
 public class IntermediaryController implements Serializable {
 
     private final RefactorProject refactorProject;
+    private final ProjectRepository projectRepository;
 
     @PostMapping(path = "/upload")
     public String registration(@NotNull @RequestParam("file") MultipartFile file) throws IOException {
@@ -42,5 +43,10 @@ public class IntermediaryController implements Serializable {
         refactorProject.process(project);
 
         return id;
+    }
+
+    @GetMapping(path = "/project/{id}")
+    public ResponseEntity<ProjectResults> getProject(@PathVariable String id) {
+        return refactorProject.retrieve(id);
     }
 }
