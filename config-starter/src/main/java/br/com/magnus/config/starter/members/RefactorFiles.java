@@ -6,17 +6,19 @@ import lombok.Builder;
 
 import java.beans.Transient;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Builder
 public record RefactorFiles(
         List<JavaFile> files,
         List<RefactoringCandidate> candidates,
-        List<String> filesChanged) {
+        Set<String> filesChanged) {
 
     public static class RefactorFilesBuilder {
         private List<JavaFile> files = new ArrayList<>();
-        private List<String> filesChanged = new ArrayList<>();
+        private Set<String> filesChanged = new HashSet<>();
         private List<RefactoringCandidate> candidates = new ArrayList<>();
     }
 
@@ -27,6 +29,10 @@ public record RefactorFiles(
     public void add(JavaFile javaFile) {
         this.files.add(javaFile);
         this.filesChanged.add(javaFile.getFullName());
+    }
+
+    public Set<String> filesChanged(){
+        return this.filesChanged;
     }
 
     public RefactoringCandidate candidate() {

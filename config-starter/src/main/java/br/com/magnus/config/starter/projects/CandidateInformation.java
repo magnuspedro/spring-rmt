@@ -8,8 +8,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Builder
@@ -18,7 +19,7 @@ public final class CandidateInformation {
     private final Reference reference;
     private final String id;
     @Builder.Default
-    private final List<String> filesChanged = new ArrayList<>();
+    private final Set<String> filesChanged = new HashSet<>();
     private final DesignPattern designPattern;
     @Setter
     private List<QualityAttributeResult> metrics;
