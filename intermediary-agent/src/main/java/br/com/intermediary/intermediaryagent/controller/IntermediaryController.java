@@ -2,7 +2,6 @@ package br.com.intermediary.intermediaryagent.controller;
 
 import br.com.intermediary.intermediaryagent.refactor.ProjectResults;
 import br.com.intermediary.intermediaryagent.refactor.RefactorProject;
-import br.com.intermediary.intermediaryagent.repository.ProjectRepository;
 import br.com.magnus.config.starter.projects.Project;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -25,12 +24,11 @@ import java.util.UUID;
 public class IntermediaryController implements Serializable {
 
     private final RefactorProject refactorProject;
-    private final ProjectRepository projectRepository;
 
     @PostMapping(path = "/upload")
     public String registration(@NotNull @RequestParam("file") MultipartFile file) throws IOException {
         var id = UUID.randomUUID().toString();
-        log.info("Receiving project original name: {},id: {}, size: {}", file.getOriginalFilename(), id, file.getSize());
+        log.info("Receiving project from front end original name: {},id: {}, size: {}", file.getOriginalFilename(), id, file.getSize());
 
         var project = Project.builder()
                 .id(id)
@@ -47,6 +45,9 @@ public class IntermediaryController implements Serializable {
 
     @GetMapping(path = "/project/{id}")
     public ResponseEntity<ProjectResults> getProject(@PathVariable String id) {
-        return refactorProject.retrieve(id);
+        var project = refactorProject.retrieve(id);
+        return ResponseEntity
+                .status(200)
+                .body(project);
     }
 }

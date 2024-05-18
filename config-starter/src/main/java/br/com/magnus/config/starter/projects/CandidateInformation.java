@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,4 +24,12 @@ public final class CandidateInformation {
     private final DesignPattern designPattern;
     @Setter
     private List<QualityAttributeResult> metrics;
+
+    public BigDecimal getMetricValue(String metric) {
+        return this.metrics.stream()
+                .filter(m -> m.qualityAttributeName().equals(metric))
+                .map(QualityAttributeResult::changePercentage)
+                .findFirst()
+                .orElseThrow();
+    }
 }

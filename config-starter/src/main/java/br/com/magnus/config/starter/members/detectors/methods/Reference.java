@@ -33,4 +33,8 @@ public record Reference(String title, int year, List<String> authors) implements
         return new HashCodeBuilder().append(title).toHashCode();
     }
 
+    public String getAuthors() {
+        return String.join(", ", authors);
+    }
+
 }
