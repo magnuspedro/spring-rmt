@@ -8,8 +8,10 @@ import br.com.magnus.config.starter.projects.ProjectStatus;
 import br.com.magnus.config.starter.repository.S3ProjectRepository;
 import io.awspring.cloud.s3.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import lombok.SneakyThrows;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @Service
@@ -40,32 +42,33 @@ public class RefactorProjectImpl implements RefactorProject {
     }
 
     @Override
-    public ResponseEntity<ProjectResults> retrieve(String id) {
+    public ProjectResults retrieve(String id) {
         var project = projectRepository.findById(id).orElseThrow(IllegalArgumentException::new);
         var status = project.getStatus().stream().toList().getLast();
-        if (status == ProjectStatus.FINISHED) {
-            return ResponseEntity
-                    .status(200)
-                    .body(ProjectResults.builder()
-                            .name(project.getName())
-                            .candidatesInformation(project.getCandidatesInformation())
-                            .status(status)
-                            .build());
+        return ProjectResults.builder()
+                .name(project.getName())
+                .candidatesInformation(project.getCandidatesInformation())
+                .status(status)
+                .build();
+    }
+
+    @SneakyThrows
+    public ProjectResults retrieveRetry(String id, int retry) {
+        var project = projectRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        var projectStatus = project.getStatus().stream().toList().getLast();
+        if (project.getStatus() != null && (projectStatus != ProjectStatus.FINISHED && projectStatus != ProjectStatus.NO_CANDIDATES)) {
+            Thread.sleep(500);
+            retry++;
+            if (retry > 10) {
+                throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Please try again later");
+            }
+            retrieveRetry(id, retry);
         }
-        if (status == ProjectStatus.NO_CANDIDATES) {
-            return ResponseEntity
-                    .status(200)
-                    .body(ProjectResults.builder()
-                            .name(project.getName())
-                            .candidatesInformation(project.getCandidatesInformation())
-                            .status(status)
-                            .build());
-        }
-        return ResponseEntity
-                .status(200)
-                .body(ProjectResults.builder()
-                        .name(project.getName())
-                        .status(status)
-                        .build());
+        var status = project.getStatus().stream().toList().getLast();
+        return ProjectResults.builder()
+                .name(project.getName())
+                .candidatesInformation(project.getCandidatesInformation())
+                .status(status)
+                .build();
     }
 }

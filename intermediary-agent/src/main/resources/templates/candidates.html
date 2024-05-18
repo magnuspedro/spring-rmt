@@ -1,0 +1,34 @@
+<table id="table" class="table table-dark">
+    <thead>
+    <tr>
+        <th scope="col">Select</th>
+        <th scope="col" style="width:40%">Files</th>
+        <th scope="col">Pattern</th>
+        <th scope="col">Maintainability</th>
+        <th scope="col">Reusability</th>
+        <th scope="col">Reliability</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${candidates == null || candidates.isEmpty()}">
+    </tr>
+    <tr th:each="candidate : ${candidates}" data-toggle="tooltip"
+        th:title="'Title: '+${candidate.getReference().title()} + ' Authors: ' + ${candidate.getReference().getAuthors()} +' Year: '+ ${candidate.getReference().year()}">
+        <td>
+            <input class="form-check-input" type="checkbox" th:value="${candidate.getId()}">
+        </td>
+        <td>
+            <div class="p-1" th:each="file: ${candidate.getFilesChanged()}">
+                <span th:text="${file}"></span>
+            </div>
+        </td>
+        <td><span th:text="${candidate.getDesignPattern()}"></span></td>
+        <td><span th:text="${candidate.getMetricValue('MAINTAINABILITY')}"></span></td>
+        <td><span th:text="${candidate.getMetricValue('REUSABILITY')}"></span></td>
+        <td><span th:text="${candidate.getMetricValue('RELIABILITY')}"></span></td>
+    </tr>
+</table>
+</td>
+</tr>
+</tbody>
+</table>

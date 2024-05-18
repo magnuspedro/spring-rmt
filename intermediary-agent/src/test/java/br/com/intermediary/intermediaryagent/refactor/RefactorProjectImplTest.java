@@ -38,7 +38,6 @@ class RefactorProjectImplTest {
 
         this.bucket = new BucketProperties();
         this.bucket.setProjectBucket("bucket");
-        this.bucket.setRefactoredProjectBucket("refactoredBucket");
         this.refactorProject = new RefactorProjectImpl(s3ProjectRepository, projectRepository, sendProject, bucket);
     }
 
