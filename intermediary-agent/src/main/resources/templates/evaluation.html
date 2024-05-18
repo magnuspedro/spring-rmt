@@ -1,10 +1,5 @@
-<div class="row" id="evaluate">
-    <div class="col-6"></div>
-    <div id="spinner"
-         class="col-1 align-self-end spinner-border d-flex justify-content-center text-light htmx-indicator"
-         role="status"></div>
-    <button class="m-3 h-50 align-self-end btn btn-primary" hx-encoding='multipart/form-data'
-            hx-indicator="#spinner" hx-target-error="#table" hx-target="#table" hx-swap="outerHTML" th:hx-get="${url}">
-        Evaluate
-    </button>
-</div>
+<button id="evaluate" class="m-3 h-75 align-self-end btn btn-primary" hx-disabled-elt="this"
+        hx-encoding='multipart/form-data'
+        hx-indicator="#spinner" hx-target-error="#table" hx-target="#table" hx-swap="outerHTML" th:hx-get="${url}">
+    Evaluate
+</button>

@@ -13,8 +13,7 @@
     <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <img src="..." class="rounded me-2" alt="...">
-            <strong class="me-auto">Bootstrap</strong>
-            <small>11 mins ago</small>
+            <strong class="me-auto">Error</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body">
@@ -28,30 +27,31 @@
             <label class="p2" for="upload">Upload zip file to evaluate</label>
             <input class="form-control" id="upload" type='file' name='file' accept=".zip" required>
         </div>
-        <button class="col-sm-1 h-50 align-self-end btn btn-primary">Upload</button>
-        <div class="row" id="evaluate">
-            <div class="col-6"></div>
-            <div id="spinner"
-                 class="col-1 align-self-end spinner-border d-flex justify-content-center text-light htmx-indicator"
-                 role="status"></div>
-            <button class="m-3 h-50 align-self-end btn btn-secondary" disabled>Evaluate</button>
-        </div>
+        <button class="col-sm-1 h-50 align-self-end btn btn-primary" hx-disabled-elt="this">Upload</button>
     </form>
-    <table id="table" class="p-2 table table-dark">
-        <thead>
-        <tr>
-            <th scope="col">Select</th>
-            <th scope="col" style="width:40%">Files</th>
-            <th scope="col">Pattern</th>
-            <th scope="col">Maintainability</th>
-            <th scope="col">Reusability</th>
-            <th scope="col">Reliability</th>
-            <th scope="col">Reference</th>
-        </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+    <div class="row">
+        <div id="spinner"
+             class="col-1 align-self-end spinner-border d-flex justify-content-center text-light htmx-indicator"
+             role="status"></div>
+        <button id="evaluate" class="m-3 h-75 align-self-end btn btn-secondary" disabled>Evaluate</button>
+    </div>
+    <form id="table" class="row">
+        <table class="table table-bordered m-3">
+            <thead>
+            <tr>
+                <th scope="col">Select</th>
+                <th scope="col" style="width:40%">Files</th>
+                <th scope="col">Pattern</th>
+                <th scope="col">Maintainability</th>
+                <th scope="col">Reusability</th>
+                <th scope="col">Reliability</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <button class="m-3 h-50 align-self-end btn btn-secondary" disabled>Refactor</button>
+    </form>
     <script>
         document.addEventListener('htmx:responseError', event => {
             const toastEl = document.getElementById('toast');
