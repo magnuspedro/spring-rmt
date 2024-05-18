@@ -3,11 +3,13 @@ spring:
     aws:
       credentials:
         instance-profile: false
-      endpoint: http://127.0.0.1:4566
+      endpoint: ${LOCAL_STACK_HOST:http://127.0.0.1:4566}
       region:
         static: sa-east-1
+      s3:
+        path-style-access-enabled: true
 redis:
-  host: localhost
+  host: ${REDIS_HOST:localhost}
   port: 6379
 
 s3:
