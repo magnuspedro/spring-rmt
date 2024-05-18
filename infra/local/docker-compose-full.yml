@@ -45,7 +45,7 @@ services:
       - REDIS_HOST=redis
       - LOCAL_STACK_HOST=http://localstack:4566
     ports:
-      - "8082:8082"
+      - "8080:8080"
     depends_on:
       - redis
       - localstack

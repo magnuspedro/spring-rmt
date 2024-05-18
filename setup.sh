@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+mvn install -f config-starter/pom.xml
 mvn install -f detection-agent/pom.xml
 mvn install -f intermediary-agent/pom.xml
 mvn install -f metrics-agent/pom.xml
