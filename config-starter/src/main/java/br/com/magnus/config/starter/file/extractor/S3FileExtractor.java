@@ -57,7 +57,7 @@ public class S3FileExtractor implements FileExtractor {
     }
 
     private String getName(String name) {
-        var path = name.split(EXTENSION)[0].split("/");
+        var path = name.split("\\" + EXTENSION)[0].split("/");
         return path[path.length - 1] + EXTENSION;
     }
 

@@ -122,6 +122,22 @@ class S3FileExtractorTest {
         assertEquals("test/", result.getFirst().getPath());
     }
 
+    @Test
+    @DisplayName("Should test extract with a file with java in the name")
+    public void shouldTestExtractWithAFileWithJavaInTheName() {
+        var zip = createZipFile("test/Test_java.java", clazz);
+        var id = "id";
+        var bucket = "bucket";
+        when(this.s3ProjectRepository.download(bucket, id))
+                .thenReturn(zip);
+
+        var result = this.fileExtractor.extract(bucket, id);
+
+        assertEquals(1, result.size());
+        assertEquals("Test_java.java", result.getFirst().getName());
+        assertEquals("test/", result.getFirst().getPath());
+    }
+
 
     @SneakyThrows
         private InputStream createZipFile(String fileName, String string) {
