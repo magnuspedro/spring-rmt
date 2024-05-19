@@ -59,7 +59,7 @@ public class RefactorProjectImpl implements RefactorProject {
         if (project.getStatus() != null && (projectStatus != ProjectStatus.FINISHED && projectStatus != ProjectStatus.NO_CANDIDATES)) {
             Thread.sleep(500);
             retry++;
-            if (retry > 10) {
+            if (retry > 20) {
                 throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Please try again later");
             }
             retrieveRetry(id, retry);
