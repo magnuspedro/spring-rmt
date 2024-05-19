@@ -6,7 +6,8 @@ import br.com.magnus.config.starter.configuration.RedisProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-
+import org.springframework.retry.annotation.EnableRetry;
+@EnableRetry
 @SpringBootApplication
 @EnableConfigurationProperties({BucketProperties.class, RedisProperties.class, SqsProperties.class})
 public class IntermediaryAgentApplication {

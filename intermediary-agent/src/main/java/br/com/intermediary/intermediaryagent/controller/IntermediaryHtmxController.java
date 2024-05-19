@@ -47,7 +47,7 @@ public class IntermediaryHtmxController {
     @SneakyThrows
     @GetMapping(path = "/project/{id}")
     public String getProject(Map<String, Object> model, @PathVariable String id) {
-        var project = refactorProject.retrieveRetry(id, 0);
+        var project = refactorProject.retrieveRetryable(id);
         model.put("status", project.status());
         model.put("candidates", project.candidatesInformation());
 

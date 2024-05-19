@@ -53,18 +53,12 @@ public class RefactorProjectImpl implements RefactorProject {
     }
 
     @SneakyThrows
-    public ProjectResults retrieveRetry(String id, int retry) {
+    public ProjectResults retrieveRetryable(String id) {
         var project = projectRepository.findById(id).orElseThrow(IllegalArgumentException::new);
-        var projectStatus = project.getStatus().stream().toList().getLast();
-        if (project.getStatus() != null && (projectStatus != ProjectStatus.FINISHED && projectStatus != ProjectStatus.NO_CANDIDATES)) {
-            Thread.sleep(500);
-            retry++;
-            if (retry > 20) {
-                throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Please try again later");
-            }
-            retrieveRetry(id, retry);
-        }
         var status = project.getStatus().stream().toList().getLast();
+        if (project.getStatus() != null && (status != ProjectStatus.FINISHED && status != ProjectStatus.NO_CANDIDATES)) {
+            throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Please try uploading the project again. If it doesn't work, contact the support team.");
+        }
         return ProjectResults.builder()
                 .name(project.getName())
                 .candidatesInformation(project.getCandidatesInformation())

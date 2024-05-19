@@ -23,5 +23,10 @@ s3:
 sqs:
   detect-pattern: detect-pattern
 
+retry:
+  max-attempts: 5
+  delay: 500
+  multiplier: 2
+
 server:
   port: 8080
