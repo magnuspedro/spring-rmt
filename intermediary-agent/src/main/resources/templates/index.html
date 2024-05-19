@@ -14,7 +14,8 @@
     <div class="toast-container position-absolute top-0 end-0" style="float: initial">
         <div id="toast" class="toast float-start" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
-                <img src="..." class="rounded me-2" alt="...">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/03/Red_rectangle1.svg" width="30px"
+                     height="30px" class="rounded me-2" alt="...">
                 <strong class="me-auto">Error</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
@@ -61,7 +62,8 @@
     <script>
         document.addEventListener('htmx:responseError', event => {
             const toastEl = document.getElementById('toast');
-            toastEl.querySelector('.toast-body').textContent = "Please try again later!";
+            const response = JSON.parse(event.detail.xhr.response)
+            toastEl.querySelector('.toast-body').textContent = response.message;
             const toast = new bootstrap.Toast(toastEl, {delay: 3000});
             toast.show();
         });
