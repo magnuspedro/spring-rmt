@@ -2,9 +2,10 @@ package br.com.magnus.detection.refactor.methods.weiL;
 
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.RefactorFiles;
-import br.com.magnus.detection.refactor.dataExtractions.ExtractionMethod;
-import br.com.magnus.detection.refactor.dataExtractions.ExtractionMethodFactory;
-import br.com.magnus.detection.refactor.methods.weiL.executors.WeiEtAl2014Executor;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ExtractionMethod;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ExtractionMethodFactory;
+import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.WeiEtAl2014;
+import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.executors.WeiEtAl2014Executor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

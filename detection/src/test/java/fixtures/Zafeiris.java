@@ -1,9 +1,9 @@
 package fixtures;
 
 import br.com.magnus.config.starter.file.JavaFile;
-import br.com.magnus.detection.refactor.dataExtractions.ast.AbstractSyntaxTree;
-import br.com.magnus.detection.refactor.dataExtractions.ast.AstHandler;
-import br.com.magnus.detection.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AbstractSyntaxTree;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
+import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
 import com.github.javaparser.ast.CompilationUnit;
 
 import java.util.List;

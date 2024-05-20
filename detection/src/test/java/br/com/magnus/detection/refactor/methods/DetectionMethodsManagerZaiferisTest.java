@@ -2,8 +2,9 @@ package br.com.magnus.detection.refactor.methods;
 
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.projects.Project;
-import br.com.magnus.detection.refactor.methods.zaiferisVE.ZafeirisEtAl2016;
-import br.com.magnus.detection.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
+import br.com.magnus.detectionandrefactoring.refactor.methods.DetectionMethodsManagerZaiferis;
+import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.ZafeirisEtAl2016;
+import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

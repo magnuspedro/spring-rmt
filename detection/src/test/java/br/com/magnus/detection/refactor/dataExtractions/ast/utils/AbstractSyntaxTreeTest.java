@@ -1,9 +1,9 @@
 package br.com.magnus.detection.refactor.dataExtractions.ast.utils;
 
 import br.com.magnus.config.starter.file.JavaFile;
-import br.com.magnus.detection.refactor.dataExtractions.ast.AbstractSyntaxTree;
-import br.com.magnus.detection.refactor.dataExtractions.ast.AbstractSyntaxTreeExtraction;
-import br.com.magnus.detection.refactor.dataExtractions.ast.exceptions.NullJavaFileException;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AbstractSyntaxTree;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AbstractSyntaxTreeExtraction;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.exceptions.NullJavaFileException;
 import com.github.javaparser.ast.CompilationUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

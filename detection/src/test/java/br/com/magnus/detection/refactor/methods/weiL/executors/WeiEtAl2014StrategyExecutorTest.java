@@ -1,7 +1,8 @@
 package br.com.magnus.detection.refactor.methods.weiL.executors;
 
 import br.com.magnus.config.starter.members.RefactorFiles;
-import br.com.magnus.detection.refactor.methods.weiL.WeiEtAl2014FactoryCandidate;
+import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.WeiEtAl2014FactoryCandidate;
+import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.executors.WeiEtAl2014StrategyExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

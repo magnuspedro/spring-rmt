@@ -1,6 +1,8 @@
 package br.com.magnus.detection.refactor.dataExtractions;
 
-import br.com.magnus.detection.refactor.dataExtractions.ast.AbstractSyntaxTreeExtraction;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ExtractionMethod;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ExtractionMethodFactory;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AbstractSyntaxTreeExtraction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

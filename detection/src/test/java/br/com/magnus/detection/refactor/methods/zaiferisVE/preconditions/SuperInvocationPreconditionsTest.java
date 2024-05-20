@@ -1,5 +1,6 @@
 package br.com.magnus.detection.refactor.methods.zaiferisVE.preconditions;
 
+import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.preconditions.SuperInvocationPreconditions;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;

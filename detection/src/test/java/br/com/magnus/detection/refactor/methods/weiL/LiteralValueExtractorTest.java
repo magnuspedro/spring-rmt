@@ -1,5 +1,6 @@
 package br.com.magnus.detection.refactor.methods.weiL;
 
+import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.LiteralValueExtractor;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;

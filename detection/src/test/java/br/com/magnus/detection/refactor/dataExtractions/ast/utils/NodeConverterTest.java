@@ -1,6 +1,6 @@
 package br.com.magnus.detection.refactor.dataExtractions.ast.utils;
 
-import br.com.magnus.detection.refactor.dataExtractions.ast.NodeConverter;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.NodeConverter;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.SimpleName;

@@ -1,7 +1,7 @@
 package br.com.magnus.detection.refactor.dataExtractions.ast.utils;
 
-import br.com.magnus.detection.refactor.dataExtractions.ast.AstHandler;
-import br.com.magnus.detection.refactor.dataExtractions.ast.exceptions.*;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.exceptions.*;
 import com.github.javaparser.ast.ArrayCreationLevel;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;

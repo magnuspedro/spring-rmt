@@ -1,8 +1,9 @@
 package br.com.magnus.detection.refactor.methods.zaiferisVE.verifiers;
 
-import br.com.magnus.detection.refactor.methods.zaiferisVE.preconditions.ExtractMethodPreconditions;
-import br.com.magnus.detection.refactor.methods.zaiferisVE.preconditions.SiblingPreconditions;
-import br.com.magnus.detection.refactor.methods.zaiferisVE.preconditions.SuperInvocationPreconditions;
+import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.preconditions.ExtractMethodPreconditions;
+import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.preconditions.SiblingPreconditions;
+import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.preconditions.SuperInvocationPreconditions;
+import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.verifiers.ZafeirisEtAl2016Verifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

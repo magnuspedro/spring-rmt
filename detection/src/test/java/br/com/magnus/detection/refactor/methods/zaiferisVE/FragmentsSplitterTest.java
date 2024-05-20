@@ -1,7 +1,8 @@
 package br.com.magnus.detection.refactor.methods.zaiferisVE;
 
-import br.com.magnus.detection.refactor.dataExtractions.ast.AbstractSyntaxTree;
-import br.com.magnus.detection.refactor.dataExtractions.ast.AstHandler;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AbstractSyntaxTree;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
+import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.FragmentsSplitter;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;

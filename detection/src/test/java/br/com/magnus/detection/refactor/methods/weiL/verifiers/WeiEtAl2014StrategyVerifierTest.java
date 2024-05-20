@@ -1,6 +1,7 @@
 package br.com.magnus.detection.refactor.methods.weiL.verifiers;
 
 import br.com.magnus.config.starter.file.JavaFile;
+import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.verifiers.WeiEtAl2014StrategyVerifier;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.Parameter;

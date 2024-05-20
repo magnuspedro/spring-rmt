@@ -5,6 +5,8 @@ import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.projects.ProjectStatus;
 import br.com.magnus.config.starter.repository.S3ProjectRepository;
+import br.com.magnus.detectionandrefactoring.repository.ProjectRepository;
+import br.com.magnus.detectionandrefactoring.repository.ProjectUpdater;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

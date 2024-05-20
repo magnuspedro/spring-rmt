@@ -1,7 +1,8 @@
 package br.com.magnus.detection.refactor.methods.zaiferisVE.executors;
 
 import br.com.magnus.config.starter.members.RefactorFiles;
-import br.com.magnus.detection.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
+import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
+import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.executors.ZafeirisEtAl2016Executor;
 import fixtures.Zafeiris;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
