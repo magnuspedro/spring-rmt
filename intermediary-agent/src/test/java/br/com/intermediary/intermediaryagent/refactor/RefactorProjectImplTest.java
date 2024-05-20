@@ -3,6 +3,7 @@ package br.com.intermediary.intermediaryagent.refactor;
 import br.com.intermediary.intermediaryagent.gateway.SendProject;
 import br.com.intermediary.intermediaryagent.repository.ProjectRepository;
 import br.com.magnus.config.starter.configuration.BucketProperties;
+import br.com.magnus.config.starter.file.extractor.FileExtractor;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.repository.S3ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,8 @@ class RefactorProjectImplTest {
     private ProjectRepository projectRepository;
     @Mock
     private SendProject sendProject;
+    @Mock
+    private FileExtractor fileExtractor;
 
     private BucketProperties bucket;
     private RefactorProjectImpl refactorProject;
@@ -38,7 +41,7 @@ class RefactorProjectImplTest {
 
         this.bucket = new BucketProperties();
         this.bucket.setProjectBucket("bucket");
-        this.refactorProject = new RefactorProjectImpl(s3ProjectRepository, projectRepository, sendProject, bucket);
+        this.refactorProject = new RefactorProjectImpl(s3ProjectRepository, projectRepository, sendProject, bucket, fileExtractor);
     }
 
     @Test

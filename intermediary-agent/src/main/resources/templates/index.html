@@ -32,12 +32,12 @@
         </div>
     </div>
     <form class="row" id="form" hx-encoding='multipart/form-data' hx-swap="outerHTML" hx-target="#evaluate"
-          hx-post='/upload'>
+          hx-post='/upload' hx-trigger="change from:input">
         <div class="col-sm-4 form-group">
             <label class="p2" for="upload">Upload zip file to evaluate</label>
-            <input class="form-control" id="upload" type='file' name='file' accept=".zip" required>
+            <input class="form-control" id="upload" type='file' name='file' accept=".zip" hx-disabled-elt="this" required>
+            <p class="hiding" style="float: left" id="file-link"></p>
         </div>
-        <button class="col-sm-1 h-50 align-self-end btn btn-primary" hx-disabled-elt="this">Upload</button>
     </form>
     <div class="row">
         <button id="evaluate" class="m-3 h-75 align-self-end btn btn-secondary" disabled>Evaluate</button>
@@ -68,6 +68,6 @@
             toast.show();
         });
     </script>
-</main>
+   </main>
 </body>
 </html>
