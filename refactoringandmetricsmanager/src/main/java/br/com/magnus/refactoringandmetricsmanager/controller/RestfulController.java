@@ -18,10 +18,10 @@ import java.util.UUID;
 
 @Valid
 @Slf4j
-@org.springframework.web.bind.annotation.RestController
+@RestController
 @RequestMapping("/rmt/api/v1")
 @RequiredArgsConstructor
-public class RestController implements Serializable {
+public class RestfulController implements Serializable {
 
     private final RefactorProject refactorProject;
 

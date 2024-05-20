@@ -1,11 +1,10 @@
-package br.com.magnus.refactoringmetricsmanager.refactor;
+package br.com.magnus.refactoringandmetricsmanager.refactor;
 
 import br.com.magnus.config.starter.configuration.BucketProperties;
 import br.com.magnus.config.starter.file.extractor.FileExtractor;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.repository.S3ProjectRepository;
 import br.com.magnus.refactoringandmetricsmanager.gateway.SendProject;
-import br.com.magnus.refactoringandmetricsmanager.refactor.RefactorProjectImpl;
 import br.com.magnus.refactoringandmetricsmanager.repository.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

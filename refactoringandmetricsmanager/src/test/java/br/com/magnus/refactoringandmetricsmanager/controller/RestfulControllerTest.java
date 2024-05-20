@@ -1,6 +1,5 @@
-package br.com.magnus.refactoringmetricsmanager.controller;
+package br.com.magnus.refactoringandmetricsmanager.controller;
 
-import br.com.magnus.refactoringandmetricsmanager.controller.RestController;
 import br.com.magnus.refactoringandmetricsmanager.refactor.RefactorProject;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
@@ -24,8 +23,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith({MockitoExtension.class, SpringExtension.class})
-@WebMvcTest(RestController.class)
-class RestControllerTest {
+@WebMvcTest(RestfulController.class)
+class RestfulControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -33,8 +32,8 @@ class RestControllerTest {
     @MockBean
     private RefactorProject refactorProject;
 
-    @SneakyThrows
     @Test
+    @SneakyThrows
     void shouldTest200() {
         var multipart = new MockMultipartFile(
                 "file",

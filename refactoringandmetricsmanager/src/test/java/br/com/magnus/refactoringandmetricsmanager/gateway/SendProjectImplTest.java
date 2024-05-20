@@ -1,8 +1,7 @@
-package br.com.magnus.refactoringmetricsmanager.gateway;
+package br.com.magnus.refactoringandmetricsmanager.gateway;
 
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.refactoringandmetricsmanager.configuration.SqsProperties;
-import br.com.magnus.refactoringandmetricsmanager.gateway.SendProjectImpl;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
