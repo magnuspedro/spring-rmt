@@ -14,6 +14,9 @@ provider "aws" {
 
 }
 
+resource "aws_s3_bucket" "refactored-projects_bucket" {
+  bucket = "refactored-projects"
+}
 
 resource "aws_s3_bucket" "projects_bucket" {
   bucket = "projects"
