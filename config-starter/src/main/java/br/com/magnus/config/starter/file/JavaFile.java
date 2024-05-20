@@ -15,6 +15,7 @@ public class JavaFile implements Cloneable {
     private final String name;
     private final String path;
     private final String originalClass;
+    @Setter
     private Object parsed;
 
     public CompilationUnit getCompilationUnit() {
@@ -30,7 +31,6 @@ public class JavaFile implements Cloneable {
     public String getFullName() {
         return this.path + this.name;
     }
-
 
     @Override
     public JavaFile clone() {
