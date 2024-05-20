@@ -11,4 +11,5 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "s3")
 public class BucketProperties {
     private String projectBucket;
+    private String downloaderBucket;
 }
