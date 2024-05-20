@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,12 +36,10 @@ public class S3FileExtractor implements FileExtractor {
 
         ZipEntry zipEntry;
         var javaFiles = new ArrayList<JavaFile>();
-
         var compressedProject = s3ProjectRepository.download(bucket, id);
-
         var zipInputStream = new ZipInputStream(compressedProject);
-        while ((zipEntry = zipInputStream.getNextEntry()) != null) {
 
+        while ((zipEntry = zipInputStream.getNextEntry()) != null) {
             Optional.of(zipEntry)
                     .filter(f -> f.getName().endsWith(EXTENSION))
                     .ifPresent(file -> javaFiles.add(JavaFile.builder()
@@ -49,7 +48,33 @@ public class S3FileExtractor implements FileExtractor {
                             .originalClass(getString(zipInputStream))
                             .build()));
         }
+        zipInputStream.closeEntry();
+        zipInputStream.close();
 
+        return javaFiles;
+    }
+
+    @Override
+    @SneakyThrows
+    public List<JavaFile> extractRefactoredFiles(String bucket, String id, List<String> candidateFiles) {
+        Assert.notNull(bucket, "Bucket cannot be null");
+        Assert.notNull(id, "Id cannot be null");
+        Assert.notNull(candidateFiles, "Candidate files cannot be null");
+
+        ZipEntry zipEntry;
+        var javaFiles = new ArrayList<JavaFile>();
+        var compressedProject = s3ProjectRepository.download(bucket, id);
+        var zipInputStream = new ZipInputStream(compressedProject);
+
+        while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+            Optional.of(zipEntry)
+                    .filter(f -> candidateFiles.contains(f.getName()))
+                    .ifPresent(file -> javaFiles.add(JavaFile.builder()
+                            .name(getName(file.getName()))
+                            .path(getPath(file.getName()))
+                            .originalClass(getString(zipInputStream))
+                            .build()));
+        }
         zipInputStream.closeEntry();
         zipInputStream.close();
 
