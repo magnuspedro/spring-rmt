@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 
 mvn install -f config-starter/pom.xml
-mvn install -f detection-agent/pom.xml
-mvn install -f intermediary-agent/pom.xml
-mvn install -f metrics-agent/pom.xml
+mvn install -f detectionandrefactoring/pom.xml
+mvn install -f refactoringandmetricsmanager/pom.xml
+mvn install -f metricscalculator/pom.xml
 
-cd detection-agent
+cd detectionandrefactoring
 docker build -t magnus/detection .
 
 cd  ..
 
-cd intermediary-agent
-docker build -t magnus/intermediary .
+cd refactoringandmetricsmanager
+docker build -t magnus/manager .
 
 cd ..
 
-cd metrics-agent
+cd metricscalculator
 docker build -t magnus/metrics .
 
