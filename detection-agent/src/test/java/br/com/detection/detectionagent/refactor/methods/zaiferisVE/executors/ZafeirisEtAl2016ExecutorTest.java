@@ -1,7 +1,7 @@
 package br.com.detection.detectionagent.refactor.methods.zaiferisVE.executors;
 
-import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.detection.detectionagent.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
+import br.com.magnus.config.starter.members.RefactorFiles;
 import fixtures.Zafeiris;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -57,7 +57,7 @@ class ZafeirisEtAl2016ExecutorTest {
         zafeirisEtAl2016Executor.refactor(refactoredFiles);
 
         assertEquals(Zafeiris.REFACTORED_PARENT, refactoredFiles.files().getFirst().getCompilationUnit().toString());
-        assertEquals(Zafeiris.REFACTORED_CHILD, ((ZafeirisEtAl2016Candidate) refactoredFiles.candidate()).getCompilationUnit().toString());
+        assertEquals(Zafeiris.REFACTORED_CHILD, (refactoredFiles.files().get(1).getCompilationUnit().toString()));
         assertEquals(2, refactoredFiles.filesChanged().size());
     }
 }

@@ -1,9 +1,9 @@
 package br.com.detection.detectionagent.refactor.methods.zaiferisVE.executors;
 
 import br.com.detection.detectionagent.refactor.dataExtractions.ast.AstHandler;
-import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.detection.detectionagent.refactor.methods.zaiferisVE.FragmentsSplitter;
 import br.com.detection.detectionagent.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
+import br.com.magnus.config.starter.members.RefactorFiles;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
@@ -40,6 +40,10 @@ public class ZafeirisEtAl2016Executor {
             pullUpOverriddenMethod(candidate, parent);
             applyFinalAdjustments(candidate, parent);
             refactorFiles.addFileChanged(candidate.getFile().getFullName());
+            refactorFiles.files().stream()
+                    .filter(f -> f.getFullName().equals(candidate.getFile().getFullName()))
+                    .findFirst()
+                    .ifPresent(f -> f.setParsed(candidate.getCompilationUnit()));
         });
     }
 
