@@ -1,3 +1,0 @@
-INDEX VERSION 1.134+/Users/magnus/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studies/spring-rmt/detection-agent/~/.workspace/detection-agent/.metadata/.plugins/org.eclipse.jdt.core
-1865797976.index
-3842426239.index
