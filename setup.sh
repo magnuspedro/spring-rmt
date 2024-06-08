@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 
 mvn install -f config-starter/pom.xml
-mvn install -f detectionandrefactoring/pom.xml
-mvn install -f refactoringandmetricsmanager/pom.xml
-mvn install -f metricscalculator/pom.xml
+mvn install -f detection-and-refactoring/pom.xml
+mvn install -f refactoring-and-metrics-manager/pom.xml
+mvn install -f metrics-calculator/pom.xml
 
-cd detectionandrefactoring
+cd detection-and-refactoring
 docker build -t magnus/detection .
 
 cd  ..
 
-cd refactoringandmetricsmanager
+cd refactoring-and-metrics-manager
 docker build -t magnus/manager .
 
 cd ..
 
-cd metricscalculator
+cd metrics-calculator
 docker build -t magnus/metrics .
 
