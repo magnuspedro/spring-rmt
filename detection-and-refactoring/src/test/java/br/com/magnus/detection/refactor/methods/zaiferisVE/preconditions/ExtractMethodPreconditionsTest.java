@@ -48,7 +48,8 @@ class ExtractMethodPreconditionsTest {
     @DisplayName("Should return false when super call is nested")
     public void shouldReturnFalseWhenSuperCallIsNested() {
         var overriddenMethod = new MethodDeclaration();
-        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -69,7 +70,8 @@ class ExtractMethodPreconditionsTest {
     public void shouldReturnFalseWhenBeforeFragmentThrowException() {
         var overriddenMethod = new MethodDeclaration();
         var superExpr = new SuperExpr();
-        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -91,7 +93,8 @@ class ExtractMethodPreconditionsTest {
     public void shouldReturnFalseWhenBeforeFragmentHasReturn() {
         var overriddenMethod = new MethodDeclaration();
         var superExpr = new SuperExpr();
-        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -113,7 +116,8 @@ class ExtractMethodPreconditionsTest {
     public void shouldReturnTrueWhenHasMultipleVariablesInBeforeFragmentsMethodCalls() {
         var overriddenMethod = new MethodDeclaration();
         var superExpr = new SuperExpr();
-        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -135,13 +139,14 @@ class ExtractMethodPreconditionsTest {
     @DisplayName("Should return false when method values do not match")
     public void shouldReturnFalseWhenMethodValuesDoNotMatch() {
         var overriddenMethod = new MethodDeclaration(
-                Modifier.PUBLIC.toEnumSet(),
+                NodeList.nodeList(Modifier.publicModifier()),
                 "overridenMethod",
                 new VoidType(),
                 NodeList.nodeList()
         );
         var superExpr = new SuperExpr();
-        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -162,13 +167,14 @@ class ExtractMethodPreconditionsTest {
     @DisplayName("Should return false when gragments do no have min size")
     public void shouldReturnFalseWhenGragmentsDoNoHaveMinSize() {
         var overriddenMethod = new MethodDeclaration(
-                Modifier.PUBLIC.toEnumSet(),
-                "overridenMethod",
+                NodeList.nodeList(Modifier.publicModifier()),
+               "overridenMethod",
                 new VoidType(),
                 NodeList.nodeList()
         );
         var superExpr = new SuperExpr();
-        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -189,13 +195,14 @@ class ExtractMethodPreconditionsTest {
     @DisplayName("Shuold return true when all conditions are matched")
     public void shuoldReturnTrueWhenAllConditionsAreMatched() {
         var overriddenMethod = new MethodDeclaration(
-                Modifier.PUBLIC.toEnumSet(),
+                NodeList.nodeList(Modifier.publicModifier()),
                 "overridenMethod",
                 new VoidType(),
                 NodeList.nodeList()
         );
         var superExpr = new SuperExpr();
-        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),

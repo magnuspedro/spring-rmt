@@ -1,5 +1,6 @@
 package br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast;
 
+import br.com.magnus.config.starter.configuration.JavaParserSingleton;
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ExtractionMethod;
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.exceptions.NullJavaFileException;
@@ -17,6 +18,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class AbstractSyntaxTree implements ExtractionMethod {
+    private static final JavaParser javaParser = JavaParserSingleton.getInstance();
+
     @Override
     public List<Object> parseAll(List<JavaFile> files) {
         return Optional.ofNullable(files)
@@ -35,7 +38,7 @@ public class AbstractSyntaxTree implements ExtractionMethod {
         CompilationUnit parsed = null;
 
         try {
-            parsed = JavaParser.parse(file.getOriginalClass());
+            parsed = parseFile(file.getOriginalClass());
             file.setParsed(parsed);
         } catch (Exception e) {
             log.error("Error parsing file: {}", file.getPath(), e);
@@ -48,7 +51,7 @@ public class AbstractSyntaxTree implements ExtractionMethod {
         CompilationUnit parsed = null;
 
         try {
-            parsed = JavaParser.parse(file);
+            parsed = parseFile(file);
         } catch (Exception e) {
             log.error("Error parsing file: {}", file, e);
         }
@@ -58,6 +61,10 @@ public class AbstractSyntaxTree implements ExtractionMethod {
     @Override
     public Boolean supports(Object object) {
         return object instanceof AbstractSyntaxTreeExtraction;
+    }
+
+    private static CompilationUnit parseFile(Object file) {
+        return javaParser.parse(file.toString()).getResult().orElseThrow(() -> new IllegalArgumentException("Error parsing JavaFile"));
     }
 
 }

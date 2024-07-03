@@ -2,6 +2,7 @@ package br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.execut
 
 import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.exceptions.VariableNotFoundException;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.FragmentsSplitter;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
 import com.github.javaparser.ast.CompilationUnit;
@@ -164,7 +165,7 @@ public class ZafeirisEtAl2016Executor {
         final var beforeMethodName = String.format("before%s%s",
                 childMethodDclr.getName().asString().substring(0, 1).toUpperCase(),
                 childMethodDclr.getName().asString().substring(1));
-        final var newMethod = childClassDclr.addMethod(beforeMethodName, Modifier.PROTECTED);
+        final var newMethod = childClassDclr.addMethod(beforeMethodName, Modifier.protectedModifier().getKeyword());
 
         fragmentsSplitter.getBeforeStatements().forEach(block::addStatement);
         newMethod.setBody(block);
@@ -179,7 +180,7 @@ public class ZafeirisEtAl2016Executor {
 
         if (variables.size() == 1) {
             final var varDclrExpr = variables.stream().findFirst().get();
-            final var varDclr = varDclrExpr.getVariables().getFirst();
+            final var varDclr = varDclrExpr.getVariables().getFirst().orElseThrow(VariableNotFoundException::new);
             final var returnStmt = new ReturnStmt(new NameExpr(varDclr.getName().asString()));
             final var thisMethodCallDclrExpr = new VariableDeclarationExpr(new VariableDeclarator(varDclr.getType(), varDclr.getName(), methodCallExpr));
 
@@ -203,7 +204,7 @@ public class ZafeirisEtAl2016Executor {
         }
 
         final var childClassDclr = AstHandler.getClassOrInterfaceDeclaration(parentCU).orElseThrow(IllegalArgumentException::new);
-        final var hookMethod = childClassDclr.addMethod(newMethodDclr.getNameAsString(), Modifier.PROTECTED);
+        final var hookMethod = childClassDclr.addMethod(newMethodDclr.getNameAsString(), Modifier.protectedModifier().getKeyword());
 
         newMethodDclr.getParameters().forEach(p -> hookMethod.getParameters().add(new Parameter(p.getType(), p.getName())));
         newMethodDclr.getThrownExceptions().forEach(hookMethod::addThrownException);
@@ -234,7 +235,7 @@ public class ZafeirisEtAl2016Executor {
         final var afterMethodName = String.format("after%s%s",
                 childMethodDclr.getName().asString().substring(0, 1).toUpperCase(),
                 childMethodDclr.getName().asString().substring(1));
-        final var newMethod = childClassDclr.addMethod(afterMethodName, Modifier.PROTECTED);
+        final var newMethod = childClassDclr.addMethod(afterMethodName, Modifier.protectedModifier().getKeyword());
         final var block = new BlockStmt();
 
         fragmentsSplitter.getAfterStatements().forEach(block::addStatement);
@@ -244,7 +245,7 @@ public class ZafeirisEtAl2016Executor {
         childMethodDclr.getParameters().forEach(newMethod::addParameter);
         childMethodDclr.getThrownExceptions().forEach(newMethod::addThrownException);
         beforeFragmentReturnValue.ifPresent((f -> {
-            var variable = f.getVariables().getFirst();
+            var variable = f.getVariables().getFirst().orElseThrow(VariableNotFoundException::new);
             newMethod.addParameter(variable.getType(), variable.getNameAsString());
         }));
         fragmentsSplitter.getSuperReturnVariable()
@@ -300,7 +301,7 @@ public class ZafeirisEtAl2016Executor {
             return doMethod;
         }
 
-        final var newMethod = parentClass.addMethod(newMethodName, Modifier.PRIVATE);
+        final var newMethod = parentClass.addMethod(newMethodName, Modifier.privateModifier().getKeyword());
         newMethod.setBody(parentMethod.getBody().orElseThrow(IllegalArgumentException::new));
         newMethod.setType(parentMethod.getType());
         parentMethod.getTypeParameters().forEach(typeParam -> newMethod.getTypeParameters().add(typeParam));

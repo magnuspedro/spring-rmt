@@ -41,13 +41,13 @@ public class SuperInvocationPreconditions {
     }
 
     private boolean isOverriddenMethodLessAccessible(MethodDeclaration overriddenMethod, MethodDeclaration method) {
-        if (overriddenMethod.getModifiers().contains(Modifier.PUBLIC)) {
+        if (overriddenMethod.getModifiers().contains(Modifier.publicModifier())) {
             return true;
-        } else if (overriddenMethod.getModifiers().contains(Modifier.PROTECTED)) {
+        } else if (overriddenMethod.getModifiers().contains(Modifier.protectedModifier())) {
             return method.getModifiers().stream()
-                    .anyMatch(m -> m.equals(Modifier.PROTECTED) || m.equals(Modifier.PRIVATE));
-        } else if (overriddenMethod.getModifiers().contains(Modifier.PRIVATE)) {
-            return method.getModifiers().stream().anyMatch(m -> m.equals(Modifier.PRIVATE));
+                    .anyMatch(m -> m.equals(Modifier.protectedModifier()) || m.equals(Modifier.privateModifier()));
+        } else if (overriddenMethod.getModifiers().contains(Modifier.privateModifier())) {
+            return method.getModifiers().stream().anyMatch(m -> m.equals(Modifier.privateModifier()));
         }
         throw new IllegalStateException();
     }

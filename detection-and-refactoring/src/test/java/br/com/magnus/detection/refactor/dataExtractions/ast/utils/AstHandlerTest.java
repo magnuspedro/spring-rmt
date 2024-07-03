@@ -50,11 +50,11 @@ class AstHandlerTest {
     @DisplayName("Should test method get declared fields")
     public void shouldTestMethodGetDeclaredFields() {
         var node = new ClassOrInterfaceDeclaration(
-                null,
-                Modifier.PUBLIC.toEnumSet(),
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 false,
                 new SimpleName("TestClazz"),
+                NodeList.nodeList(),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 NodeList.nodeList(),

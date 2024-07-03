@@ -26,7 +26,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -52,7 +51,7 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
             final var method = new MethodDeclaration();
             method.setName(weiCandidate.getMethodDcl().getName());
             method.setType(weiCandidate.getMethodDcl().getType());
-            method.setModifiers(EnumSet.of(Modifier.PUBLIC));
+            method.setModifiers(NodeList.nodeList(Modifier.publicModifier()));
             method.setAbstract(true);
 
             weiCandidate.getVariables().forEach(v -> method.addParameter(v.getType(), v.getNameAsString()));
@@ -91,7 +90,7 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
         final var method = new MethodDeclaration();
         method.setName(candidate.getMethodDcl().getName());
         method.setType(candidate.getMethodDcl().getType());
-        method.setModifiers(EnumSet.of(Modifier.PUBLIC));
+        method.setModifiers(NodeList.nodeList((Modifier.publicModifier())));
         method.setBody((BlockStmt) ifStmt.getThenStmt());
         candidate.getVariables().forEach(v -> method.addParameter(v.getType(), v.getNameAsString()));
 

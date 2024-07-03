@@ -98,6 +98,18 @@ class AbstractSyntaxTreeTest {
     }
 
     @Test
+    @DisplayName("Should test supports parse an non java code")
+    public void shouldTestSupportsParseAnNonJavaCode() {
+        var javaFile = JavaFile.builder()
+                .originalClass("def test():\n    print('Hello World')\n")
+                .build();
+
+        var result = this.abstractSyntaxTree.parseSingle(javaFile);
+
+        assertNull(result);
+    }
+
+    @Test
     @DisplayName("Should test supports for null parameter")
     public void shouldTestSupportsForNullParameter() {
         var result = this.abstractSyntaxTree.supports(null);

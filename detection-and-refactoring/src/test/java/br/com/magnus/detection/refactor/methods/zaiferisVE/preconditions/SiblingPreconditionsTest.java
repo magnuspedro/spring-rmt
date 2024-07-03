@@ -37,7 +37,8 @@ class SiblingPreconditionsTest {
     @Test
     @DisplayName("Should return false when no violations are found")
     public void shouldReturnFalseWhenNoViolationsFound() {
-        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -58,7 +59,8 @@ class SiblingPreconditionsTest {
     @Test
     @DisplayName("Should throw exception when variables size is greater than one")
     public void shouldThrowExceptionWhenVariablesSizeIsGreaterThanOne() {
-        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -97,7 +99,8 @@ class SiblingPreconditionsTest {
     public void shouldReturnTrueWhenAllTheConditionsAreMet() {
         var superExpr = new SuperExpr();
         superExpr.setParentNode(new MethodCallExpr());
-        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -115,7 +118,8 @@ class SiblingPreconditionsTest {
                                 new NameExpr("primitive2")
                         )),
                         new ReturnStmt())));
-        var method2 = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method2 = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -128,7 +132,8 @@ class SiblingPreconditionsTest {
                                 new NameExpr("var")
                         )),
                         new ReturnStmt())));
-        var method3 = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method3 = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -171,7 +176,8 @@ class SiblingPreconditionsTest {
     public void shouldReturnFalseWhenVariablesHaveTheSameName() {
         var superExpr = new SuperExpr();
         superExpr.setParentNode(new MethodCallExpr());
-        var method = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -190,7 +196,8 @@ class SiblingPreconditionsTest {
                         )),
                         new ReturnStmt())));
 
-        var method2 = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method2 = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -203,7 +210,8 @@ class SiblingPreconditionsTest {
                                 new NameExpr("var")
                         )),
                         new ReturnStmt())));
-        var method3 = new MethodDeclaration(Modifier.PUBLIC.toEnumSet(),
+        var method3 = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),

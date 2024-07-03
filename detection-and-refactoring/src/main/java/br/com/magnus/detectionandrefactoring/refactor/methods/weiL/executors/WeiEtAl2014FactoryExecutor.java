@@ -11,6 +11,7 @@ import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.WeiEtAl2014Fa
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.NameExpr;
@@ -22,7 +23,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Optional;
 
 @Component
@@ -73,7 +73,7 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
         cu.setPackageDeclaration(baseCu.getPackageDeclaration().orElseThrow(IllegalArgumentException::new));
         method.setName(candidate.getMethodDcl().getName());
         method.setType(candidate.getMethodDcl().getType());
-        method.setModifiers(EnumSet.of(Modifier.PUBLIC));
+        method.setModifiers(NodeList.nodeList(Modifier.publicModifier()));
         method.setBody((BlockStmt) ifStmt.getThenStmt());
         type.addMember(method);
         type.addExtendedType(classDclr.getNameAsString());

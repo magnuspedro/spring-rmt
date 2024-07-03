@@ -10,8 +10,6 @@ import java.util.List;
 
 public class Zafeiris {
 
-    private static final AbstractSyntaxTree abstractSyntaxTree = new AbstractSyntaxTree();
-
     public static final String CHILD = """
             package jade.imtp.leap.JICP;
                         
