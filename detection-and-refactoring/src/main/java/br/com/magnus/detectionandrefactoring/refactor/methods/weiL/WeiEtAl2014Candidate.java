@@ -9,12 +9,11 @@ import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.IfStmt;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +22,7 @@ import java.util.UUID;
 
 @ToString
 @SuperBuilder
+@EqualsAndHashCode
 public abstract class WeiEtAl2014Candidate implements RefactoringCandidate {
 
     private final String id = UUID.randomUUID().toString();
@@ -98,18 +98,4 @@ public abstract class WeiEtAl2014Candidate implements RefactoringCandidate {
     public ClassOrInterfaceDeclaration getClassDeclaration() {
         return classDcl;
     }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object instanceof WeiEtAl2014Candidate another) {
-            return new EqualsBuilder().append(id, another.id).isEquals();
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(id).toHashCode();
-    }
-
 }

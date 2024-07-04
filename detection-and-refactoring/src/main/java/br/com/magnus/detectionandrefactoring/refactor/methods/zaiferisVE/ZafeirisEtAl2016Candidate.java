@@ -12,8 +12,6 @@ import com.github.javaparser.ast.expr.SuperExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
 import lombok.*;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,8 +19,9 @@ import java.util.UUID;
 @Getter
 @Builder
 @ToString
-@RequiredArgsConstructor
+@EqualsAndHashCode
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class ZafeirisEtAl2016Candidate implements RefactoringCandidate {
 
     @Builder.Default
@@ -103,18 +102,4 @@ public class ZafeirisEtAl2016Candidate implements RefactoringCandidate {
     public record CandidateWithVariables(ZafeirisEtAl2016Candidate candidate,
                                          List<VariableDeclarationExpr> variables) {
     }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object instanceof ZafeirisEtAl2016Candidate another) {
-            return new EqualsBuilder().append(id, another.id).isEquals();
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(id).toHashCode();
-    }
-
 }
