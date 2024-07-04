@@ -1,4 +1,7 @@
 spring:
+  threads:
+    virtual:
+      enabled: true
   cloud:
     aws:
       credentials:
@@ -8,9 +11,10 @@ spring:
         static: sa-east-1
       s3:
         path-style-access-enabled: true
-redis:
-  host: ${REDIS_HOST:localhost}
-  port: 6379
+  data:
+    redis:
+      host:  ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
 
 s3:
   project-bucket: projects
