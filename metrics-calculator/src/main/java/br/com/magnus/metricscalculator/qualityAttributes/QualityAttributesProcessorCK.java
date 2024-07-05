@@ -1,6 +1,7 @@
 package br.com.magnus.metricscalculator.qualityAttributes;
 
 import br.com.magnus.config.starter.members.metrics.QualityAttributeResult;
+import br.com.magnus.metricscalculator.metrics.CKNotifierImpl;
 import br.com.magnus.metricscalculator.metrics.MetricCalculator;
 import br.com.magnus.metricscalculator.qualityAttributes.calculator.QualityAttributeCalculator;
 import com.github.mauricioaniche.ck.CK;

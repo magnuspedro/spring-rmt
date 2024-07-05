@@ -12,7 +12,7 @@ public class ProportionCalculator {
 		}
 		public static BigDecimal calculateDirect(int original, int refactored) {
 			return BigDecimal.valueOf(refactored, 2).multiply(BigDecimal.valueOf(100))
-					.divide(BigDecimal.valueOf(original, 2), RoundingMode.HALF_EVEN).subtract(BigDecimal.valueOf(100));
-
+					.divide(BigDecimal.valueOf(original, 2), RoundingMode.HALF_EVEN)
+					.subtract(BigDecimal.valueOf(100));
 		}
 }

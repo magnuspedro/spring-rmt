@@ -1,6 +1,5 @@
-package br.com.magnus.metricscalculator.qualityAttributes;
+package br.com.magnus.metricscalculator.metrics;
 
-import br.com.magnus.metricscalculator.metrics.MetricsResolver;
 import com.github.mauricioaniche.ck.CKClassResult;
 import com.github.mauricioaniche.ck.CKNotifier;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package br.com.magnus.metricscalculator.consumer.config;
+package br.com.magnus.metricscalculator.configuration;
 
 import com.github.mauricioaniche.ck.CK;
 import org.springframework.context.annotation.Bean;
