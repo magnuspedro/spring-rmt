@@ -78,13 +78,11 @@ public class RefactorProjectImpl implements RefactorProject {
     @Override
     public String downloadProject(String projectId, List<String> candidatesIds) {
         log.info("Downloading project: {}, candidates: {}", projectId, candidatesIds);
+        var candidateFiles = new HashMap<String, JavaFile>();
         var project = projectRepository.findById(projectId).orElseThrow(IllegalArgumentException::new);
         var projectZip = s3ProjectRepository.download(project.getBucket(), project.getId());
-        var candidates = project.getCandidatesInformation().stream()
+        project.getCandidatesInformation().stream()
                 .filter(candidate -> candidatesIds.contains(candidate.getId()))
-                .toList();
-        var candidateFiles = new HashMap<String, JavaFile>();
-        candidates.stream()
                 .map(candidate -> fileExtractor.extractRefactoredFiles(project.getBucket(), candidate.getId(), candidate.getFilesChanged().stream().toList()))
                 .flatMap(List::stream)
                 .forEach(javaFile -> candidateFiles.put(javaFile.getFullName(), javaFile));
@@ -92,6 +90,6 @@ public class RefactorProjectImpl implements RefactorProject {
         var refactoredProject = FileCompressor.replaceFiles(projectZip, candidateFiles);
         var s3Resource = s3ProjectRepository.upload(bucket.getDownloaderBucket(), project.getId(), refactoredProject, project.getMetadata());
 
-       return s3Resource.getURL().toString();
+        return s3Resource.getURL().toString();
     }
 }

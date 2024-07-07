@@ -14,6 +14,7 @@ import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 @Valid
@@ -49,5 +50,11 @@ public class RestfulController implements Serializable {
         return ResponseEntity
                 .status(200)
                 .body(project);
+    }
+
+    @PostMapping(path = "/project/{id}/download")
+    public String downloadProject(@PathVariable String id, @RequestBody List<String> candidatesIds) {
+        log.info("Downloading project id: {}, candidates: {}", id, candidatesIds);
+        return refactorProject.downloadProject(id, candidatesIds);
     }
 }
