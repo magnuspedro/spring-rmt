@@ -64,7 +64,12 @@ public class AbstractSyntaxTree implements ExtractionMethod {
     }
 
     private static CompilationUnit parseFile(Object file) {
-        return javaParser.parse(file.toString()).getResult().orElseThrow(() -> new IllegalArgumentException("Error parsing JavaFile"));
+        var parsed = javaParser.parse(file.toString());
+        if (parsed.getResult().isEmpty()) {
+            log.error("Error parsing Java File: {}", parsed.getProblems());
+            throw new IllegalArgumentException("Error parsing Java File ");
+        }
+        return parsed.getResult().get();
     }
 
 }
