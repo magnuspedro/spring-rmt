@@ -9,7 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 public interface RefactorProject {
-    Project process(Project project);
+    void process(Project project);
 
     ProjectResults retrieve(String id);
 

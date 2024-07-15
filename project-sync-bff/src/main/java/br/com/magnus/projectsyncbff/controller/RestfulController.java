@@ -6,6 +6,7 @@ import br.com.magnus.projectsyncbff.refactor.RefactorProject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +15,9 @@ import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.List;
-import java.util.UUID;
 
 @Valid
 @Slf4j
@@ -26,9 +28,11 @@ public class RestfulController implements Serializable {
 
     private final RefactorProject refactorProject;
 
+    @SneakyThrows
     @PostMapping(path = "/upload")
     public String registration(@NotNull @RequestParam("file") MultipartFile file) throws IOException {
-        var id = UUID.randomUUID().toString();
+        var hash = MessageDigest.getInstance("SHA-256").digest(file.getBytes());
+        var id = new BigInteger(1, hash).toString(16);
         log.info("Receiving project from front end original name: {},id: {}, size: {}", file.getOriginalFilename(), id, file.getSize());
 
         var project = Project.builder()

@@ -4,6 +4,7 @@ import br.com.magnus.config.starter.configuration.BucketProperties;
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.file.compressor.FileCompressor;
 import br.com.magnus.config.starter.file.extractor.FileExtractor;
+import br.com.magnus.config.starter.projects.BaseProject;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.projects.ProjectStatus;
 import br.com.magnus.config.starter.repository.S3ProjectRepository;
@@ -19,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -32,7 +34,12 @@ public class RefactorProjectImpl implements RefactorProject {
     private final FileExtractor fileExtractor;
 
     @Override
-    public Project process(Project project) {
+    public void process(Project project) {
+        var projectOpt = projectRepository.findById(project.getId());
+        if (checkFroExistingProject(projectOpt)){
+            return;
+        }
+
         var metadata = ObjectMetadata.builder()
                 .contentType(project.getContentType())
                 .metadata("FileName", project.getName())
@@ -45,8 +52,6 @@ public class RefactorProjectImpl implements RefactorProject {
         s3ProjectRepository.upload(bucket.getProjectBucket(), project.getId(), project.getZipInputStreamContent(), metadata);
         projectRepository.save(project);
         sendProject.send(project);
-
-        return project;
     }
 
     @Override
@@ -63,14 +68,14 @@ public class RefactorProjectImpl implements RefactorProject {
     @SneakyThrows
     public ProjectResults retrieveRetryable(String id) {
         var project = projectRepository.findById(id).orElseThrow(IllegalArgumentException::new);
-        var status = project.getStatus().stream().toList().getLast();
-        if (project.getStatus() != null && (status != ProjectStatus.FINISHED && status != ProjectStatus.NO_CANDIDATES)) {
+        var status = project.getStatus().stream().toList();
+        if (project.getStatus() != null && (!status.contains(ProjectStatus.FINISHED) && status.contains(ProjectStatus.NO_CANDIDATES))) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Please try uploading the project again. If it doesn't work, contact the support team.");
         }
         return ProjectResults.builder()
                 .name(project.getName())
                 .candidatesInformation(project.getCandidatesInformation())
-                .status(status)
+                .status(status.getLast())
                 .build();
     }
 
@@ -91,5 +96,19 @@ public class RefactorProjectImpl implements RefactorProject {
         var s3Resource = s3ProjectRepository.upload(bucket.getDownloaderBucket(), project.getId(), refactoredProject, project.getMetadata());
 
         return s3Resource.getURL().toString();
+    }
+
+    private boolean checkFroExistingProject(Optional<BaseProject> optProject) {
+        if (optProject.isEmpty()) {
+            return false;
+        }
+        var project = optProject.get();
+        var projectList = project.getStatus().stream().toList();
+        if (projectList.contains(ProjectStatus.FINISHED) || projectList.contains(ProjectStatus.NO_CANDIDATES)) {
+            log.info("Project already exists in the database, skipping upload");
+            return true;
+        }
+        projectRepository.deleteById(project.getId());
+        return false;
     }
 }
