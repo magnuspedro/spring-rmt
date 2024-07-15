@@ -18,7 +18,7 @@ import java.util.Optional;
 public class ExtractMethodPreconditions {
 
     public boolean isValid(MethodDeclaration overriddenMethod, MethodDeclaration m) {
-        final var fragmentsSplitter =  FragmentsSplitter.splitByMethod(m);
+        final var fragmentsSplitter = FragmentsSplitter.splitByMethod(m);
 
         return fragmentsSplitter.hasSpecificNode()
                 && this.superCallIsNotNested(m)
@@ -46,11 +46,11 @@ public class ExtractMethodPreconditions {
         int differentValuesCounter = 0;
         for (int i = 0; i < m1.getParameters().size(); i++) {
 
-            final Object v1 = m1.getParameters().get(i).getData(new DataKey<>() {
-            });
+            final var v1 = m1.getParameters().get(i).findData(new DataKey<>() {
+            }).orElse(null);
 
-            final Object v2 = m2.getParameters().get(i).getData(new DataKey<>() {
-            });
+            final var v2 = m2.getParameters().get(i).findData(new DataKey<>() {
+            }).orElse(null);
 
             differentValuesCounter += v1 == null && v2 == null ? 0 : (Objects.equals(v1, v2) ? 0 : 1);
         }
