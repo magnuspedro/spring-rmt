@@ -1,8 +1,8 @@
 package br.com.magnus.metricscalculator.consumer;
 
 import br.com.magnus.config.starter.projects.ProjectStatus;
-import br.com.magnus.metricscalculator.extraction.ExtractProjects;
 import br.com.magnus.metricscalculator.qualityAttributes.QualityAttributesProcessor;
+import br.com.magnus.metricscalculator.repository.ExtractProjects;
 import br.com.magnus.metricscalculator.repository.ProjectRepository;
 import io.awspring.cloud.sqs.annotation.SqsListener;
 import lombok.RequiredArgsConstructor;

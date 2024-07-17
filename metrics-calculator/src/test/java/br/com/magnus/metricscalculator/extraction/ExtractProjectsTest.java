@@ -2,6 +2,7 @@ package br.com.magnus.metricscalculator.extraction;
 
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.file.extractor.FileExtractor;
+import br.com.magnus.metricscalculator.repository.ExtractProjects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

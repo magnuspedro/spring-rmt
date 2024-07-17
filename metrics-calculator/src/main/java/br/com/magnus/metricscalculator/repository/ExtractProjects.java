@@ -1,4 +1,4 @@
-package br.com.magnus.metricscalculator.extraction;
+package br.com.magnus.metricscalculator.repository;
 
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.file.extractor.FileExtractor;
