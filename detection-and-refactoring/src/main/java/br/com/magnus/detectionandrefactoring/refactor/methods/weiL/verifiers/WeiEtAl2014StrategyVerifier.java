@@ -8,6 +8,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
 import com.github.javaparser.ast.stmt.IfStmt;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Component
@@ -37,11 +39,17 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
                 .map(BinaryExpr.class::cast)
                 .findFirst();
 
+        final var methodCallExpr = ifStmt.getChildNodes()
+                .stream()
+                .filter(MethodCallExpr.class::isInstance)
+                .map(MethodCallExpr.class::cast)
+                .findFirst();
+
         final var variables = this.classVariablesUsedInItsBody(file, ifStmt);
 
-        return binaryExpr.isPresent()
-                && this.isParameterUsedInIfStmtConditional(method.getParameters(), binaryExpr.get())
-                && variables.size() == 1 && this.usesNoMethodInnerVariables(method, ifStmt);
+        return (binaryExpr.isPresent() || methodCallExpr.isPresent())
+                && this.isParameterUsedInIfStmtConditional(method.getParameters(), binaryExpr, methodCallExpr)
+                &&variables.size() == 1 && this.usesNoMethodInnerVariables(method, ifStmt);
     }
 
     private boolean usesNoMethodInnerVariables(MethodDeclaration method, IfStmt ifStmt) {
@@ -67,15 +75,33 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
                 .toList();
     }
 
-    private boolean isParameterUsedInIfStmtConditional(List<Parameter> parameter, BinaryExpr binaryExpr) {
-        return binaryExpr.stream()
-                .anyMatch(expr -> AstHandler.getNameExpr(expr)
-                        .map(NodeWithSimpleName::getNameAsString)
-                        .stream()
-                        .anyMatch(name -> parameter.stream()
-                                .map(Parameter::getNameAsString)
-                                .anyMatch(name::equals)))
-                && isAnEqualsExpression(binaryExpr);
+    private boolean isParameterUsedInIfStmtConditional(List<Parameter> parameter, Optional<BinaryExpr> binaryExpr, Optional<MethodCallExpr> methodCallExpr) {
+        if (binaryExpr.isPresent()) {
+            return binaryExpr.get().stream()
+                    .anyMatch(expr -> AstHandler.getNameExpr(expr)
+                            .map(NodeWithSimpleName::getNameAsString)
+                            .stream()
+                            .anyMatch(name -> parameter.stream()
+                                    .map(Parameter::getNameAsString)
+                                    .anyMatch(name::equals)))
+                    && isAnEqualsExpression(binaryExpr.get());
+        }
+
+        if (methodCallExpr.isPresent()) {
+            var hasParam = methodCallExpr.get().stream()
+                    .anyMatch(expr -> AstHandler.getNameExpr(expr)
+                            .map(NodeWithSimpleName::getNameAsString)
+                            .stream()
+                            .anyMatch(name -> parameter.stream()
+                                    .map(Parameter::getNameAsString)
+                                    .anyMatch(name::equals)
+                            ));
+
+            var isAnEqualsMethod = methodCallExpr.get().getNameAsString().equals("equals");
+
+            return hasParam && isAnEqualsMethod;
+        }
+        return false;
     }
 
     private boolean isAnEqualsExpression(BinaryExpr binaryExpr) {
