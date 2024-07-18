@@ -1,17 +1,18 @@
 package br.com.magnus.config.starter.projects;
 
 
-import br.com.magnus.config.starter.members.RefactorFiles;
 import io.awspring.cloud.s3.ObjectMetadata;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @RedisHash("project")

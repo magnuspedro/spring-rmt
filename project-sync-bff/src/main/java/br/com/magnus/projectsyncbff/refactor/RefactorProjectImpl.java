@@ -36,7 +36,7 @@ public class RefactorProjectImpl implements RefactorProject {
     @Override
     public void process(Project project) {
         var projectOpt = projectRepository.findById(project.getId());
-        if (checkFroExistingProject(projectOpt)){
+        if (checkFroExistingProject(projectOpt)) {
             return;
         }
 
