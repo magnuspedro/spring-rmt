@@ -7,21 +7,31 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Getter
 @Setter
+@Builder
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
 @RedisHash("project")
-public abstract class BaseProject {
+public class BaseProject {
     @Id
     private String id;
     private String name;
     private String bucket;
     private ObjectMetadata metadata;
-    private List<CandidateInformation> candidatesInformation;
-    private Set<ProjectStatus> status;
+    @Builder.Default
+    private List<CandidateInformation> candidatesInformation = new ArrayList<>();
+    @Builder.Default
+    private Set<ProjectStatus> status = new HashSet<>();
+    private Long createdAt;
+    private Long updatedAt;
+
+    public void addStatus(ProjectStatus status) {
+        this.getStatus().add(status);
+    }
 }

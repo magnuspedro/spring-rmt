@@ -44,9 +44,11 @@ public class RefactorCandidateConsumer {
     }
 
     private Project retrieveProject(String id) {
-        var project = (Project) projectsRepository.findById(id)
+        var baseProject = projectsRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
-        project.setOriginalContent(this.fileExtractor.extract(project));
-        return project;
+        return Project.builder()
+                .baseProject(baseProject)
+                .originalContent(this.fileExtractor.extract(baseProject))
+                .build();
     }
 }

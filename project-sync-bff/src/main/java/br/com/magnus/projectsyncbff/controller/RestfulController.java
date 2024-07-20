@@ -1,5 +1,6 @@
 package br.com.magnus.projectsyncbff.controller;
 
+import br.com.magnus.config.starter.projects.BaseProject;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.projectsyncbff.refactor.ProjectResults;
 import br.com.magnus.projectsyncbff.refactor.RefactorProject;
@@ -36,9 +37,12 @@ public class RestfulController implements Serializable {
         log.info("Receiving project from front end original name: {},id: {}, size: {}", file.getOriginalFilename(), id, file.getSize());
 
         var project = Project.builder()
-                .id(id)
+                .baseProject(BaseProject.builder()
+                        .id(id)
+                        .name(file.getOriginalFilename())
+                        .createdAt(System.nanoTime())
+                        .build())
                 .size(file.getSize())
-                .name(file.getOriginalFilename())
                 .contentType(file.getContentType())
                 .zipContent(IoUtils.toByteArray(file.getInputStream()))
                 .build();

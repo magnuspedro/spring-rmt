@@ -3,6 +3,7 @@ package br.com.magnus.config.starter.extractor;
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.file.extractor.FileExtractor;
 import br.com.magnus.config.starter.file.extractor.S3FileExtractor;
+import br.com.magnus.config.starter.projects.BaseProject;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import br.com.magnus.config.starter.projects.Project;
@@ -60,10 +61,10 @@ class S3FileExtractorTest {
     @DisplayName("Should test extract for project without class")
     public void shouldTestExtractForProjectWithoutClass() {
         var zip = createZipFile("test.c", "");
-        var project = Project.builder()
-                .bucket("bucket")
-                .id("id")
-                .build();
+        var project = BaseProject.builder()
+                        .bucket("bucket")
+                        .id("id")
+                        .build();
         when(this.s3ProjectRepository.download(project.getBucket(), project.getId()))
                 .thenReturn(zip);
 
@@ -76,7 +77,7 @@ class S3FileExtractorTest {
     @DisplayName("Should test extract for project with class")
     public void shouldTestExtractForProjectWithClass() throws IOException {
         var zip = createZipFile("test/Test.java", clazz);
-        var project = Project.builder()
+        var project = BaseProject.builder()
                 .bucket("bucket")
                 .id("id")
                 .build();

@@ -34,6 +34,7 @@ public class MetricsConsumer {
         });
 
         project.addStatus(ProjectStatus.FINISHED);
+        project.setUpdatedAt(System.nanoTime());
         projectRepository.save(project);
     }
 }

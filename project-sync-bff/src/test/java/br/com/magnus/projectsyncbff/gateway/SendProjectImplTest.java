@@ -1,6 +1,5 @@
 package br.com.magnus.projectsyncbff.gateway;
 
-import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.projectsyncbff.configuration.SqsProperties;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,9 +27,7 @@ class SendProjectImplTest {
     @Test
     @DisplayName("Deve testar o envio do projeto para a fila")
     void deveTestarOEvnioDoProjetoParaAFila() {
-        var project = Project.builder().id("id").build();
-
-        this.sendProject.send(project);
+        this.sendProject.send("id");
 
        verify(this.sqsTemplate, atLeastOnce()).sendAsync(any());
     }

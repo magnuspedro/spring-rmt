@@ -1,5 +1,6 @@
 package br.com.magnus.config.starter.file.extractor;
 
+import br.com.magnus.config.starter.projects.BaseProject;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.repository.S3ProjectRepository;
 import br.com.magnus.config.starter.file.JavaFile;
@@ -24,7 +25,7 @@ public class S3FileExtractor implements FileExtractor {
     private final S3ProjectRepository s3ProjectRepository;
 
     @Override
-    public List<JavaFile> extract(Project project) {
+    public List<JavaFile> extract(BaseProject project) {
         Assert.notNull(project, "Project cannot be null");
         return extract(project.getBucket(), project.getId());
     }

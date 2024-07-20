@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -50,8 +51,8 @@ public class RefactorProjectImpl implements RefactorProject {
         project.addStatus(ProjectStatus.EVALUATING_CANDIDATES);
 
         s3ProjectRepository.upload(bucket.getProjectBucket(), project.getId(), project.getZipInputStreamContent(), metadata);
-        projectRepository.save(project);
-        sendProject.send(project);
+        projectRepository.save(project.getBaseProject());
+        sendProject.send(project.getId());
     }
 
     @Override
@@ -69,9 +70,10 @@ public class RefactorProjectImpl implements RefactorProject {
     public ProjectResults retrieveRetryable(String id) {
         var project = projectRepository.findById(id).orElseThrow(IllegalArgumentException::new);
         var status = project.getStatus().stream().toList();
-        if (project.getStatus() != null && (!status.contains(ProjectStatus.FINISHED) && status.contains(ProjectStatus.NO_CANDIDATES))) {
+        if (!status.contains(ProjectStatus.FINISHED) && !status.contains(ProjectStatus.NO_CANDIDATES)) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Please try uploading the project again. If it doesn't work, contact the support team.");
         }
+        log.info("Elapsed time: {}", TimeUnit.NANOSECONDS.toSeconds(project.getUpdatedAt() - project.getCreatedAt()));
         return ProjectResults.builder()
                 .name(project.getName())
                 .candidatesInformation(project.getCandidatesInformation())

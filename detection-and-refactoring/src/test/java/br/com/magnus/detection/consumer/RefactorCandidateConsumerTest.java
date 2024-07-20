@@ -1,6 +1,7 @@
 package br.com.magnus.detection.consumer;
 
 import br.com.magnus.config.starter.file.extractor.FileExtractor;
+import br.com.magnus.config.starter.projects.BaseProject;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.projects.ProjectStatus;
 import br.com.magnus.detectionandrefactoring.consumer.RefactorCandidateConsumer;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,9 +60,13 @@ class RefactorCandidateConsumerTest {
     @Test
     @DisplayName("Should test consumer with no candidates")
     public void shouldTestConsumerWithNoCandidates() {
-        var project = Project.builder().id("id").build();
+        var project = Project.builder()
+                .baseProject(BaseProject.builder()
+                        .id("id")
+                        .build())
+                .build();
         project.addStatus(ProjectStatus.NO_CANDIDATES);
-        when(projectsRepository.findById(anyString())).thenReturn(java.util.Optional.of(project));
+        when(projectsRepository.findById(anyString())).thenReturn(Optional.of(project.getBaseProject()));
 
         assertDoesNotThrow(() -> refactorCandidateConsumer.listener("id"));
 
@@ -72,9 +78,13 @@ class RefactorCandidateConsumerTest {
     @Test
     @DisplayName("Should test consumer with candidates")
     public void shouldTestConsumerWithCandidates() {
-        var project = Project.builder().id("id").build();
+        var project = Project.builder()
+                .baseProject(BaseProject.builder()
+                        .id("id")
+                        .build())
+                .build();
         project.addStatus(ProjectStatus.REFACTORED);
-        when(projectsRepository.findById(anyString())).thenReturn(java.util.Optional.of(project));
+        when(projectsRepository.findById(anyString())).thenReturn(Optional.of(project.getBaseProject()));
 
         assertDoesNotThrow(() -> refactorCandidateConsumer.listener("id"));
 

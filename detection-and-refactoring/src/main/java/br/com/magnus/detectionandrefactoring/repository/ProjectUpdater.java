@@ -17,7 +17,7 @@ public class ProjectUpdater {
 
     public void saveProject(Project project) {
         saveFiles(project);
-        projectRepository.save(project);
+        projectRepository.save(project.getBaseProject());
 
     }
 

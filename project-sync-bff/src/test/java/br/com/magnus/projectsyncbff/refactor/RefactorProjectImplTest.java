@@ -2,6 +2,7 @@ package br.com.magnus.projectsyncbff.refactor;
 
 import br.com.magnus.config.starter.configuration.BucketProperties;
 import br.com.magnus.config.starter.file.extractor.FileExtractor;
+import br.com.magnus.config.starter.projects.BaseProject;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.projects.ProjectStatus;
 import br.com.magnus.config.starter.repository.S3ProjectRepository;
@@ -34,7 +35,7 @@ class RefactorProjectImplTest {
     @Mock
     private FileExtractor fileExtractor;
 
-    private final BucketProperties bucket =  new BucketProperties();
+    private final BucketProperties bucket = new BucketProperties();
     private RefactorProjectImpl refactorProject;
 
     @BeforeEach
@@ -47,7 +48,9 @@ class RefactorProjectImplTest {
     @DisplayName("Should test project saving and sending to queue")
     void ShouldTestProjectSavingAndSendingToQueue() {
         var project = Project.builder()
-                .id("id")
+                .baseProject(BaseProject.builder()
+                        .id("id")
+                        .build())
                 .contentType("String")
                 .zipContent("Content".getBytes())
                 .build();
@@ -57,19 +60,21 @@ class RefactorProjectImplTest {
         verify(this.s3ProjectRepository, atLeastOnce()).upload(eq(bucket.getProjectBucket()), eq(project.getId()), any(InputStream.class), assertArg(it ->
                 assertThat(it.getContentType(), is(project.getContentType()))
         ));
-        verify(this.projectRepository).save(project);
-        verify(this.sendProject).send(project);
+        verify(this.projectRepository).save(project.getBaseProject());
+        verify(this.sendProject).send(project.getId());
     }
 
     @Test
     @DisplayName("Should test project that already exists in non final state")
     public void shouldTestProjectThatAlreadyExistsInNonFinalState() {
         var project = Project.builder()
-                .id("id")
+                .baseProject(BaseProject.builder()
+                        .id("id")
+                        .build())
                 .contentType("String")
                 .zipContent("Content".getBytes())
                 .build();
-        when(this.projectRepository.findById(project.getId())).thenReturn(Optional.of(project));
+        when(this.projectRepository.findById(project.getId())).thenReturn(Optional.of(project.getBaseProject()));
 
         this.refactorProject.process(project);
 
@@ -77,25 +82,27 @@ class RefactorProjectImplTest {
         verify(this.s3ProjectRepository, atLeastOnce()).upload(eq(bucket.getProjectBucket()), eq(project.getId()), any(InputStream.class), assertArg(it ->
                 assertThat(it.getContentType(), is(project.getContentType()))
         ));
-        verify(this.projectRepository).save(project);
-        verify(this.sendProject).send(project);
+        verify(this.projectRepository).save(project.getBaseProject());
+        verify(this.sendProject).send(project.getId());
     }
 
     @Test
     @DisplayName("Should test project that already exists")
     public void shouldTestProjectThatAlreadyExists() {
         var project = Project.builder()
-                .id("id")
+                .baseProject(BaseProject.builder()
+                        .id("id")
+                        .build())
                 .contentType("String")
                 .zipContent("Content".getBytes())
                 .build();
         project.addStatus(ProjectStatus.FINISHED);
-        when(this.projectRepository.findById(project.getId())).thenReturn(Optional.of(project));
+        when(this.projectRepository.findById(project.getId())).thenReturn(Optional.of(project.getBaseProject()));
 
         this.refactorProject.process(project);
 
         verify(this.s3ProjectRepository, never()).upload(any(), any(), any(), any());
-        verify(this.projectRepository, never()).save(project);
-        verify(this.sendProject, never()).send(project);
+        verify(this.projectRepository, never()).save(project.getBaseProject());
+        verify(this.sendProject, never()).send(project.getId());
     }
 }

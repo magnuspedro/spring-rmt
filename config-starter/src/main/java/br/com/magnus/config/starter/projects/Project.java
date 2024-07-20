@@ -4,32 +4,79 @@ import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.RefactorFiles;
 import io.awspring.cloud.s3.ObjectMetadata;
 import lombok.*;
+import org.springframework.util.Assert;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.time.Instant;
 import java.util.*;
 
 @Getter
 @Setter
+@Builder
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class Project extends BaseProject {
+public class Project {
     private Long size;
     private String contentType;
     private byte[] zipContent;
     private List<JavaFile> originalContent;
     private List<RefactorFiles> refactorFiles;
+    private BaseProject baseProject;
 
-    @Builder
-    public Project(Long size, String contentType, byte[] zipContent, List<JavaFile> originalContent, String id, String name, String bucket, ObjectMetadata objectMetadata, List<RefactorFiles> refactorFiles) {
-        super(id, name, bucket, objectMetadata, new ArrayList<>(), new HashSet<>(Set.of(ProjectStatus.RECEIVED)));
-        this.size = size;
-        this.contentType = contentType;
-        this.zipContent = zipContent;
-        this.originalContent = originalContent;
-        this.refactorFiles = refactorFiles;
+    public String getId(){
+        return Optional.ofNullable(baseProject)
+                .map(BaseProject::getId)
+                .orElse(null);
+    }
+
+    public String getBucket(){
+        return Optional.ofNullable(baseProject)
+                .map(BaseProject::getBucket)
+                .orElse(null);
+    }
+
+    public String getName(){
+        return Optional.ofNullable(baseProject)
+                .map(BaseProject::getName)
+                .orElse(null);
+    }
+
+    public ObjectMetadata getMetadata(){
+        return Optional.ofNullable(baseProject)
+                .map(BaseProject::getMetadata)
+                .orElse(null);
+    }
+
+    public List<CandidateInformation> getCandidatesInformation(){
+        return Optional.ofNullable(baseProject)
+                .map(BaseProject::getCandidatesInformation)
+                .orElse(null);
+    }
+
+
+    public Set<ProjectStatus> getStatus(){
+        return Optional.ofNullable(baseProject)
+                .map(BaseProject::getStatus)
+                .orElse(null);
+    }
+
+    public void setName(String name){
+        Optional.ofNullable(baseProject)
+                .ifPresent(bp -> bp.setName(name));
+    }
+
+    public void setMetadata(ObjectMetadata metadata){
+        Optional.ofNullable(baseProject)
+                .ifPresent(bp -> bp.setMetadata(metadata));
+    }
+
+    public void setBucket(String bucket){
+        Optional.ofNullable(baseProject)
+                .ifPresent(bp -> bp.setBucket(bucket));
+    }
+
+    public void setId(String id){
+        Optional.ofNullable(baseProject)
+                .ifPresent(bp -> bp.setId(id));
     }
 
     public InputStream getZipInputStreamContent() {
@@ -37,7 +84,7 @@ public class Project extends BaseProject {
     }
 
     public void addStatus(ProjectStatus status) {
-        super.getStatus().add(status);
+        this.baseProject.getStatus().add(status);
     }
 
     public void addRefactorFiles(RefactorFiles refactorFiles) {
@@ -53,9 +100,10 @@ public class Project extends BaseProject {
     }
 
     public void addCandidateInformation(CandidateInformation candidateInformation) {
-        if (super.getCandidatesInformation() == null)
-            super.setCandidatesInformation(new ArrayList<>());
-        super.getCandidatesInformation().add(candidateInformation);
+        Assert.notNull(baseProject, "Base Project cannot be null");
+        if (this.baseProject.getCandidatesInformation() == null)
+            this.baseProject.setCandidatesInformation(new ArrayList<>());
+        this.baseProject.getCandidatesInformation().add(candidateInformation);
     }
 
 }
