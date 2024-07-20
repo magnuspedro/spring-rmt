@@ -267,7 +267,7 @@ public class ZafeirisEtAl2016Executor {
 
         if (node.getChildNodes().getFirst() instanceof final VariableDeclarationExpr oldVariableDeclaration) {
 
-            final var oldVariableDeclarator = (VariableDeclarator) oldVariableDeclaration.getChildNodes().getFirst();
+            final var oldVariableDeclarator = AstHandler.getVariableDeclarator(oldVariableDeclaration.getChildNodes());
             final var variableDeclarator = new VariableDeclarator(oldVariableDeclarator.getType(), oldVariableDeclarator.getName(), newMethodCall);
             final var newVariableDeclaration = new VariableDeclarationExpr(variableDeclarator);
 

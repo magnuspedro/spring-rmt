@@ -551,6 +551,17 @@ public class AstHandler {
                 .findFirst();
     }
 
+    public static VariableDeclarator getVariableDeclarator(List<Node> node){
+        return Optional.ofNullable(node)
+                .stream()
+                .flatMap(List::stream)
+                .filter(VariableDeclarator.class::isInstance)
+                .map(VariableDeclarator.class::cast)
+                .findFirst()
+                .orElseThrow(VariableDeclarationExpectedException::new);
+
+    }
+
     public static Optional<VariableDeclarator> getVariableDeclarationInNode(Node node, String returnName) {
         if (node == null) {
             throw new NullNodeException();

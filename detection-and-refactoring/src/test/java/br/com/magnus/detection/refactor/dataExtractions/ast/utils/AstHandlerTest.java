@@ -1724,4 +1724,21 @@ class AstHandlerTest {
 
         assertEquals(1, result.size());
     }
+
+    @Test
+    @DisplayName("Should test getVariableDeclarator for node")
+    public void shouldTestGetVariableDeclaratorForNode() {
+        var variableDeclarator = new VariableDeclarator();
+        var variableDeclarationExpr = new VariableDeclarationExpr(variableDeclarator);
+
+        var result = AstHandler.getVariableDeclarator(variableDeclarationExpr.getChildNodes());
+
+        assertEquals(result, variableDeclarator);
+    }
+
+    @Test
+    @DisplayName("Should test getVariableDeclarator for null")
+    public void shouldTestGetVariableDeclaratorForNull() {
+        assertThrows(VariableDeclarationExpectedException.class,() -> AstHandler.getVariableDeclarator(null)) ;
+    }
 }
