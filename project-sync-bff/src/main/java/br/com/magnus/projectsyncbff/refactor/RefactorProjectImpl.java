@@ -18,10 +18,10 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -73,11 +73,14 @@ public class RefactorProjectImpl implements RefactorProject {
         if (!status.contains(ProjectStatus.FINISHED) && !status.contains(ProjectStatus.NO_CANDIDATES)) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Please try uploading the project again. If it doesn't work, contact the support team.");
         }
-        log.info("Elapsed time: {}", TimeUnit.NANOSECONDS.toSeconds(project.getUpdatedAt() - project.getCreatedAt()));
+        var durationNano = project.getUpdatedAt() - project.getCreatedAt();
+        var duration = durationNano/1E9;
+        log.info("Elapsed time: Milliseconds: {}, Nanoseconds: {} ", duration, durationNano);
         return ProjectResults.builder()
                 .name(project.getName())
                 .candidatesInformation(project.getCandidatesInformation())
                 .status(status.getLast())
+                .duration(new DecimalFormat("#.#####").format(duration))
                 .build();
     }
 
