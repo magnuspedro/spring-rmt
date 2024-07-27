@@ -32,35 +32,35 @@ resource "aws_s3_bucket" "projects_bucket" {
 #   port                 = 6379
 # }
 
-resource "aws_sqs_queue" "detection_service" {
-  name                      = "detect-pattern"
-  delay_seconds             = 0
-  max_message_size          = 2048
-  message_retention_seconds = 86400
-  receive_wait_time_seconds = 10
-  redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.detection_service_deadletter.arn
-    maxReceiveCount     = 4
-  })
-}
-
-resource "aws_sqs_queue" "detection_service_deadletter" {
-  name = "detect-pattern-deadletter"
-}
-
-
-resource "aws_sqs_queue" "metrics_service" {
-  name                      = "measure-pattern"
-  delay_seconds             = 0
-  max_message_size          = 2048
-  message_retention_seconds = 86400
-  receive_wait_time_seconds = 10
-  redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.metrics_service_deadletter.arn
-    maxReceiveCount     = 4
-  })
-}
-
-resource "aws_sqs_queue" "metrics_service_deadletter" {
-  name = "measure-pattern-deadletter"
-}
+# resource "aws_sqs_queue" "detection_service" {
+#   name                      = "detect-pattern"
+#   delay_seconds             = 0
+#   max_message_size          = 2048
+#   message_retention_seconds = 86400
+#   receive_wait_time_seconds = 10
+#   redrive_policy = jsonencode({
+#     deadLetterTargetArn = aws_sqs_queue.detection_service_deadletter.arn
+#     maxReceiveCount     = 4
+#   })
+# }
+#
+# resource "aws_sqs_queue" "detection_service_deadletter" {
+#   name = "detect-pattern-deadletter"
+# }
+#
+#
+# resource "aws_sqs_queue" "metrics_service" {
+#   name                      = "measure-pattern"
+#   delay_seconds             = 0
+#   max_message_size          = 2048
+#   message_retention_seconds = 86400
+#   receive_wait_time_seconds = 10
+#   redrive_policy = jsonencode({
+#     deadLetterTargetArn = aws_sqs_queue.metrics_service_deadletter.arn
+#     maxReceiveCount     = 4
+#   })
+# }
+#
+# resource "aws_sqs_queue" "metrics_service_deadletter" {
+#   name = "measure-pattern-deadletter"
+# }

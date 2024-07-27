@@ -1,4 +1,4 @@
-package br.com.magnus.detectionandrefactoring.consumer;
+package br.com.magnus.metricscalculator.consumer;
 
 import io.awspring.cloud.sqs.annotation.SqsListener;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(value = "rqueue.enabled", havingValue = "false")
-public class RefactorCandidateConsumer {
+public class MetricsSqsConsumer {
 
-    private final ProcessRefactorCandidate processRefactorCandidate;
+    private final MetricsProcessor metricsProcessor;
 
-    @SqsListener("${queue.detect-pattern}")
-    public void listener(String  id) {
-        processRefactorCandidate.process(id);
+    @SqsListener("${queue.measure-pattern}")
+    public void listener(String id) {
+        metricsProcessor.process(id);
     }
 }

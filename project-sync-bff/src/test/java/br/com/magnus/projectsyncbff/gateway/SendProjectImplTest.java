@@ -1,6 +1,6 @@
 package br.com.magnus.projectsyncbff.gateway;
 
-import br.com.magnus.projectsyncbff.configuration.SqsProperties;
+import br.com.magnus.projectsyncbff.configuration.QueueProperties;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,12 +16,12 @@ class SendProjectImplTest {
 
     @Mock
     private SqsTemplate sqsTemplate;
-    private SendProjectImpl sendProject;
+    private SendProjectSqS sendProject;
 
     @BeforeEach
     void setup() {
-        var sqsProperties = new SqsProperties("fila");
-        this.sendProject = new SendProjectImpl(sqsTemplate, sqsProperties);
+        var sqsProperties = new QueueProperties("fila");
+        this.sendProject = new SendProjectSqS(sqsTemplate, sqsProperties);
     }
 
     @Test

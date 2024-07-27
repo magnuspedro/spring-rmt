@@ -16,10 +16,8 @@
         <java.version>21</java.version>
         <config-starter.version>1.1.0</config-starter.version>
         <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
-        <spring.cloud-version>2023.0.0</spring.cloud-version>
         <logback-jackson.version>0.1.5</logback-jackson.version>
         <logback-json-classic.version>0.1.5</logback-json-classic.version>
-        <spring-cloud-aws-dependencies.version>3.1.1</spring-cloud-aws-dependencies.version>
         <bootstrap.version>5.3.3</bootstrap.version>
         <htmx.org.version>1.9.12</htmx.org.version>
     </properties>
@@ -90,20 +88,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring.cloud-version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.awspring.cloud</groupId>
-                <artifactId>spring-cloud-aws-dependencies</artifactId>
-                <version>${spring-cloud-aws-dependencies.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
