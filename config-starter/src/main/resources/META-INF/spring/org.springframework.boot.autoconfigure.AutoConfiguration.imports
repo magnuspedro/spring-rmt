@@ -1,0 +1,5 @@
+br.com.magnus.config.starter.configuration.BucketProperties
+br.com.magnus.config.starter.configuration.AwsConfiguration
+br.com.magnus.config.starter.configuration.RedisConfiguration
+br.com.magnus.config.starter.configuration.FileExtractorConfiguration
+br.com.magnus.config.starter.configuration.RefactoringCandidatesConfiguration

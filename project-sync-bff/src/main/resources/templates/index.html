@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <title>RMT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}" defer></script>
+    <script th:src="@{/webjars/htmx.org/1.9.12/dist/htmx.min.js}" defer></script>
+</head>
+<body>
+<main class="container">
+
+    <div class="toast-container position-absolute top-0 end-0" style="float: initial">
+        <div id="toast" class="toast float-start" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/03/Red_rectangle1.svg" width="30px"
+                     height="30px" class="rounded me-2" alt="...">
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+            </div>
+        </div>
+    </div>
+    <h1 class="p-4 text-center">RMT 2.0</h1>
+    <div class="row justify-content-center text-center">
+        <div class="col justify-content-center text-center">
+            <div id="spinner"
+                 class="spinner-border htmx-indicator"
+                 role="status"></div>
+        </div>
+    </div>
+    <form class="row" id="form" hx-encoding='multipart/form-data' hx-swap="outerHTML" hx-target="#evaluate"
+          hx-post='/upload' hx-trigger="change from:input">
+        <div class="col-sm-4 form-group">
+            <label class="p2" for="upload">Upload zip file to evaluate</label>
+            <input class="form-control" id="upload" type='file' name='file' accept=".zip" hx-disabled-elt="this" required>
+            <p class="hiding" style="float: left" id="file-link"></p>
+        </div>
+    </form>
+    <div class="row">
+        <button id="evaluate" class="m-3 h-75 align-self-end btn btn-secondary" disabled>Evaluate</button>
+    </div>
+    <form id="table" class="row">
+        <table class="table table-bordered m-3">
+            <thead>
+            <tr>
+                <th scope="col">Select</th>
+                <th scope="col" style="width:40%">Files</th>
+                <th scope="col">Pattern</th>
+                <th scope="col">Maintainability</th>
+                <th scope="col">Reusability</th>
+                <th scope="col">Reliability</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <button class="m-3 h-50 align-self-end btn btn-secondary" disabled>Refactor</button>
+    </form>
+    <script>
+        document.addEventListener('htmx:responseError', event => {
+            const toastEl = document.getElementById('toast');
+            const response = JSON.parse(event.detail.xhr.response)
+            toastEl.querySelector('.toast-body').textContent = response.message;
+            const toast = new bootstrap.Toast(toastEl, {delay: 3000});
+            toast.show();
+        });
+    </script>
+   </main>
+</body>
+</html>

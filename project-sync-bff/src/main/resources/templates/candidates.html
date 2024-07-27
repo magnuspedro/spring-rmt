@@ -1,0 +1,43 @@
+<form id="table" class="row">
+    <p class="hiding" id="file-link"></p>
+    <p><strong>Time to Execute: </strong><span th:text="${duration}"></span>s</p>
+    <table class="table table-bordered table-hover m-3">
+        <thead>
+        <tr>
+            <th scope="col">Select</th>
+            <th scope="col" style="width:40%">Files</th>
+            <th scope="col">Pattern</th>
+            <th scope="col">Maintainability</th>
+            <th scope="col">Reusability</th>
+            <th scope="col">Reliability</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${candidates == null || candidates.isEmpty()}">
+            <td>No candidates found</td>
+        </tr>
+        <tr th:each="candidate : ${candidates}" data-toggle="tooltip"
+            th:title="'Title: '+${candidate.getReference().title()} + ' Authors: ' + ${candidate.getReference().getAuthors()} +' Year: '+ ${candidate.getReference().year()}">
+            <td class="position-relative h-100">
+                <input class="form-check-input position-absolute top-0 start-0 m-0 w-100 h-100" type="checkbox"
+                       name="id" th:value="${candidate.getId()}">
+            </td>
+            <td>
+                <div class="p-1 border-bottom" th:each="file: ${candidate.getFilesChanged()}">
+                    <span th:text="${file}"></span>
+                </div>
+            </td>
+            <td><span th:text="${candidate.getDesignPattern()}"></span></td>
+            <td><span th:text="${candidate.getMetricValue('MAINTAINABILITY')}"></span></td>
+            <td><span th:text="${candidate.getMetricValue('REUSABILITY')}"></span></td>
+            <td><span th:text="${candidate.getMetricValue('RELIABILITY')}"></span></td>
+        </tr>
+    </table>
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    <button class="m-3 h-50 align-self-end btn btn-primary" th:hx-post="${url}" hx-target="#file-link"
+            hx-swap="outerHTML">Refactor
+    </button>
+</form>
