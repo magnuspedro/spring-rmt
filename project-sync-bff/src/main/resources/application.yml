@@ -24,7 +24,10 @@ s3:
   project-bucket: projects
   downloader-bucket: refactored-projects
 
-sqs:
+rqueue:
+  enabled: true
+
+queue:
   detect-pattern: detect-pattern
 
 retry:

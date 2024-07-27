@@ -20,7 +20,10 @@ s3:
   project-bucket: projects
   refactored-projects-bucket: refactored-projects
 
-sqs:
+rqueue:
+  enabled: true
+
+queue:
   detect-pattern: detect-pattern
   measure-pattern: measure-pattern
 
