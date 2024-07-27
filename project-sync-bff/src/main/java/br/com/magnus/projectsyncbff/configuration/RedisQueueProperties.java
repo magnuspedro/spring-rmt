@@ -12,16 +12,12 @@ public class RedisQueueProperties {
 
     private final RqueueEndpointManager rqueueEndpointManager;
     private final QueueProperties queueProperties;
-
     private boolean isRegistered = false;
 
     public String getDetectionMethod() {
-        if (!isRegistered) {
-            log.info("Checking if the queue is registered");
-            if (!rqueueEndpointManager.isQueueRegistered(queueProperties.detectPattern())) {
-                log.info("Registering Queue {}", queueProperties.detectPattern());
-                rqueueEndpointManager.registerQueue(queueProperties.detectPattern());
-            }
+        if (!isRegistered && !rqueueEndpointManager.isQueueRegistered(queueProperties.detectPattern())) {
+            log.info("Registering Queue {}", queueProperties.detectPattern());
+            rqueueEndpointManager.registerQueue(queueProperties.detectPattern());
             isRegistered = true;
         }
         return queueProperties.detectPattern();
