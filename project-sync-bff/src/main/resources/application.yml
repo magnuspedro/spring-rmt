@@ -22,8 +22,8 @@ spring:
       password: ${REDIS_PASSWORD:}
 
 s3:
-  project-bucket: projects
-  downloader-bucket: refactored-projects
+  project-bucket: ${PROJECT_BUCKET:projects}
+  downloader-bucket: ${REFACTORED_PROJECT_BUCKET:refactored-projects}
 
 rqueue:
   enabled: true
