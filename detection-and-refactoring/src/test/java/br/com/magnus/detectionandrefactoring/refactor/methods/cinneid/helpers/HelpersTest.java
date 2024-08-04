@@ -6,13 +6,13 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -34,6 +34,7 @@ class HelpersTest {
                     System.out.println("Hello World");
                     }
                     public String method2() {
+                    new TestClass("Test");
                     return "Hello World";
                     }
             }""";
@@ -115,5 +116,61 @@ class HelpersTest {
         var result = Helpers.makeAbstract(constructor, "method1");
 
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test replaceObjCreationMethod without arguments")
+    public void shouldTestReplaceObjCreationMethodWithoutArguments() {
+        var clazz = AstHandler.getClassOrInterfaceDeclaration((CompilationUnit) AbstractSyntaxTree.parseSingle(testClass)).get();
+        var objectCreation = AstHandler.getObjectCreationExprList(clazz);
+
+        var result = Helpers.replaceObjCreationWithMethInvocation(objectCreation.getFirst(), "method1");
+
+        assertEquals("method1()", result.get().toString());
+    }
+
+    @Test
+    @DisplayName("Should test replaceObjectCreationMethod with arguments")
+    public void shouldTestReplaceObjectCreationMethodWithArguments() {
+        var clazz = AstHandler.getClassOrInterfaceDeclaration((CompilationUnit) AbstractSyntaxTree.parseSingle(testClass)).get();
+        var objectCreation = AstHandler.getObjectCreationExprList(clazz);
+
+        var result = Helpers.replaceObjCreationWithMethInvocation(objectCreation.get(1), "method1");
+
+        assertEquals("method1(\"Test\")", result.get().toString());
+    }
+
+    @Test
+    @DisplayName("Should test replaceObjectCreationMethod with null")
+    public void shouldTestReplaceObjectCreationMethodWithNull() {
+        var result = Helpers.replaceObjCreationWithMethInvocation(null, "method1");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should test replaceClassWithInterface")
+    public void shouldTestReplaceClassWithInterface() {
+        var inf = new ClassOrInterfaceDeclaration()
+                .setName("TestInterface")
+                .setInterface(true);
+        var v = new VariableDeclarator().setType("TestClass").setName("test");
+
+        Helpers.replaceClassWithInterface(v, inf);
+
+        assertEquals(inf.getNameAsString(), v.getTypeAsString());
+    }
+
+    @Test
+    @DisplayName("Should test replaceClassWithInterface without interface")
+    public void shouldTestReplaceClassWithInterfaceWithoutInterface() {
+        var inf = new ClassOrInterfaceDeclaration()
+                .setName("TestInterface");
+        var v = new VariableDeclarator();
+
+        var result = assertThrows(IllegalArgumentException.class,
+                () -> Helpers.replaceClassWithInterface(v, inf));
+
+        assertEquals("The class must be an interface", result.getMessage());
     }
 }

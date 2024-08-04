@@ -5,11 +5,15 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
+import org.springframework.util.Assert;
 
 import java.util.Optional;
+import java.util.Set;
 
 
 public class Helpers {
@@ -60,8 +64,24 @@ public class Helpers {
                 .setType(constructor.getNameAsString()));
     }
 
-    public static Optional<MethodDeclaration> replaceObjCreationWithMethInvocation(ObjectCreationExpr e, String newName){
+    public static Optional<MethodCallExpr> replaceObjCreationWithMethInvocation(ObjectCreationExpr e, String newName) {
+        if (e == null) {
+            return Optional.empty();
+        }
 
-        return Optional.empty();
+        return Optional.of(new MethodCallExpr()
+                .setName(newName)
+                .setArguments(e.getArguments())
+        );
+    }
+
+    public static void replaceClassWithInterface(VariableDeclarator variable, ClassOrInterfaceDeclaration inf) {
+        Assert.isTrue(inf.isInterface(), "The class must be an interface");
+
+        variable.setType(inf.getNameAsString());
+    }
+
+    public static void addClass(ClassOrInterfaceDeclaration clazz, ClassOrInterfaceDeclaration superClazz, Set<ClassOrInterfaceDeclaration> subClasses) {
+
     }
 }
