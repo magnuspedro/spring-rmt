@@ -48,18 +48,18 @@ public class WeiEtAl2014StrategyExecutor implements WeiEtAl2014Executor {
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
 
-            final var method = new MethodDeclaration();
-            method.setName(weiCandidate.getMethodDcl().getName());
-            method.setType(weiCandidate.getMethodDcl().getType());
-            method.setModifiers(NodeList.nodeList(Modifier.publicModifier()));
-            method.setAbstract(true);
+            final var method = new MethodDeclaration()
+                    .setName(weiCandidate.getMethodDcl().getName())
+                    .setType(weiCandidate.getMethodDcl().getType())
+                    .setModifiers(NodeList.nodeList(Modifier.publicModifier()))
+                    .setAbstract(true);
 
             weiCandidate.getVariables().forEach(v -> method.addParameter(v.getType(), v.getNameAsString()));
 
             final var strategyCu = new CompilationUnit();
-            final var createdStrategy = strategyCu.addClass("Strategy");
-            createdStrategy.addMember(method);
-            createdStrategy.setAbstract(true);
+            final var createdStrategy = strategyCu.addClass("Strategy")
+                    .addMember(method)
+                    .setAbstract(true);
 
             var strategyFile = JavaFile.builder()
                     .name("Strategy.java")

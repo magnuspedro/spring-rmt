@@ -1,5 +1,6 @@
 package br.com.magnus.detectionandrefactoring.refactor.methods.cinneid.helpers;
 
+import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -17,7 +18,7 @@ import java.util.Set;
 
 
 public class Helpers {
-    public static Optional<ClassOrInterfaceDeclaration> abstractClass(ClassOrInterfaceDeclaration clazz, String newName) {
+    public static Optional<CompilationUnit> abstractClass(ClassOrInterfaceDeclaration clazz, String newName) {
         if (clazz == null || clazz.isInterface() || clazz.getMethods().isEmpty()) {
             return Optional.empty();
         }
@@ -29,9 +30,10 @@ public class Helpers {
             return Optional.empty();
         }
 
-        var newClass = new ClassOrInterfaceDeclaration();
-        newClass.setInterface(true);
-        newClass.setName(newName);
+        var cu = new CompilationUnit();
+        var newClass = cu.addClass(newName)
+                .setInterface(true)
+                .setName(newName);
         for (MethodDeclaration m : publicMethods) {
             var modifiers = m.getModifiers().stream()
                     .filter(modifier -> !modifier.equals(Modifier.publicModifier()))
@@ -45,7 +47,7 @@ public class Helpers {
             }
         }
 
-        return Optional.of(newClass);
+        return Optional.of(cu);
     }
 
     public static Optional<MethodDeclaration> makeAbstract(ConstructorDeclaration constructor, String newName) {
@@ -82,6 +84,21 @@ public class Helpers {
     }
 
     public static void addClass(ClassOrInterfaceDeclaration clazz, ClassOrInterfaceDeclaration superClazz, Set<ClassOrInterfaceDeclaration> subClasses) {
+        Assert.notNull(clazz, "The class must not be null");
+        Optional.ofNullable(superClazz).ifPresent(sup -> sup.addExtendedType(clazz.getNameAsString()));
+        Optional.ofNullable(subClasses).ifPresent(subs -> subs.forEach(sub -> sub.addExtendedType(clazz.getNameAsString())));
+    }
 
+    public static MethodDeclaration abstractMethod(MethodDeclaration method) {
+        Assert.notNull(method, "The method must not be null");
+        return method.clone().addModifier(Modifier.Keyword.ABSTRACT);
+    }
+
+    public static void pullUpMethod(ClassOrInterfaceDeclaration superClazz, MethodDeclaration method) {
+        Assert.notNull(superClazz, "The super class must not be null");
+        Assert.notNull(method, "The method must not be null");
+
+        method.remove();
+        superClazz.getMembers().add(method);
     }
 }

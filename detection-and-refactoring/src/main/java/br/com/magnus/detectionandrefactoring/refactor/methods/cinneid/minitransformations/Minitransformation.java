@@ -1,7 +1,10 @@
 package br.com.magnus.detectionandrefactoring.refactor.methods.cinneid.minitransformations;
 
+import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
 import br.com.magnus.detectionandrefactoring.refactor.methods.cinneid.helpers.Helpers;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -9,16 +12,18 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 public class Minitransformation {
 
-    public static Optional<ClassOrInterfaceDeclaration> Abstraction(ClassOrInterfaceDeclaration clazz) {
+    public static Optional<CompilationUnit> Abstraction(ClassOrInterfaceDeclaration clazz) {
         if (clazz == null || clazz.isInterface() || clazz.getMethods().isEmpty()) {
             return Optional.empty();
         }
 
+        var cu = new CompilationUnit();
         var name = clazz.getNameAsString() + "Interface";
         var implementedTypes = NodeList.nodeList(clazz.getImplementedTypes());
         implementedTypes.add(new ClassOrInterfaceType().setName(name));
@@ -59,10 +64,28 @@ public class Minitransformation {
                 .forEach(v -> Helpers.replaceClassWithInterface(v, inf));
     }
 
-    public static void partialAbstraction(ClassOrInterfaceDeclaration concrete, String newName) {
-        var newClass = new ClassOrInterfaceDeclaration().setName(newName);
-        var superClass = concrete.getExtendedTypes().getFirst().orElse(null);
+    public static CompilationUnit partialAbstraction(List<JavaFile> files, ClassOrInterfaceDeclaration concrete, String newName, Set<String> abstractMethods) {
+        var cu = new CompilationUnit();
+        var newClass = cu.addClass(newName).addModifier(Modifier.Keyword.ABSTRACT);
+        var superClass = concrete.getExtendedTypes().getFirst()
+                .map(ClassOrInterfaceType::getNameAsString)
+                .flatMap(sup -> files.stream().
+                        filter(f -> f.getName().equals(sup))
+                        .findFirst()
+                        .map(JavaFile::getCompilationUnit)
+                        .flatMap(AstHandler::getClassOrInterfaceDeclaration))
+                .orElse(null);
 
+        Helpers.addClass(newClass, superClass, Set.of(concrete));
+
+        concrete.getMethods().stream()
+                .filter(m -> abstractMethods.contains(m.getNameAsString()))
+                .forEach(m -> newClass.getMembers().add(Helpers.abstractMethod(m)));
+
+        concrete.getMethods().stream()
+                .filter(m -> !abstractMethods.contains(m.getNameAsString()))
+                .forEach(m -> Helpers.pullUpMethod(newClass, m));
+
+        return cu;
     }
-
 }
