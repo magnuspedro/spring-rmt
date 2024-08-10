@@ -8,9 +8,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +25,7 @@ import java.util.zip.ZipInputStream;
 @RequiredArgsConstructor
 public class S3FileExtractor implements FileExtractor {
     private static final String EXTENSION = ".java";
+    private static final String SEPARATOR = FileSystems.getDefault().getSeparator();
     private final S3ProjectRepository s3ProjectRepository;
 
     @Override
@@ -83,12 +87,12 @@ public class S3FileExtractor implements FileExtractor {
     }
 
     private String getName(String name) {
-        var path = name.split("\\" + EXTENSION)[0].split("/");
+        var path = name.split("\\" + EXTENSION)[0].split(SEPARATOR);
         return path[path.length - 1] + EXTENSION;
     }
 
     private String getPath(String name) {
-        var path = name.split(File.separator);
+        var path = name.split(SEPARATOR);
         if (path.length == 1) return "";
         path = Arrays.copyOfRange(path, 0, path.length - 1);
         return String.join(File.separator, path) + File.separator;
