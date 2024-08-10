@@ -9,6 +9,7 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+@Component
 public class Minitransformation {
 
     public static Optional<CompilationUnit> Abstraction(ClassOrInterfaceDeclaration clazz) {
@@ -23,7 +25,6 @@ public class Minitransformation {
             return Optional.empty();
         }
 
-        var cu = new CompilationUnit();
         var name = clazz.getNameAsString() + "Interface";
         var implementedTypes = NodeList.nodeList(clazz.getImplementedTypes());
         implementedTypes.add(new ClassOrInterfaceType().setName(name));

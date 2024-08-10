@@ -1,5 +1,6 @@
 package br.com.magnus.detectionandrefactoring.refactor.methods.cinneid.minitransformations;
 
+import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AbstractSyntaxTree;
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
 import com.github.javaparser.ast.CompilationUnit;
@@ -10,9 +11,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -136,5 +139,38 @@ class MinitransformationTest {
         assertEquals("TestClass2", declarations.get(1).getTypeAsString());
     }
 
+    @Test
+    @DisplayName("Should test partialAbstraction")
+    public void shouldTestPartialAbstraction() {
+        var resultClazz = """
+                public abstract class TestAbstract {
 
+                    public abstract String method2();
+
+                    public void method1() {
+                        TestClass2 t2 = new TestClass2();
+                        System.out.println("Hello World");
+                    }
+                }
+                """;
+        var file = JavaFile.builder()
+                .name("TestClass")
+                .originalClass(testClass)
+                .parsed(AbstractSyntaxTree.parseSingle(testClass))
+                .build();
+        var file2 = JavaFile.builder()
+                .name("TestClass2")
+                .originalClass(testClass2)
+                .parsed(AbstractSyntaxTree.parseSingle(testClass2))
+                .build();
+        var clazz = AstHandler.getClassOrInterfaceDeclaration(file.getCompilationUnit()).get();
+        var clazz2 = AstHandler.getClassOrInterfaceDeclaration(file2.getCompilationUnit()).get();
+        clazz.addExtendedType(clazz2.getNameAsString());
+
+        var result = Minitransformation.partialAbstraction(List.of(file2), clazz, "TestAbstract", Set.of("method2"));
+
+        assertEquals(resultClazz, result.toString());
+        assertTrue(clazz2.getExtendedTypes().stream().allMatch(t -> t.toString().equals("TestAbstract")));
+        assertEquals("[TestClass2, TestAbstract]", clazz.getExtendedTypes().toString());
+    }
 }

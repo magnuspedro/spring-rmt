@@ -91,7 +91,7 @@ public class Helpers {
 
     public static MethodDeclaration abstractMethod(MethodDeclaration method) {
         Assert.notNull(method, "The method must not be null");
-        return method.clone().addModifier(Modifier.Keyword.ABSTRACT);
+        return method.clone().addModifier(Modifier.Keyword.ABSTRACT).setBody(null);
     }
 
     public static void pullUpMethod(ClassOrInterfaceDeclaration superClazz, MethodDeclaration method) {
