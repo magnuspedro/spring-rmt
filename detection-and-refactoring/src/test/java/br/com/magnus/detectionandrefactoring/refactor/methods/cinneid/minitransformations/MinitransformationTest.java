@@ -63,7 +63,7 @@ class MinitransformationTest {
     public void shouldAbstractionInterfaceAndImplementsIt() {
         var clazz = AstHandler.getClassOrInterfaceDeclaration((CompilationUnit) AbstractSyntaxTree.parseSingle(testClass)).get();
 
-        Minitransformation.Abstraction(clazz);
+        Minitransformation.abstraction(clazz, "TestClassInterface");
 
         assertEquals("TestClassInterface", clazz.getImplementedTypes().getFirst().get().getNameAsString());
     }

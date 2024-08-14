@@ -551,7 +551,7 @@ public class AstHandler {
                 .findFirst();
     }
 
-    public static VariableDeclarator getVariableDeclarator(List<Node> node){
+    public static VariableDeclarator getVariableDeclarator(List<Node> node) {
         return Optional.ofNullable(node)
                 .stream()
                 .flatMap(List::stream)

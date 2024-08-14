@@ -47,4 +47,9 @@ public class JavaFile implements Cloneable {
             throw new AssertionError("Error cloning JavaFile", e);
         }
     }
+
+	public Object getName() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'getName'");
+	}
 }

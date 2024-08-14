@@ -9,7 +9,6 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
@@ -17,20 +16,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component
 public class Minitransformation {
 
-    public static Optional<CompilationUnit> Abstraction(ClassOrInterfaceDeclaration clazz) {
+    public static Optional<CompilationUnit> abstraction(ClassOrInterfaceDeclaration clazz, String inf) {
         if (clazz == null || clazz.isInterface() || clazz.getMethods().isEmpty()) {
             return Optional.empty();
         }
 
-        var name = clazz.getNameAsString() + "Interface";
         var implementedTypes = NodeList.nodeList(clazz.getImplementedTypes());
-        implementedTypes.add(new ClassOrInterfaceType().setName(name));
+        implementedTypes.add(new ClassOrInterfaceType().setName(inf));
         clazz.setImplementedTypes(implementedTypes);
 
-        return Helpers.abstractClass(clazz, name);
+        return Helpers.abstractClass(clazz, inf);
     }
 
     public static void encapsulateConstruction(ClassOrInterfaceDeclaration creator, ClassOrInterfaceDeclaration product, String createP) {
