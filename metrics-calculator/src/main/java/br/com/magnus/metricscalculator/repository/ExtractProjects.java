@@ -37,8 +37,8 @@ public class ExtractProjects {
         var file = new File(basePath + "/" + javaFile.getFullName());
         file.getParentFile().mkdirs();
         file.createNewFile();
-        var fileWriter = new FileWriter(file);
-        fileWriter.write(javaFile.getOriginalClass());
-        fileWriter.close();
+        try (var fileWriter = new FileWriter(file)) {
+            fileWriter.write(javaFile.getOriginalClass());
+        }
     }
 }
