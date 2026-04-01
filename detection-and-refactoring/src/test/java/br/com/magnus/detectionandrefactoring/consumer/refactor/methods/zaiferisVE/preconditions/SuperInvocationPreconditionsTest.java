@@ -82,33 +82,33 @@ class SuperInvocationPreconditionsTest {
     }
 
     @Test
-    @DisplayName("Should return false for one super call and a method starting with get")
-    public void shouldReturnFalseForOneSuperCallAndAMethodStartingWithGet() {
+    @DisplayName("Should return true for one super call and a method starting with get")
+    public void shouldReturnTrueForOneSuperCallAndAMethodStartingWithGet() {
         var method = new MethodDeclaration(NodeList.nodeList(Modifier.publicModifier()), new VoidType(), "getTest");
 
         var result = superInvocationPreconditions.violatesAmountOfSuperCallsOrName(method, List.of(new SuperExpr()));
 
-        assertFalse(result);
+        assertTrue(result);
     }
 
     @Test
-    @DisplayName("Should return false for one super call and a method starting with set")
-    public void shouldReturnFalseForOneSuperCallAndAMethodStartingWithSet() {
+    @DisplayName("Should return true for one super call and a method starting with set")
+    public void shouldReturnTrueForOneSuperCallAndAMethodStartingWithSet() {
         var method = new MethodDeclaration(NodeList.nodeList(Modifier.publicModifier()), new VoidType(), "setTest");
 
         var result = superInvocationPreconditions.violatesAmountOfSuperCallsOrName(method, List.of(new SuperExpr()));
 
-        assertFalse(result);
+        assertTrue(result);
     }
 
     @Test
-    @DisplayName("Should return false for one super call and a method starting with invalid name")
-    public void shouldReturnFalseForOneSuperCallAndAMethodStartingWithInvalidName() {
+    @DisplayName("Should return true for one super call and a method with invalid name")
+    public void shouldReturnTrueForOneSuperCallAndAMethodWithInvalidName() {
         var method = new MethodDeclaration(NodeList.nodeList(Modifier.publicModifier()), new VoidType(), "toString");
 
         var result = superInvocationPreconditions.violatesAmountOfSuperCallsOrName(method, List.of(new SuperExpr()));
 
-        assertFalse(result);
+        assertTrue(result);
     }
 
     @Test

@@ -40,7 +40,6 @@ public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifi
     private boolean isMethodInvalid(MethodDeclaration method) {
         return method.getParameters() == null
                 || method.getParameters().isEmpty()
-                || method.getParameters().size() > 1
                 || (method.getType() instanceof VoidType);
     }
 
