@@ -2,25 +2,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.1</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <groupId>br.com.magnus</groupId>
+        <artifactId>spring-rmt</artifactId>
+        <version>1.1.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-    <groupId>br.com.magnus</groupId>
+
     <artifactId>projectsyncbff</artifactId>
-    <version>1.0.0</version>
     <name>Refactoring And Metrics Manager</name>
-    <properties>
-        <java.version>21</java.version>
-        <config-starter.version>1.1.0</config-starter.version>
-        <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
-        <logback-jackson.version>0.1.5</logback-jackson.version>
-        <logback-json-classic.version>0.1.5</logback-json-classic.version>
-        <bootstrap.version>5.3.3</bootstrap.version>
-        <htmx.org.version>1.9.12</htmx.org.version>
-    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -57,39 +49,29 @@
         <dependency>
             <groupId>br.com.magnus</groupId>
             <artifactId>config-starter</artifactId>
-            <version>${config-starter.version}</version>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
-            <version>${jakarta.validation-api.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback.contrib</groupId>
             <artifactId>logback-json-classic</artifactId>
-            <version>${logback-json-classic.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback.contrib</groupId>
             <artifactId>logback-jackson</artifactId>
-            <version>${logback-jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>${bootstrap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.npm</groupId>
             <artifactId>htmx.org</artifactId>
-            <version>${htmx.org.version}</version>
         </dependency>
     </dependencies>
 
-    <dependencyManagement>
-        <dependencies>
-        </dependencies>
-    </dependencyManagement>
     <build>
         <plugins>
             <plugin>
