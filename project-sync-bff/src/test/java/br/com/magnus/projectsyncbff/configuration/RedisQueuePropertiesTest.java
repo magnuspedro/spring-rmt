@@ -18,15 +18,13 @@ class RedisQueuePropertiesTest {
     @Mock
     private RqueueEndpointManager rqueueEndpointManager;
 
-    @Mock
-    private QueueProperties queueProperties;
+    private final QueueProperties queueProperties = new QueueProperties("testQueue");
 
     private RedisQueueProperties redisQueueProperties;
 
     @BeforeEach
     void setUp() {
         this.redisQueueProperties = new RedisQueueProperties(rqueueEndpointManager, queueProperties);
-        when(queueProperties.detectPattern()).thenReturn("testQueue");
     }
 
     @Test

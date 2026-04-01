@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-mvn install -f config-starter/pom.xml
-mvn install -f detection-and-refactoring/pom.xml
-mvn install -f project-sync-bff/pom.xml
-mvn install -f metrics-calculator/pom.xml
+mvn package -f config-starter/pom.xml
+mvn clean package -f detection-and-refactoring/pom.xml
+mvn clean package -f project-sync-bff/pom.xml
+mvn clean package -f metrics-calculator/pom.xml
 
 cd detection-and-refactoring
 docker build -t magnus/detection .

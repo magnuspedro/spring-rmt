@@ -1,7 +1,7 @@
 package br.com.magnus.projectsyncbff.gateway;
 
 import br.com.magnus.projectsyncbff.configuration.QueueProperties;
-import io.awspring.cloud.sqs.operations.SqsTemplate;
+import io.awspring.cloud.sqs.operations.SqsAsyncOperations;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @ConditionalOnProperty(value = "rqueue.enabled", havingValue = "false")
 public class SendProjectSqS implements SendProject {
-    private final SqsTemplate sqsTemplate;
+    private final SqsAsyncOperations sqsTemplate;
 
     private final QueueProperties queueProperties;
 
