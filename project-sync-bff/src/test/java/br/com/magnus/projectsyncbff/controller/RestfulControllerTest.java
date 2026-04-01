@@ -8,12 +8,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockPart;
 import org.springframework.test.web.servlet.MockMvc;
-import software.amazon.awssdk.utils.IoUtils;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -28,31 +27,28 @@ class RestfulControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private RefactorProject refactorProject;
 
     @Test
     @SneakyThrows
     void shouldTest200() {
-        var multipart = new MockMultipartFile(
-                "file",
-                "hello.txt",
-                MediaType.TEXT_PLAIN_VALUE,
-                "Hello, World!".getBytes()
-        );
+        var content = "Hello, World!".getBytes();
+        var filename = "hello.txt";
+
+        var part = new MockPart("file", filename, content);
+        part.getHeaders().setContentType(MediaType.TEXT_PLAIN);
 
         mockMvc.perform(multipart("/rmt/api/v1/upload")
-                .file(multipart)
+                .part(part)
         ).andExpect(status().isOk());
 
         Mockito.verify(refactorProject, Mockito.atLeastOnce()).process(assertArg(it ->
-                        Assertions.assertAll("Verify project construction",
-                                () -> assertThat(it.getSize(), is(multipart.getSize())),
-                                () -> assertThat(it.getName(), is(multipart.getOriginalFilename())),
-                                () -> assertThat(it.getContentType(), is(multipart.getContentType())),
-                                () -> assertThat(it.getZipContent(), is(IoUtils.toByteArray(multipart.getInputStream()))))
-                )
-        );
+                Assertions.assertAll("Verify project construction",
+                        () -> assertThat(it.getSize(), is((long) content.length)),
+                        () -> assertThat(it.getName(), is(filename)),
+                        () -> assertThat(it.getContentType(), is(MediaType.TEXT_PLAIN_VALUE)),
+                        () -> assertThat(it.getZipContent(), is(content)))
+        ));
     }
-
 }
