@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.commons.util.ReflectionUtils;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -18,15 +17,13 @@ class RedisQueuePropertiesTest {
     @Mock
     private RqueueEndpointManager rqueueEndpointManager;
 
-    @Mock
-    private QueueProperties queueProperties;
+    private final QueueProperties queueProperties = new QueueProperties("detectQueue", "testQueue");
 
     private RedisQueueProperties redisQueueProperties;
 
     @BeforeEach
     void setUp() {
         this.redisQueueProperties = new RedisQueueProperties(rqueueEndpointManager, queueProperties);
-        when(queueProperties.measurePattern()).thenReturn("testQueue");
     }
 
     @Test

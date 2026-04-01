@@ -9,7 +9,7 @@ import org.springframework.data.redis.core.RedisHash;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,7 +27,7 @@ public class BaseProject {
     @Builder.Default
     private List<CandidateInformation> candidatesInformation = new ArrayList<>();
     @Builder.Default
-    private Set<ProjectStatus> status = new HashSet<>();
+    private Set<ProjectStatus> status = new LinkedHashSet<>();
     private Long createdAt;
     private Long updatedAt;
 
