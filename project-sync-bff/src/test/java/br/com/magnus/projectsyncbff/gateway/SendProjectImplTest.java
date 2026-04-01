@@ -1,7 +1,7 @@
 package br.com.magnus.projectsyncbff.gateway;
 
 import br.com.magnus.projectsyncbff.configuration.QueueProperties;
-import io.awspring.cloud.sqs.operations.SqsTemplate;
+import io.awspring.cloud.sqs.operations.SqsAsyncOperations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*;
 class SendProjectImplTest {
 
     @Mock
-    private SqsTemplate sqsTemplate;
+    private SqsAsyncOperations sqsTemplate;
     private SendProjectSqS sendProject;
 
     @BeforeEach
