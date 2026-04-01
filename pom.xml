@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.1</version>
+        <version>4.0.4</version>
         <relativePath/>
     </parent>
 
@@ -29,17 +29,13 @@
         <!-- Override Lombok to a version compatible with Java 25 -->
         <lombok.version>1.18.38</lombok.version>
         <!-- Spring Cloud -->
-        <spring.cloud-version>2023.0.0</spring.cloud-version>
-        <spring-cloud-aws-dependencies.version>3.1.1</spring-cloud-aws-dependencies.version>
+        <spring.cloud-version>2025.1.1</spring.cloud-version>
+        <spring-cloud-aws-dependencies.version>4.0.0</spring-cloud-aws-dependencies.version>
         <!-- Shared libraries -->
         <javaparser-core.version>3.26.1</javaparser-core.version>
-        <rqueue-spring-boot-starter.version>3.2.0-RELEASE</rqueue-spring-boot-starter.version>
+        <rqueue-spring-boot-starter.version>4.0.0-SNAP-RELEASE</rqueue-spring-boot-starter.version>
         <ck.version>0.7.0</ck.version>
         <console-tree-builder.version>2.0</console-tree-builder.version>
-        <!-- Validation / Logging -->
-        <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
-        <logback-json-classic.version>0.1.5</logback-json-classic.version>
-        <logback-jackson.version>0.1.5</logback-jackson.version>
         <!-- UI WebJars -->
         <bootstrap.version>5.3.3</bootstrap.version>
         <htmx.org.version>1.9.12</htmx.org.version>
@@ -92,23 +88,6 @@
                 <groupId>io.bretty</groupId>
                 <artifactId>console-tree-builder</artifactId>
                 <version>${console-tree-builder.version}</version>
-            </dependency>
-            <!-- Validation -->
-            <dependency>
-                <groupId>jakarta.validation</groupId>
-                <artifactId>jakarta.validation-api</artifactId>
-                <version>${jakarta.validation-api.version}</version>
-            </dependency>
-            <!-- Logback JSON -->
-            <dependency>
-                <groupId>ch.qos.logback.contrib</groupId>
-                <artifactId>logback-json-classic</artifactId>
-                <version>${logback-json-classic.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback.contrib</groupId>
-                <artifactId>logback-jackson</artifactId>
-                <version>${logback-jackson.version}</version>
             </dependency>
             <!-- UI -->
             <dependency>
