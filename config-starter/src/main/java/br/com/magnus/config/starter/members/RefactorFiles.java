@@ -4,22 +4,35 @@ import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import lombok.Builder;
 
-import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Builder
-public record RefactorFiles(
-        List<JavaFile> files,
-        List<RefactoringCandidate> candidates,
-        Set<String> filesChanged) {
+public class RefactorFiles {
 
-    public static class RefactorFilesBuilder {
-        private List<JavaFile> files = new ArrayList<>();
-        private Set<String> filesChanged = new HashSet<>();
-        private List<RefactoringCandidate> candidates = new ArrayList<>();
+    @Builder.Default
+    private List<JavaFile> files = new ArrayList<>();
+    @Builder.Default
+    private List<RefactoringCandidate> candidates = new ArrayList<>();
+    @Builder.Default
+    private Set<String> filesChanged = new HashSet<>();
+
+    public List<JavaFile> files() {
+        return this.files;
+    }
+
+    public List<RefactoringCandidate> candidates() {
+        return this.candidates;
+    }
+
+    public Set<String> filesChanged() {
+        return this.filesChanged;
+    }
+
+    public RefactoringCandidate candidate() {
+        return this.candidates.getFirst();
     }
 
     public void addFileChanged(String file) {
@@ -29,13 +42,5 @@ public record RefactorFiles(
     public void add(JavaFile javaFile) {
         this.files.add(javaFile);
         this.filesChanged.add(javaFile.getFullName());
-    }
-
-    public Set<String> filesChanged(){
-        return this.filesChanged;
-    }
-
-    public RefactoringCandidate candidate() {
-        return this.candidates.getFirst();
     }
 }
