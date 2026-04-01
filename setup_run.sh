@@ -1,23 +1,15 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-mvn package -f config-starter/pom.xml
-mvn clean package -f detection-and-refactoring/pom.xml
-mvn clean package -f project-sync-bff/pom.xml
-mvn clean package -f metrics-calculator/pom.xml
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-cd detection-and-refactoring
-docker build -t magnus/detection .
+echo "Building all modules..."
+mvn clean install -f "$SCRIPT_DIR/pom.xml"
 
-cd  ..
+echo "Building Docker images..."
+docker build -t magnus/detection "$SCRIPT_DIR/detection-and-refactoring"
+docker build -t magnus/manager "$SCRIPT_DIR/project-sync-bff"
+docker build -t magnus/metrics "$SCRIPT_DIR/metrics-calculator"
 
-cd project-sync-bff
-docker build -t magnus/manager .
-
-cd ..
-
-cd metrics-calculator
-docker build -t magnus/metrics .
-
-cd ..
-
-./run_local_full.sh
+echo "Starting local environment..."
+"$SCRIPT_DIR/run_local_full.sh"
