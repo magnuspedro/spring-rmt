@@ -65,9 +65,9 @@ A shared Spring Boot auto-configuration library depended on by all three service
 
 | Layer | Technology |
 |---|---|
-| Language | Java 21 |
-| Framework | Spring Boot 3.3.1 |
-| Build | Maven |
+| Language | Java 25 |
+| Framework | Spring Boot 4.0.4 |
+| Build | Maven (monorepo) |
 | Messaging | Redis via Rqueue (switchable to AWS SQS) |
 | Storage | AWS S3 via Spring Cloud AWS |
 | State | Redis via Spring Data Redis |
@@ -80,41 +80,50 @@ A shared Spring Boot auto-configuration library depended on by all three service
 
 ### Prerequisites
 - Docker and Docker Compose
-- Java 21
+- Java 25
 - Maven
-- `tflocal` (Terraform wrapper for LocalStack)
+- `tflocal` (Terraform wrapper for LocalStack): `pip install terraform-local`
 
-### Start infrastructure
+### One-command setup
 
+**macOS / Linux**
 ```bash
-docker compose up -d
+./rmt.sh
 ```
 
-This starts LocalStack (S3 emulation) and Redis.
-
-### Provision S3 buckets
-
-```bash
-cd infra
-tflocal init
-tflocal apply
+**Windows (PowerShell)**
+```powershell
+.\rmt.ps1
 ```
 
-### Build and run services
+This builds all modules, builds Docker images, starts LocalStack and Redis, and provisions the AWS resources. The UI is available at `http://localhost:8080`.
 
-Build the shared library first:
+### Available commands
+
+| Command | Description |
+|---|---|
+| `./rmt.sh all` | Build everything and start the full Docker environment (default) |
+| `./rmt.sh dev` | Build modules and start infrastructure only — run services with Maven |
+| `./rmt.sh build` | Compile and install all Maven modules |
+| `./rmt.sh images` | Build Docker images |
+| `./rmt.sh infra` | Start LocalStack + Redis and provision Terraform resources |
+
+### First-time Terraform initialisation
+
+Before running `rmt.sh` for the first time, initialise Terraform once:
 
 ```bash
-cd config-starter
-mvn install
+tflocal -chdir=infra init
 ```
 
-Then start each service (in separate terminals or as background processes):
+### Running services without Docker
+
+Use `./rmt.sh dev` to start the infrastructure, then run each service in a separate terminal:
 
 ```bash
-cd project-sync-bff && mvn spring-boot:run
-cd detection-and-refactoring && mvn spring-boot:run
-cd metrics-calculator && mvn spring-boot:run
+mvn spring-boot:run -pl project-sync-bff
+mvn spring-boot:run -pl detection-and-refactoring
+mvn spring-boot:run -pl metrics-calculator
 ```
 
 The web UI is available at `http://localhost:8080`.
