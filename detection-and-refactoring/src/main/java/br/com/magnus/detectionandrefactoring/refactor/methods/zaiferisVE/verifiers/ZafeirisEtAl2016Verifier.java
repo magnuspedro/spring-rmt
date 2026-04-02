@@ -36,6 +36,13 @@ public class ZafeirisEtAl2016Verifier {
                     .filter(c -> c.getOverriddenMethod().equals(overriddenMethod))
                     .toList();
 
+            if (candidateWithSameOverriddenMethod.size() == 1
+                    && !extractMethodPreconditions.hasMinimumFragmentsSize(
+                    candidateWithSameOverriddenMethod.getFirst().getOverridingMethod())) {
+                candidates.removeAll(candidateWithSameOverriddenMethod);
+                continue;
+            }
+
             if (siblingPreconditions.violates(candidateWithSameOverriddenMethod)) {
                 candidates.removeAll(candidates.stream()
                         .filter(c -> c.getOverriddenMethod().equals(overriddenMethod))
@@ -93,7 +100,7 @@ public class ZafeirisEtAl2016Verifier {
                     .orElseThrow(() -> new IllegalArgumentException("Super call should exists in method"));
 
             if (!this.superInvocationPreconditions.isOverriddenMethodValid(overriddenMethod, method)
-                    || !extractMethodPreconditions.isValid(overriddenMethod, method)) {
+                    || !extractMethodPreconditions.isValidIgnoringMinSize(overriddenMethod, method)) {
                 continue;
             }
 

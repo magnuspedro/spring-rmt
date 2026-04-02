@@ -112,10 +112,7 @@ class SiblingPreconditionsTest {
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive2")),
                         new ExpressionStmt(new MethodCallExpr("super", new SuperExpr(),
-                                new NameExpr("varIf"),
-                                new NameExpr("var"),
-                                new NameExpr("primitive"),
-                                new NameExpr("primitive2")
+                                new NameExpr("var5")
                         )),
                         new ReturnStmt())));
         var method2 = new MethodDeclaration(
@@ -189,10 +186,7 @@ class SiblingPreconditionsTest {
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive2")),
                         new ExpressionStmt(new MethodCallExpr("super", new SuperExpr(),
-                                new NameExpr("varIf"),
-                                new NameExpr("var5"),
-                                new NameExpr("primitive"),
-                                new NameExpr("primitive2")
+                                new NameExpr("var")
                         )),
                         new ReturnStmt())));
 

@@ -1,6 +1,7 @@
 package br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.preconditions;
 
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
+import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.FragmentsSplitter;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
@@ -23,9 +24,21 @@ public class SiblingPreconditions {
             return false;
         }
 
+        if (this.allCandidatesHaveTrivialFragments(candidatesOfSameOverriddenMethod)) {
+            return true;
+        }
+
         return !beforeFragmentReturnEqual(candidatesWithVariables)
                 || !this.beforeReturnIsUsedInSuper(candidatesWithVariables)
                 || this.isAShortHierarchy(candidatesWithVariables);
+    }
+
+    private boolean allCandidatesHaveTrivialFragments(Collection<ZafeirisEtAl2016Candidate> candidates) {
+        return candidates.stream()
+                .map(ZafeirisEtAl2016Candidate::getOverridingMethod)
+                .map(FragmentsSplitter::splitByMethod)
+                .allMatch(fragments -> fragments.getBeforeFragment().size() < 2
+                        && fragments.getAfterFragment().size() < 2);
     }
 
     private boolean isAShortHierarchy(List<ZafeirisEtAl2016Candidate.CandidateWithVariables> candidatesWithVariables) {
@@ -47,7 +60,7 @@ public class SiblingPreconditions {
 
         boolean areEqual = true;
 
-        for (int i = 1; i < candidatesWithVariables.size() - 1; i++) {
+        for (int i = 0; i < candidatesWithVariables.size() - 1; i++) {
             if (candidatesWithVariables.get(i).variables().size() > 1) {
                 throw new IllegalStateException("Candidate with multiple variables found");
             } else if (candidatesWithVariables.get(i).variables().size() != candidatesWithVariables.get(i + 1).variables().size()) {
