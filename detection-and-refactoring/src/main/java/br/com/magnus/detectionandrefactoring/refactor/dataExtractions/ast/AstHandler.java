@@ -282,8 +282,22 @@ public class AstHandler {
         if (node == null) {
             throw new NullNodeException();
         }
-        if (node instanceof NodeWithCondition || node instanceof TryStmt || node instanceof CatchClause) {
+        if (node instanceof NodeWithCondition || node instanceof CatchClause) {
             return false;
+        }
+
+        if (node instanceof TryStmt tryStmt) {
+            final var hasSuperInCatch = tryStmt.getCatchClauses().stream()
+                    .anyMatch(AstHandler::nodeHasSuperCall);
+            final var hasSuperInFinally = tryStmt.getFinallyBlock()
+                    .map(AstHandler::nodeHasSuperCall)
+                    .orElse(false);
+
+            if (hasSuperInCatch || hasSuperInFinally) {
+                return false;
+            }
+
+            return childHasDirectSuperCall(tryStmt.getTryBlock());
         }
 
         if (node instanceof MethodCallExpr && ((MethodCallExpr) node).getArguments() != null) {
@@ -306,6 +320,10 @@ public class AstHandler {
         }
 
         return node.getChildNodes().stream().anyMatch(AstHandler::childHasDirectSuperCall);
+    }
+
+    private static boolean nodeHasSuperCall(Node node) {
+        return !getSuperCalls(node).isEmpty();
     }
 
     public static boolean nodeHasReturnStatement(Node node) {

@@ -3,9 +3,13 @@ package br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.precon
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.FragmentsSplitter;
 import com.github.javaparser.ast.DataKey;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.nodeTypes.NodeWithCondition;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.stmt.TryStmt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +22,10 @@ import java.util.Optional;
 public class ExtractMethodPreconditions {
 
     public boolean isValid(MethodDeclaration overriddenMethod, MethodDeclaration m) {
+        return this.isValidIgnoringMinSize(overriddenMethod, m) && this.hasMinimumFragmentsSize(m);
+    }
+
+    public boolean isValidIgnoringMinSize(MethodDeclaration overriddenMethod, MethodDeclaration m) {
         final var fragmentsSplitter = FragmentsSplitter.splitByMethod(m);
 
         return fragmentsSplitter.hasSpecificNode()
@@ -25,8 +33,12 @@ public class ExtractMethodPreconditions {
                 && this.beforeFragmentThrowsNoException(fragmentsSplitter)
                 && this.beforeFragmentHasNoReturn(fragmentsSplitter)
                 && !this.hasMultipleVariablesInBeforeFragmentsMethodCalls(fragmentsSplitter)
-                && this.methodsValuesMatch(overriddenMethod, m)
-                && this.fragmentsHaveMinSize(fragmentsSplitter);
+                && this.methodsValuesMatch(overriddenMethod, m);
+    }
+
+    public boolean hasMinimumFragmentsSize(MethodDeclaration method) {
+        final var fragmentsSplitter = FragmentsSplitter.splitByMethod(method);
+        return this.fragmentsHaveMinSize(fragmentsSplitter);
     }
 
     private boolean fragmentsHaveMinSize(FragmentsSplitter fragmentsSplitter) {
@@ -76,7 +88,54 @@ public class ExtractMethodPreconditions {
 
         final Optional<BlockStmt> blockStmt = AstHandler.getBlockStatement(m);
 
-        return blockStmt.filter(AstHandler::childHasDirectSuperCall).isPresent();
+        return blockStmt.filter(this::hasSuperAtTopLevelOrInTryOnly).isPresent();
+    }
+
+    private boolean hasSuperAtTopLevelOrInTryOnly(BlockStmt blockStmt) {
+        return blockStmt.getStatements()
+                .stream()
+                .anyMatch(this::isAllowedSuperStatement);
+    }
+
+    private boolean isAllowedSuperStatement(Statement statement) {
+        if (statement instanceof NodeWithCondition) {
+            return false;
+        }
+        return this.hasSuperInAllowedContext(statement);
+    }
+
+    private boolean hasSuperInAllowedContext(Node node) {
+        if (node == null) {
+            return false;
+        }
+
+        if (node instanceof NodeWithCondition) {
+            return false;
+        }
+
+        if (node instanceof TryStmt tryStmt) {
+            final var hasSuperInCatch = tryStmt.getCatchClauses().stream()
+                    .anyMatch(this::containsSuperAnywhere);
+            final var hasSuperInFinally = tryStmt.getFinallyBlock()
+                    .map(this::containsSuperAnywhere)
+                    .orElse(false);
+
+            if (hasSuperInCatch || hasSuperInFinally) {
+                return false;
+            }
+
+            return this.hasSuperInAllowedContext(tryStmt.getTryBlock());
+        }
+
+        if (AstHandler.getSuperCalls(node).stream().anyMatch(superExpr -> superExpr.equals(node))) {
+            return true;
+        }
+
+        return node.getChildNodes().stream().anyMatch(this::hasSuperInAllowedContext);
+    }
+
+    private boolean containsSuperAnywhere(Node node) {
+        return !AstHandler.getSuperCalls(node).isEmpty();
 
     }
 

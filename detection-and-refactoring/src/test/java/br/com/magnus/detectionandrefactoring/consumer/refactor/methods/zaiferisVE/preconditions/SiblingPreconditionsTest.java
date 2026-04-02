@@ -112,10 +112,7 @@ class SiblingPreconditionsTest {
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive2")),
                         new ExpressionStmt(new MethodCallExpr("super", new SuperExpr(),
-                                new NameExpr("varIf"),
-                                new NameExpr("var5"),
-                                new NameExpr("primitive"),
-                                new NameExpr("primitive2")
+                                new NameExpr("var5")
                         )),
                         new ReturnStmt())));
         var method2 = new MethodDeclaration(
@@ -172,8 +169,8 @@ class SiblingPreconditionsTest {
 
 
     @Test
-    @DisplayName("Should return false when variables have the same name")
-    public void shouldReturnFalseWhenVariablesHaveTheSameName() {
+    @DisplayName("Should return true when sibling variables are not extractable from all fragments")
+    public void shouldReturnTrueWhenSiblingVariablesAreNotExtractableFromAllFragments() {
         var superExpr = new SuperExpr();
         superExpr.setParentNode(new MethodCallExpr());
         var method = new MethodDeclaration(
@@ -189,10 +186,7 @@ class SiblingPreconditionsTest {
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive2")),
                         new ExpressionStmt(new MethodCallExpr("super", new SuperExpr(),
-                                new NameExpr("varIf"),
-                                new NameExpr("var5"),
-                                new NameExpr("primitive"),
-                                new NameExpr("primitive2")
+                                new NameExpr("var")
                         )),
                         new ReturnStmt())));
 
@@ -245,6 +239,6 @@ class SiblingPreconditionsTest {
 
         var result = siblingPreconditions.violates(candidates);
 
-        assertFalse(result);
+        assertTrue(result);
     }
 }

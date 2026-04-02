@@ -1,10 +1,12 @@
 package br.com.magnus.detectionandrefactoring.consumer.refactor.methods.weiL.verifiers;
 
 import br.com.magnus.config.starter.file.JavaFile;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
 import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.verifiers.WeiEtAl2014StrategyVerifier;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.stmt.IfStmt;
 import fixtures.Wei;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -158,6 +160,31 @@ class WeiEtAl2014StrategyVerifierTest {
         var result = this.weiEtAl2014StrategyVerifier.retrieveCandidatesFrom(files);
 
         assertEquals(1, result.size());
+    }
+
+    @Test
+    @DisplayName("Should not retrieve candidate when method has more than one parameter")
+    public void shouldNotRetrieveCandidateWhenMethodHasMoreThanOneParameter() {
+        var files = Wei.createJavaFilesStrategy();
+        var method = AstHandler.getMethods(files.getFirst().getCompilationUnit()).getFirst();
+        method.addParameter("int", "extra");
+
+        var result = this.weiEtAl2014StrategyVerifier.retrieveCandidatesFrom(files);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should not retrieve candidate when method contains nested if statements")
+    public void shouldNotRetrieveCandidateWhenMethodContainsNestedIfStatements() {
+        var files = Wei.createJavaFilesStrategy();
+        var method = AstHandler.getMethods(files.getFirst().getCompilationUnit()).getFirst();
+        var topLevelIf = AstHandler.getIfStatements(method).stream().findFirst().orElseThrow();
+        topLevelIf.getThenStmt().asBlockStmt().addStatement(new IfStmt());
+
+        var result = this.weiEtAl2014StrategyVerifier.retrieveCandidatesFrom(files);
+
+        assertTrue(result.isEmpty());
     }
 
 }
