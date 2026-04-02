@@ -19,11 +19,8 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
-/**
- * Base class for project-sync-bff integration tests with complete testcontainer environment.
- * All beans are real (no mocking) - tests exercise actual application behavior.
- */
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
         classes = {ProjectSyncBff.class, TestRedisConfiguration.class}
@@ -59,20 +56,8 @@ public abstract class BaseIntegrationTest {
         redisTemplate.getConnectionFactory().getConnection().serverCommands().flushAll();
 
         var s3Client = createS3Client();
-        try {
-            s3Client.createBucket(CreateBucketRequest.builder()
-                    .bucket("projects")
-                    .build());
-        } catch (Exception e) {
-            // Bucket might already exist
-        }
-        try {
-            s3Client.createBucket(CreateBucketRequest.builder()
-                    .bucket("refactored-projects")
-                    .build());
-        } catch (Exception e) {
-            // Bucket might already exist
-        }
+        createBucketIfMissing(s3Client, "projects");
+        createBucketIfMissing(s3Client, "refactored-projects");
         s3Client.close();
     }
 
@@ -84,5 +69,18 @@ public abstract class BaseIntegrationTest {
                 .region(Region.of("sa-east-1"))
                 .forcePathStyle(true)
                 .build();
+    }
+
+    private void createBucketIfMissing(S3Client s3Client, String bucket) {
+        try {
+            s3Client.createBucket(CreateBucketRequest.builder()
+                    .bucket(bucket)
+                    .build());
+        } catch (S3Exception e) {
+            var errorCode = e.awsErrorDetails() == null ? null : e.awsErrorDetails().errorCode();
+            if (!"BucketAlreadyExists".equals(errorCode) && !"BucketAlreadyOwnedByYou".equals(errorCode)) {
+                throw e;
+            }
+        }
     }
 }
