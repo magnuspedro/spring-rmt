@@ -164,11 +164,11 @@ class ExtractMethodPreconditionsTest {
     }
 
     @Test
-    @DisplayName("Should return false when gragments do no have min size")
-    public void shouldReturnFalseWhenGragmentsDoNoHaveMinSize() {
+    @DisplayName("Should return false when both before and after fragments have fewer than two statements")
+    public void shouldReturnFalseWhenBothBeforeAndAfterFragmentsHaveFewerThanTwoStatements() {
         var overriddenMethod = new MethodDeclaration(
                 NodeList.nodeList(Modifier.publicModifier()),
-               "overridenMethod",
+                "overridenMethod",
                 new VoidType(),
                 NodeList.nodeList()
         );
@@ -189,6 +189,35 @@ class ExtractMethodPreconditionsTest {
         var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
 
         assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should return true when before fragment has two statements and after fragment is empty")
+    public void shouldReturnTrueWhenBeforeFragmentHasTwoStatementsAndAfterFragmentIsEmpty() {
+        var overriddenMethod = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
+                "overridenMethod",
+                new VoidType(),
+                NodeList.nodeList()
+        );
+        var superExpr = new SuperExpr();
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new VoidType(),
+                new SimpleName("parentMethod"),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new BlockStmt(NodeList.nodeList(
+                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
+                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive2")),
+                        new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), superExpr))
+                )));
+
+        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
+
+        assertTrue(result);
     }
 
     @Test

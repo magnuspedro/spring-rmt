@@ -82,33 +82,33 @@ class SuperInvocationPreconditionsTest {
     }
 
     @Test
-    @DisplayName("Should return false for one super call and a method starting with get")
-    public void shouldReturnFalseForOneSuperCallAndAMethodStartingWithGet() {
+    @DisplayName("Should return true for one super call and a method starting with get")
+    public void shouldReturnTrueForOneSuperCallAndAMethodStartingWithGet() {
         var method = new MethodDeclaration(NodeList.nodeList(Modifier.publicModifier()), new VoidType(), "getTest");
 
         var result = superInvocationPreconditions.violatesAmountOfSuperCallsOrName(method, List.of(new SuperExpr()));
 
-        assertFalse(result);
+        assertTrue(result);
     }
 
     @Test
-    @DisplayName("Should return false for one super call and a method starting with set")
-    public void shouldReturnFalseForOneSuperCallAndAMethodStartingWithSet() {
+    @DisplayName("Should return true for one super call and a method starting with set")
+    public void shouldReturnTrueForOneSuperCallAndAMethodStartingWithSet() {
         var method = new MethodDeclaration(NodeList.nodeList(Modifier.publicModifier()), new VoidType(), "setTest");
 
         var result = superInvocationPreconditions.violatesAmountOfSuperCallsOrName(method, List.of(new SuperExpr()));
 
-        assertFalse(result);
+        assertTrue(result);
     }
 
     @Test
-    @DisplayName("Should return false for one super call and a method starting with invalid name")
-    public void shouldReturnFalseForOneSuperCallAndAMethodStartingWithInvalidName() {
+    @DisplayName("Should return true for one super call and a method starting with invalid name")
+    public void shouldReturnTrueForOneSuperCallAndAMethodWithInvalidName() {
         var method = new MethodDeclaration(NodeList.nodeList(Modifier.publicModifier()), new VoidType(), "toString");
 
         var result = superInvocationPreconditions.violatesAmountOfSuperCallsOrName(method, List.of(new SuperExpr()));
 
-        assertFalse(result);
+        assertTrue(result);
     }
 
     @Test
@@ -130,10 +130,10 @@ class SuperInvocationPreconditionsTest {
     }
 
     @Test
-    @DisplayName("Should return false for a overridden valid protected method")
-    public void shouldReturnFalseForAOverriddenValidProtectedMethod() {
+    @DisplayName("Should return false when a protected overridden method is matched by a public overriding method")
+    public void shouldReturnFalseWhenProtectedOverriddenMethodHasPublicOverridingMethod() {
         var overriddenMethod = new MethodDeclaration(
-                NodeList.nodeList(Modifier.privateModifier()),
+                NodeList.nodeList(Modifier.protectedModifier()),
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new VoidType(),
@@ -146,6 +146,25 @@ class SuperInvocationPreconditionsTest {
         var result = superInvocationPreconditions.isOverriddenMethodValid(overriddenMethod, method);
 
         assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should return true when a protected overridden method is matched by a protected overriding method")
+    public void shouldReturnTrueWhenProtectedOverriddenMethodHasProtectedOverridingMethod() {
+        var overriddenMethod = new MethodDeclaration(
+                NodeList.nodeList(Modifier.protectedModifier()),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new VoidType(),
+                new SimpleName("parentMethod"),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new BlockStmt(NodeList.nodeList(new IfStmt(), new ReturnStmt())));
+        var method = new MethodDeclaration(NodeList.nodeList(Modifier.protectedModifier()), new VoidType(), "testMethod");
+
+        var result = superInvocationPreconditions.isOverriddenMethodValid(overriddenMethod, method);
+
+        assertTrue(result);
     }
 
     @Test
