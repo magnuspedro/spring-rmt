@@ -4,6 +4,7 @@ import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.file.extractor.FileExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -12,6 +13,7 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ExtractProjects {
@@ -39,6 +41,8 @@ public class ExtractProjects {
         file.createNewFile();
         try (var fileWriter = new FileWriter(file)) {
             fileWriter.write(javaFile.getOriginalClass());
+        } catch (Exception e) {
+           log.error("Erro to Read File", e);
         }
     }
 }
