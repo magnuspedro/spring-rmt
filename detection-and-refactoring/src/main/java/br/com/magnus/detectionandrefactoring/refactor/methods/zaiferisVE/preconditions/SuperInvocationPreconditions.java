@@ -45,7 +45,7 @@ public class SuperInvocationPreconditions {
             return true;
         } else if (overriddenMethod.getModifiers().contains(Modifier.protectedModifier())) {
             return method.getModifiers().stream()
-                    .anyMatch(m -> m.equals(Modifier.protectedModifier()) || m.equals(Modifier.publicModifier()));
+                    .anyMatch(m -> m.equals(Modifier.protectedModifier()));
         } else if (overriddenMethod.getModifiers().contains(Modifier.privateModifier())) {
             return method.getModifiers().stream().anyMatch(m -> m.equals(Modifier.privateModifier()));
         }

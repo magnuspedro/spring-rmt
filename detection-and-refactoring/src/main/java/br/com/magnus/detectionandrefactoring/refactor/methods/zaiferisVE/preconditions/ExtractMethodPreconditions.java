@@ -30,7 +30,7 @@ public class ExtractMethodPreconditions {
     }
 
     private boolean fragmentsHaveMinSize(FragmentsSplitter fragmentsSplitter) {
-        return !fragmentsSplitter.getBeforeFragment().isEmpty() || !fragmentsSplitter.getAfterFragment().isEmpty();
+        return fragmentsSplitter.getBeforeFragment().size() >= 2 || fragmentsSplitter.getAfterFragment().size() >= 2;
     }
 
     private boolean methodsValuesMatch(MethodDeclaration m1, MethodDeclaration m2) {

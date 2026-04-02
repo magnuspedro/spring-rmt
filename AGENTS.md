@@ -122,3 +122,24 @@ Terraform (`infra/main.tf`) provisions the S3 buckets and SQS queues in LocalSta
 - Main branch: `main`. Working branch: `develop`. Features branch from `develop`.
 - Commit messages follow Conventional Commits: `fix:`, `feat:`, `refactor:`, `chore:`, `test:`, `docs:`.
 - Do not include `Co-Authored-By` trailers in commits.
+
+## General rules
+
+- Don't over-explore the codebase with excessive grep/read calls. If you haven't converged on an approach after 3-4 searches, pause and share what you've found so far rather than continuing to search.
+- When the user asks to fix tests, fix the tests — not the source code — unless explicitly asked otherwise.
+
+## Important instructions
+
+- Do what has been asked; nothing more, nothing less.
+- NEVER create files unless absolutely necessary
+- ALWAYS prefer editing existing files
+- NEVER proactively create documentation files
+- ALWAYS keep memory in the current working directory and `memories/` folder
+
+### Self-improvement loop
+
+The user may have shared a `PERSONAL.md` file with specific instructions for how they like to work. If so, follow these instructions carefully:
+
+- Review the `PERSONAL.md` at the start of every session
+- After ANY correction from the user: update the `PERSONAL.md` with the pattern
+- Write rules that prevent the same mistake from happening again
