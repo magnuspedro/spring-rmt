@@ -1,6 +1,7 @@
 package br.com.magnus.detectionandrefactoring.consumer.refactor.methods.weiL.verifiers;
 
 import br.com.magnus.config.starter.file.JavaFile;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
 import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.verifiers.WeiEtAl2014FactoryVerifier;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
@@ -158,6 +159,18 @@ class WeiEtAl2014FactoryVerifierTest {
         var result = this.weiEtAl2014FactoryVerifier.retrieveCandidatesFrom(files);
 
         assertEquals(1, result.size());
+    }
+
+    @Test
+    @DisplayName("Should not retrieve candidate when method has more than one parameter")
+    public void shouldNotRetrieveCandidateWhenMethodHasMoreThanOneParameter() {
+        var files = createJavaFilesFactory();
+        var method = AstHandler.getMethods(files.getLast().getCompilationUnit()).getFirst();
+        method.addParameter("int", "extra");
+
+        var result = this.weiEtAl2014FactoryVerifier.retrieveCandidatesFrom(files);
+
+        assertTrue(result.isEmpty());
     }
 
 
