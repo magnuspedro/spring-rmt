@@ -22,8 +22,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor
@@ -147,7 +151,10 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
         classDclr.setAbstract(true);
         candidateMethod.setBody(null);
         candidateMethod.setAbstract(true);
-        candidateMethod.getParameter(0).remove();
+        final var discriminatorIndex = findDiscriminatorParameterIndex(candidate.getMethodDcl(), candidate.getIfStatements());
+        if (discriminatorIndex < candidateMethod.getParameters().size()) {
+            candidateMethod.getParameter(discriminatorIndex).remove();
+        }
     }
 
     private CompilationUnit updateBaseCompilationUnit(Collection<CompilationUnit> classes,
@@ -157,6 +164,34 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
                         Optional.of(candidate.getPackageDeclaration())))
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
+    }
+
+    private int findDiscriminatorParameterIndex(MethodDeclaration method, Collection<IfStmt> ifStatements) {
+        final var params = method.getParameters();
+        if (params.isEmpty()) return 0;
+        return ifStatements.stream()
+                .findFirst()
+                .map(ifStmt -> {
+                    final var binary = ifStmt.getChildNodes().stream()
+                            .filter(BinaryExpr.class::isInstance).map(BinaryExpr.class::cast).findFirst();
+                    final var methodCall = ifStmt.getChildNodes().stream()
+                            .filter(MethodCallExpr.class::isInstance).map(MethodCallExpr.class::cast).findFirst();
+                    return IntStream.range(0, params.size())
+                            .filter(i -> isNameInExpression(params.get(i).getNameAsString(), binary, methodCall))
+                            .findFirst()
+                            .orElse(0);
+                })
+                .orElse(0);
+    }
+
+    private boolean isNameInExpression(String name, Optional<BinaryExpr> binary, Optional<MethodCallExpr> methodCall) {
+        if (binary.isPresent()) {
+            return binary.get().stream().anyMatch(n ->
+                    AstHandler.getNameExpr(n).map(NameExpr::getNameAsString).map(name::equals).orElse(false));
+        }
+        return methodCall.map(mc -> mc.stream().anyMatch(n ->
+                AstHandler.getNameExpr(n).map(NameExpr::getNameAsString).map(name::equals).orElse(false)))
+                .orElse(false);
     }
 
     @Override

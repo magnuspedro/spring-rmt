@@ -182,8 +182,7 @@ class ExtractMethodPreconditionsTest {
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new BlockStmt(NodeList.nodeList(
-                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
-                        new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), superExpr))
+                        new ExpressionStmt(new MethodCallExpr("super", superExpr))
                 )));
 
         var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
