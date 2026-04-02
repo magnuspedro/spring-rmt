@@ -2,7 +2,6 @@ package br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.precon
 
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
@@ -20,32 +19,28 @@ public class SiblingPreconditions {
         final List<ZafeirisEtAl2016Candidate.CandidateWithVariables> candidatesWithVariables = candidatesOfSameOverriddenMethod.stream()
                 .map(ZafeirisEtAl2016Candidate::toCandidateWithVariables)
                 .collect(Collectors.toList());
+        if (candidatesWithVariables.size() < 2) {
+            return false;
+        }
 
         return !beforeFragmentReturnEqual(candidatesWithVariables)
-                && !this.beforeReturnIsUsedInSuper(candidatesWithVariables)
-                && this.isAShortHierarchy(candidatesWithVariables);
+                || !this.beforeReturnIsUsedInSuper(candidatesWithVariables)
+                || this.isAShortHierarchy(candidatesWithVariables);
     }
 
     private boolean isAShortHierarchy(List<ZafeirisEtAl2016Candidate.CandidateWithVariables> candidatesWithVariables) {
+        final var byParent = candidatesWithVariables.stream()
+                .map(c -> c.candidate().getClassDeclaration())
+                .filter(Objects::nonNull)
+                .map(AstHandler::getParentType)
+                .flatMap(Optional::stream)
+                .collect(Collectors.groupingBy(ClassOrInterfaceType::asString, Collectors.counting()));
 
-        final var hierarchies = new ArrayList<Hierarchy>();
-
-        for (var candidate : candidatesWithVariables) {
-            boolean belongsToHierarchy = false;
-            for (var hierarchy : hierarchies) {
-                if (hierarchy.belongs(candidate.candidate().getClassDeclaration())) {
-                    belongsToHierarchy = true;
-                    hierarchy.declarations.add(candidate.candidate().getClassDeclaration());
-                }
-            }
-
-            if (!belongsToHierarchy) {
-                hierarchies.add(new Hierarchy());
-                hierarchies.getFirst().declarations.add(candidate.candidate().getClassDeclaration());
-            }
+        if (byParent.isEmpty()) {
+            return false;
         }
 
-        return hierarchies.stream().anyMatch(h -> h.declarations.size() < 2);
+        return byParent.values().stream().anyMatch(size -> size < 2);
     }
 
     private boolean beforeFragmentReturnEqual(List<ZafeirisEtAl2016Candidate.CandidateWithVariables> candidatesWithVariables) {
@@ -101,21 +96,6 @@ public class SiblingPreconditions {
             isUsed &= AstHandler.variableIsPresentInMethodCall(var, methodCall);
         }
         return isUsed;
-    }
-
-    private class Hierarchy {
-        final Set<ClassOrInterfaceDeclaration> declarations = new HashSet<>();
-
-        boolean belongs(ClassOrInterfaceDeclaration dclr) {
-            final Optional<ClassOrInterfaceType> dclrParent = AstHandler.getParentType(dclr);
-            if (dclrParent.isEmpty()) {
-                return false;
-            }
-            return declarations.stream()
-                    .map(AstHandler::getParentType)
-                    .flatMap(Optional::stream)
-                    .anyMatch(parent -> parent.asString().equals(dclrParent.get().asString()));
-        }
     }
 
 }

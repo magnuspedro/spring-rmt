@@ -1,5 +1,7 @@
 package br.com.magnus.detectionandrefactoring.consumer.refactor.methods.zaiferisVE.verifiers;
 
+import br.com.magnus.config.starter.file.JavaFile;
+import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AbstractSyntaxTree;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.preconditions.ExtractMethodPreconditions;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.preconditions.SiblingPreconditions;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.preconditions.SuperInvocationPreconditions;
@@ -116,6 +118,57 @@ class ZafeirisEtAl2016VerifierTest {
         var candidate = zafeirisEtAl2016Verifier.retrieveCandidatesFrom(javaFiles);
 
         assertEquals(1, candidate.size());
+    }
+
+    @Test
+    @DisplayName("Should retrieve all valid super-invocation candidates from the same class")
+    public void shouldRetrieveAllValidSuperInvocationCandidatesFromSameClass() {
+        var parentSource = """
+                package sample;
+                public class Parent {
+                    protected int a() { return 1; }
+                    protected int b() { return 2; }
+                }
+                """;
+        var childSource = """
+                package sample;
+                public class Child extends Parent {
+                    @Override
+                    protected int a() {
+                        int x = 1;
+                        return super.a() + x;
+                    }
+                    @Override
+                    protected int b() {
+                        int y = 2;
+                        return super.b() + y;
+                    }
+                }
+                """;
+
+        var javaFiles = List.of(
+                JavaFile.builder()
+                        .name("Parent.java")
+                        .path("sample/")
+                        .originalClass(parentSource)
+                        .parsed(AbstractSyntaxTree.parseSingle(parentSource))
+                        .build(),
+                JavaFile.builder()
+                        .name("Child.java")
+                        .path("sample/")
+                        .originalClass(childSource)
+                        .parsed(AbstractSyntaxTree.parseSingle(childSource))
+                        .build()
+        );
+
+        when(superInvocationPreconditions.violatesAmountOfSuperCallsOrName(any(), any())).thenReturn(false);
+        when(superInvocationPreconditions.isOverriddenMethodValid(any(), any())).thenReturn(true);
+        when(extractMethodPreconditions.isValid(any(), any())).thenReturn(true);
+        when(siblingPreconditions.violates(any())).thenReturn(false);
+
+        var candidate = zafeirisEtAl2016Verifier.retrieveCandidatesFrom(javaFiles);
+
+        assertEquals(2, candidate.size());
     }
 
 }

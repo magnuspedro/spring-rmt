@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -57,16 +56,18 @@ public class ZafeirisEtAl2016Verifier {
         javaFiles.forEach(file -> {
             final var parent = AstHandler.getParent(file.getCompilationUnit(), cus).orElse(null);
 
-            this.retrieveCandidate(file, parent).ifPresent(candidates::add);
+            candidates.addAll(this.retrieveCandidates(file, parent));
         });
 
         return candidates;
     }
 
-    private Optional<ZafeirisEtAl2016Candidate> retrieveCandidate(JavaFile file, CompilationUnit parent) {
+    private List<ZafeirisEtAl2016Candidate> retrieveCandidates(JavaFile file, CompilationUnit parent) {
+
+        final var candidates = new ArrayList<ZafeirisEtAl2016Candidate>();
 
         if (this.violatesClassPreconditions(parent)) {
-            return Optional.empty();
+            return candidates;
         }
 
         final var methods = AstHandler.getMethods(file.getCompilationUnit());
@@ -96,10 +97,10 @@ public class ZafeirisEtAl2016Verifier {
                 continue;
             }
 
-            return Optional.of(this.createCandidate(file, overriddenMethod, method, superCall));
+            candidates.add(this.createCandidate(file, overriddenMethod, method, superCall));
 
         }
-        return Optional.empty();
+        return candidates;
     }
 
     private ZafeirisEtAl2016Candidate createCandidate(JavaFile file, MethodDeclaration overriddenMethod, MethodDeclaration method, SuperExpr superCall) {
