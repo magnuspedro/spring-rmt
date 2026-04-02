@@ -1,0 +1,37 @@
+spring:
+  cloud:
+    aws:
+      credentials:
+        access-key: fakeAccessKeyId
+        secret-key: fakeSecretAccessKey
+        instance-profile: false
+      region:
+        static: sa-east-1
+      s3:
+        path-style-access-enabled: true
+  data:
+    redis:
+      client-type: lettuce
+  autoconfigure:
+    exclude:
+      - io.awspring.cloud.sqs.autoconfigure.SqsAutoConfiguration
+      - com.github.sonus21.rqueue.spring.boot.RqueueListenerAutoConfig
+      - com.github.sonus21.rqueue.spring.boot.RqueueMetricsAutoConfig
+
+aws:
+  sqs:
+    enabled: false
+
+s3:
+  project-bucket: projects
+  refactored-project-bucket: refactored-projects
+
+rqueue:
+  enabled: true
+
+queue:
+  detect-pattern: detect-pattern
+  measure-pattern: measure-pattern
+
+server:
+  port: 8083

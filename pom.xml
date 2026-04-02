@@ -25,9 +25,8 @@
     </modules>
 
     <properties>
-        <java.version>21</java.version>
-        <!-- Override Lombok to a version compatible with Java 25 -->
-        <lombok.version>1.18.38</lombok.version>
+        <java.version>25</java.version>
+        <lombok.version>1.18.44</lombok.version>
         <!-- Spring Cloud -->
         <spring.cloud-version>2025.1.1</spring.cloud-version>
         <spring-cloud-aws-dependencies.version>4.0.0</spring-cloud-aws-dependencies.version>
@@ -36,6 +35,8 @@
         <rqueue-spring-boot-starter.version>4.0.0-SNAP-RELEASE</rqueue-spring-boot-starter.version>
         <ck.version>0.7.0</ck.version>
         <console-tree-builder.version>2.0</console-tree-builder.version>
+        <!-- Testcontainers -->
+        <testcontainers.version>1.20.3</testcontainers.version>
         <!-- UI WebJars -->
         <bootstrap.version>5.3.3</bootstrap.version>
         <htmx.org.version>1.9.12</htmx.org.version>
@@ -56,6 +57,14 @@
                 <groupId>io.awspring.cloud</groupId>
                 <artifactId>spring-cloud-aws-dependencies</artifactId>
                 <version>${spring-cloud-aws-dependencies.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Testcontainers BOM -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

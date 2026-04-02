@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(value = "rqueue.enabled", havingValue = "false")
+@ConditionalOnProperty(name = "aws.sqs.enabled", havingValue = "true", matchIfMissing = true)
 public class SendProjectSqs implements SendProject {
     private final SqsTemplate sqsTemplate;
 
