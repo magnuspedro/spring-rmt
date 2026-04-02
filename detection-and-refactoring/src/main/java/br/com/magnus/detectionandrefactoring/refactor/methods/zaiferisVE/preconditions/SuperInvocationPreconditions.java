@@ -25,7 +25,7 @@ public class SuperInvocationPreconditions {
                 .map(SimpleName::asString)
                 .orElse("");
 
-        return superCalls.size() != 1 || invalidMethodNames.contains(name) && (name.startsWith(GET) || name.startsWith(SET));
+        return superCalls.size() != 1 || invalidMethodNames.contains(name) || name.startsWith(GET) || name.startsWith(SET);
     }
 
     public boolean isOverriddenMethodValid(MethodDeclaration overriddenMethod, MethodDeclaration method) {
@@ -45,7 +45,7 @@ public class SuperInvocationPreconditions {
             return true;
         } else if (overriddenMethod.getModifiers().contains(Modifier.protectedModifier())) {
             return method.getModifiers().stream()
-                    .anyMatch(m -> m.equals(Modifier.protectedModifier()) || m.equals(Modifier.privateModifier()));
+                    .anyMatch(m -> m.equals(Modifier.protectedModifier()) || m.equals(Modifier.publicModifier()));
         } else if (overriddenMethod.getModifiers().contains(Modifier.privateModifier())) {
             return method.getModifiers().stream().anyMatch(m -> m.equals(Modifier.privateModifier()));
         }

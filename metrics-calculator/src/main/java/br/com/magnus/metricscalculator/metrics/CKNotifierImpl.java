@@ -25,16 +25,16 @@ public class CKNotifierImpl implements CKNotifier, MetricsResolver {
 
     @Override
     public int getDepthOfInheritanceTree() {
-        return results.values().stream().mapToInt(CKClassResult::getDit).sum();
+        return (int) Math.round(results.values().stream().mapToInt(CKClassResult::getDit).average().orElse(0));
     }
 
     @Override
     public int getCyclomaticComplexity() {
-        return results.values().stream().mapToInt(CKClassResult::getWmc).sum();
+        return (int) Math.round(results.values().stream().mapToInt(CKClassResult::getWmc).average().orElse(0));
     }
 
     @Override
     public int getLinesOfCode() {
-        return results.values().stream().mapToInt(CKClassResult::getLoc).sum();
+        return (int) Math.round(results.values().stream().mapToInt(CKClassResult::getLoc).average().orElse(0));
     }
 }
