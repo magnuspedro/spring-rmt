@@ -102,7 +102,7 @@ class SuperInvocationPreconditionsTest {
     }
 
     @Test
-    @DisplayName("Should return true for one super call and a method starting with invalid name")
+    @DisplayName("Should return true for one super call and a method with invalid name")
     public void shouldReturnTrueForOneSuperCallAndAMethodWithInvalidName() {
         var method = new MethodDeclaration(NodeList.nodeList(Modifier.publicModifier()), new VoidType(), "toString");
 
