@@ -164,11 +164,11 @@ class ExtractMethodPreconditionsTest {
     }
 
     @Test
-    @DisplayName("Should return false when gragments do no have min size")
-    public void shouldReturnFalseWhenGragmentsDoNoHaveMinSize() {
+    @DisplayName("Should return false when method body contains only the super call with no before or after fragments")
+    public void shouldReturnFalseWhenMethodBodyContainsOnlyTheSuperCall() {
         var overriddenMethod = new MethodDeclaration(
                 NodeList.nodeList(Modifier.publicModifier()),
-               "overridenMethod",
+                "overridenMethod",
                 new VoidType(),
                 NodeList.nodeList()
         );
@@ -182,8 +182,7 @@ class ExtractMethodPreconditionsTest {
                 NodeList.nodeList(),
                 NodeList.nodeList(),
                 new BlockStmt(NodeList.nodeList(
-                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
-                        new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), superExpr))
+                        new ExpressionStmt(new MethodCallExpr("super", superExpr))
                 )));
 
         var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
