@@ -140,6 +140,74 @@ GET  /api/refactor/{id}   — Poll for results by project ID
 GET  /api/download/{id}/{candidateId} — Download a refactored ZIP
 ```
 
+## Testing
+
+### Unit Tests
+
+Run all unit tests:
+
+```bash
+mvn test
+```
+
+Run tests for a specific module:
+
+```bash
+mvn test -pl detection-and-refactoring
+```
+
+Unit tests use Mockito and do not require Docker or any external services.
+
+### Integration Tests
+
+Integration tests exercise the **complete application** with all services and no mocking. Full Spring context loads with real LocalStack (S3) and Redis containers via Testcontainers.
+
+**Prerequisites**: Docker must be running (`docker ps` should work).
+
+```bash
+# Run all integration tests
+mvn test
+
+# Run tests for specific service
+mvn test -pl detection-and-refactoring
+mvn test -pl project-sync-bff
+mvn test -pl metrics-calculator
+```
+
+#### What Gets Tested
+
+Integration tests are in `src/test/java/.../integration/` across three services:
+
+**detection-and-refactoring** (Pattern Detection & Refactoring):
+- **WeiStrategyIntegrationTest** — Strategy pattern: if-chain logic → abstract Strategy + concrete implementations
+- **WeiFactoryMethodIntegrationTest** — Factory Method pattern: if-chain factory → abstract factory + subclasses
+- **ZafeirisTemplateMethodIntegrationTest** — Template Method pattern: super-call hierarchy → template with hooks
+
+**project-sync-bff** (Entry Point):
+- **ProjectUploadIntegrationTest** — ZIP upload → S3 storage → Redis persistence → detection pipeline initiation
+
+**metrics-calculator** (Quality Metrics):
+- **MetricsCalculationIntegrationTest** — Original vs refactored code analysis → CK metrics calculation → quality scores storage
+
+#### Test Execution Flow
+
+Each integration test:
+1. Creates a fixture ZIP from actual source code (from fixtures.Wei / fixtures.Zafeiris)
+2. Uploads the ZIP to LocalStack S3 (`projects` bucket)
+3. Saves a `BaseProject` to Redis with initial status
+4. **Calls `ProcessRefactorCandidate.process()`** — full pipeline with no mocks:
+   - `DetectionMethodsManagerWei` or `DetectionMethodsManagerZaiferis` detects patterns
+   - `WeiEtAl2014Executor` or `ZafeirisEtAl2016Executor` performs refactoring
+   - `ProjectUpdater` uploads refactored ZIPs to S3 and updates BaseProject in Redis
+   - `SendProjectRedis` enqueues a message to the `measure-pattern` queue
+5. Asserts:
+   - `BaseProject.status` contains `REFACTORED`
+   - `CandidateInformation` has the correct `DesignPattern`
+   - Refactored ZIP in S3 contains transformed code
+   - Message was enqueued to Redis queue (verified via RedisTemplate)
+
+**Performance**: First test run ~30 seconds (container startup), subsequent runs ~5-10 seconds (container reuse).
+
 ## References
 
 - Wei, L. et al. (2014). *Automated Detection and Refactoring of Design Patterns in Object-Oriented Systems*
