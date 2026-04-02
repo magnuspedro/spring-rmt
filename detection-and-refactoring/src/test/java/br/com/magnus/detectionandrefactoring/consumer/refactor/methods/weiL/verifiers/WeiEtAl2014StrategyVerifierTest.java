@@ -6,6 +6,7 @@ import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.verifiers.Wei
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.stmt.IfStmt;
 import fixtures.Wei;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -167,6 +168,19 @@ class WeiEtAl2014StrategyVerifierTest {
         var files = Wei.createJavaFilesStrategy();
         var method = AstHandler.getMethods(files.getFirst().getCompilationUnit()).getFirst();
         method.addParameter("int", "extra");
+
+        var result = this.weiEtAl2014StrategyVerifier.retrieveCandidatesFrom(files);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should not retrieve candidate when method contains nested if statements")
+    public void shouldNotRetrieveCandidateWhenMethodContainsNestedIfStatements() {
+        var files = Wei.createJavaFilesStrategy();
+        var method = AstHandler.getMethods(files.getFirst().getCompilationUnit()).getFirst();
+        var topLevelIf = AstHandler.getIfStatements(method).stream().findFirst().orElseThrow();
+        topLevelIf.getThenStmt().asBlockStmt().addStatement(new IfStmt());
 
         var result = this.weiEtAl2014StrategyVerifier.retrieveCandidatesFrom(files);
 

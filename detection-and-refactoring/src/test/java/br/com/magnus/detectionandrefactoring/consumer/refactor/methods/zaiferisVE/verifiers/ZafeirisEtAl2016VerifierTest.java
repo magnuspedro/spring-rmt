@@ -72,7 +72,7 @@ class ZafeirisEtAl2016VerifierTest {
 
         var candidate = zafeirisEtAl2016Verifier.retrieveCandidatesFrom(javaFiles);
 
-        verify(extractMethodPreconditions, never()).isValid(any(), any());
+        verify(extractMethodPreconditions, never()).isValidIgnoringMinSize(any(), any());
         verify(siblingPreconditions, never()).violates(any());
         assertEquals(0, candidate.size());
     }
@@ -83,7 +83,7 @@ class ZafeirisEtAl2016VerifierTest {
         var javaFiles = createJavaFiles();
         when(superInvocationPreconditions.violatesAmountOfSuperCallsOrName(any(), any())).thenReturn(false);
         when(superInvocationPreconditions.isOverriddenMethodValid(any(), any())).thenReturn(true);
-        when(extractMethodPreconditions.isValid(any(), any())).thenReturn(false);
+        when(extractMethodPreconditions.isValidIgnoringMinSize(any(), any())).thenReturn(false);
 
         var candidate = zafeirisEtAl2016Verifier.retrieveCandidatesFrom(javaFiles);
 
@@ -97,7 +97,8 @@ class ZafeirisEtAl2016VerifierTest {
         var javaFiles = createJavaFiles();
         when(superInvocationPreconditions.violatesAmountOfSuperCallsOrName(any(), any())).thenReturn(false);
         when(superInvocationPreconditions.isOverriddenMethodValid(any(), any())).thenReturn(true);
-        when(extractMethodPreconditions.isValid(any(), any())).thenReturn(true);
+        when(extractMethodPreconditions.isValidIgnoringMinSize(any(), any())).thenReturn(true);
+        when(extractMethodPreconditions.hasMinimumFragmentsSize(any())).thenReturn(true);
         when(siblingPreconditions.violates(any())).thenReturn(true);
 
         var candidate = zafeirisEtAl2016Verifier.retrieveCandidatesFrom(javaFiles);
@@ -112,7 +113,8 @@ class ZafeirisEtAl2016VerifierTest {
         var javaFiles = createJavaFiles();
         when(superInvocationPreconditions.violatesAmountOfSuperCallsOrName(any(), any())).thenReturn(false);
         when(superInvocationPreconditions.isOverriddenMethodValid(any(), any())).thenReturn(true);
-        when(extractMethodPreconditions.isValid(any(), any())).thenReturn(true);
+        when(extractMethodPreconditions.isValidIgnoringMinSize(any(), any())).thenReturn(true);
+        when(extractMethodPreconditions.hasMinimumFragmentsSize(any())).thenReturn(true);
         when(siblingPreconditions.violates(any())).thenReturn(false);
 
         var candidate = zafeirisEtAl2016Verifier.retrieveCandidatesFrom(javaFiles);
@@ -163,7 +165,8 @@ class ZafeirisEtAl2016VerifierTest {
 
         when(superInvocationPreconditions.violatesAmountOfSuperCallsOrName(any(), any())).thenReturn(false);
         when(superInvocationPreconditions.isOverriddenMethodValid(any(), any())).thenReturn(true);
-        when(extractMethodPreconditions.isValid(any(), any())).thenReturn(true);
+        when(extractMethodPreconditions.isValidIgnoringMinSize(any(), any())).thenReturn(true);
+        when(extractMethodPreconditions.hasMinimumFragmentsSize(any())).thenReturn(true);
         when(siblingPreconditions.violates(any())).thenReturn(false);
 
         var candidate = zafeirisEtAl2016Verifier.retrieveCandidatesFrom(javaFiles);
