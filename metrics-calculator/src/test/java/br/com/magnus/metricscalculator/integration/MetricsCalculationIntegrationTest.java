@@ -1,6 +1,7 @@
 package br.com.magnus.metricscalculator.integration;
 
 import br.com.magnus.config.starter.members.detectors.methods.Reference;
+import br.com.magnus.config.starter.members.metrics.QualityAttributeResult;
 import br.com.magnus.config.starter.patterns.DesignPattern;
 import br.com.magnus.config.starter.projects.BaseProject;
 import br.com.magnus.config.starter.projects.CandidateInformation;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import software.amazon.awssdk.core.sync.RequestBody;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +22,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Integration test for metrics-calculator metrics processing.
- * Tests the service that calculates code quality metrics on original vs refactored code.
- */
 class MetricsCalculationIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
@@ -112,12 +110,22 @@ class MetricsCalculationIntegrationTest extends BaseIntegrationTest {
         assertThat(updatedProject.getCandidatesInformation()).hasSize(1);
 
         var candidate = updatedProject.getCandidatesInformation().getFirst();
+        assertThat(candidate.getId()).isEqualTo(candidateId);
+        assertThat(candidate.getDesignPattern()).isEqualTo(DesignPattern.STRATEGY);
+        assertThat(candidate.getFilesChanged()).containsExactlyInAnyOrder(
+                "example/MovieTicket.java",
+                "Strategy.java",
+                "ConcreteStrategyS.java"
+        );
         assertThat(candidate.getMetrics()).isNotNull().hasSize(3);
         assertThat(candidate.getMetrics())
                 .extracting(metric -> metric.qualityAttributeName())
                 .containsExactlyInAnyOrder("MAINTAINABILITY", "RELIABILITY", "REUSABILITY");
         assertThat(candidate.getMetrics())
-                .allSatisfy(metric -> assertThat(metric.changePercentage()).isNotNull());
+                .allSatisfy(metric -> assertThat(metric.changePercentage()).isGreaterThan(BigDecimal.ZERO));
+        assertThat(candidate.getMetricValue("MAINTAINABILITY")).isEqualByComparingTo("166.67");
+        assertThat(candidate.getMetricValue("RELIABILITY")).isEqualByComparingTo("250.00");
+        assertThat(candidate.getMetricValue("REUSABILITY")).isEqualByComparingTo("100.00");
 
         s3Client.close();
     }

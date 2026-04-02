@@ -14,15 +14,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 
-import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -32,10 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Integration test for project-sync-bff upload and project management flow.
- * Tests the entry point that receives ZIP uploads and initiates the pipeline.
- */
 class ProjectUploadIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
@@ -85,7 +78,8 @@ class ProjectUploadIntegrationTest extends BaseIntegrationTest {
             assertThat(storedObject.readAllBytes()).isEqualTo(zipBytes);
         }
 
-        assertThat(redisTemplate.hasKey("rqueue-pattern:detect-pattern")).isTrue();
+        var queuedMessages = redisTemplate.opsForList().range("rqueue-pattern:detect-pattern", 0, -1);
+        assertThat(queuedMessages).singleElement().asString().contains(projectId);
         s3Client.close();
     }
 
@@ -158,7 +152,7 @@ class ProjectUploadIntegrationTest extends BaseIntegrationTest {
                 .bucket("refactored-projects")
                 .key(projectId)
                 .build())) {
-            var zipContents = extractZipContent(downloadedZip.readAllBytes());
+            var zipContents = ZipHelper.extractZip(downloadedZip.readAllBytes());
             assertThat(zipContents.get("src/main/java/example/MovieTicket.java")).contains("return 2");
             assertThat(zipContents.get("src/main/java/example/Other.java")).contains("class Other");
         }
@@ -168,20 +162,5 @@ class ProjectUploadIntegrationTest extends BaseIntegrationTest {
 
     private String sha256(byte[] bytes) throws Exception {
         return new BigInteger(1, MessageDigest.getInstance("SHA-256").digest(bytes)).toString(16);
-    }
-
-    private Map<String, String> extractZipContent(byte[] zipBytes) throws Exception {
-        var content = new java.util.LinkedHashMap<String, String>();
-        try (var zip = new ZipInputStream(new java.io.ByteArrayInputStream(zipBytes))) {
-            ZipEntry entry;
-            while ((entry = zip.getNextEntry()) != null) {
-                if (!entry.isDirectory()) {
-                    var bytes = new ByteArrayOutputStream();
-                    zip.transferTo(bytes);
-                    content.put(entry.getName(), bytes.toString());
-                }
-            }
-        }
-        return content;
     }
 }
