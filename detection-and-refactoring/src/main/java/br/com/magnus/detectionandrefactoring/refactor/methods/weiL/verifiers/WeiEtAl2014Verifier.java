@@ -7,6 +7,7 @@ import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.RefactoringCa
 import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.WeiEtAl2014Candidate;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.IfStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.VoidType;
 import org.springframework.util.Assert;
 
@@ -40,6 +41,7 @@ public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifi
     private boolean isMethodInvalid(MethodDeclaration method) {
         return method.getParameters() == null
                 || method.getParameters().isEmpty()
+                || method.getParameters().size() > 1
                 || (method.getType() instanceof VoidType);
     }
 
@@ -50,12 +52,55 @@ public abstract class WeiEtAl2014Verifier implements RefactoringCandidatesVerifi
         }
 
         final var ifStatements = AstHandler.getIfStatements(method);
+        if (this.hasUnsupportedNestedIfStatements(method)) {
+            return Optional.empty();
+        }
 
         if (!this.areIfStmtsValid(javaFiles, file,method, ifStatements)) {
             return Optional.empty();
         }
 
         return Optional.of(this.createCandidate(file, method, ifStatements));
+    }
+
+    private boolean hasUnsupportedNestedIfStatements(MethodDeclaration method) {
+        return method.getBody()
+                .map(body -> body.getStatements().stream()
+                        .filter(IfStmt.class::isInstance)
+                        .map(IfStmt.class::cast)
+                        .anyMatch(this::containsNestedIfOutsideElseIfChain))
+                .orElse(false);
+    }
+
+    private boolean containsNestedIfOutsideElseIfChain(IfStmt ifStmt) {
+        if (this.containsAnyIf(ifStmt.getThenStmt())) {
+            return true;
+        }
+
+        final var elseStmt = ifStmt.getElseStmt();
+        if (elseStmt.isEmpty()) {
+            return false;
+        }
+
+        final var statement = elseStmt.get();
+        if (statement instanceof IfStmt elseIf) {
+            return this.containsNestedIfOutsideElseIfChain(elseIf);
+        }
+
+        return this.containsAnyIf(statement);
+    }
+
+    private boolean containsAnyIf(Statement statement) {
+        return statement.getChildNodes().stream()
+                .anyMatch(node -> node instanceof IfStmt || node.getChildNodes().stream()
+                        .anyMatch(child -> child instanceof IfStmt || this.nodeContainsIf(child)));
+    }
+
+    private boolean nodeContainsIf(com.github.javaparser.ast.Node node) {
+        if (node instanceof IfStmt) {
+            return true;
+        }
+        return node.getChildNodes().stream().anyMatch(this::nodeContainsIf);
     }
 
     protected abstract WeiEtAl2014Candidate createCandidate(JavaFile file, MethodDeclaration method, Collection<IfStmt> ifStatements);

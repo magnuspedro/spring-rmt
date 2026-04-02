@@ -10,6 +10,7 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.stmt.ThrowStmt;
+import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.VarType;
 import com.github.javaparser.ast.type.VoidType;
@@ -242,6 +243,39 @@ class ExtractMethodPreconditionsTest {
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive2")),
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive3")),
                         new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), superExpr))
+                )));
+
+        var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
+
+        assertTrue(result);
+    }
+
+    @Test
+    @DisplayName("Should return true when super invocation is nested in a try block")
+    public void shouldReturnTrueWhenSuperInvocationIsNestedInTryBlock() {
+        var overriddenMethod = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
+                "overridenMethod",
+                new VoidType(),
+                NodeList.nodeList()
+        );
+        var superExpr = new SuperExpr();
+        var tryStmt = new TryStmt();
+        tryStmt.setTryBlock(new BlockStmt(NodeList.nodeList(
+                new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), superExpr))
+        )));
+        var method = new MethodDeclaration(
+                NodeList.nodeList(Modifier.publicModifier()),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new VoidType(),
+                new SimpleName("parentMethod"),
+                NodeList.nodeList(),
+                NodeList.nodeList(),
+                new BlockStmt(NodeList.nodeList(
+                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
+                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive2")),
+                        tryStmt
                 )));
 
         var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
