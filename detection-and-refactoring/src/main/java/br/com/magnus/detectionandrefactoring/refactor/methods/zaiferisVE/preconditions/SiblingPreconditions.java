@@ -1,7 +1,6 @@
 package br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.preconditions;
 
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
-import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.exceptions.SimpleNameException;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -108,27 +107,15 @@ public class SiblingPreconditions {
         final Set<ClassOrInterfaceDeclaration> declarations = new HashSet<>();
 
         boolean belongs(ClassOrInterfaceDeclaration dclr) {
-            return declarations.contains(dclr) && this.isChild(dclr) && this.isParent(dclr);
-        }
-
-        private boolean isChild(ClassOrInterfaceDeclaration dclr) {
-            final Optional<ClassOrInterfaceType> parent = AstHandler.getParentType(dclr);
-            return parent.filter(classOrInterfaceType -> declarations.stream()
-                            .map(AstHandler::getSimpleName)
-                            .flatMap(Optional::stream)
-                            .anyMatch(n -> n.equals(AstHandler.getSimpleName(classOrInterfaceType).orElseThrow(SimpleNameException::new))))
-                    .isPresent();
-        }
-
-        private boolean isParent(ClassOrInterfaceDeclaration dclr) {
-            return this.declarations.stream()
+            final Optional<ClassOrInterfaceType> dclrParent = AstHandler.getParentType(dclr);
+            if (dclrParent.isEmpty()) {
+                return false;
+            }
+            return declarations.stream()
                     .map(AstHandler::getParentType)
                     .flatMap(Optional::stream)
-                    .map(AstHandler::getSimpleName)
-                    .flatMap(Optional::stream)
-                    .anyMatch(n -> n.equals(AstHandler.getSimpleName(dclr).orElseThrow(SimpleNameException::new)));
+                    .anyMatch(parent -> parent.asString().equals(dclrParent.get().asString()));
         }
-
     }
 
 }
