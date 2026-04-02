@@ -1,0 +1,86 @@
+package br.com.magnus.detectionandrefactoring.integration;
+
+import br.com.magnus.detectionandrefactoring.DetectionAndRefactoringApplication;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.NONE,
+        classes = {DetectionAndRefactoringApplication.class, TestRedisConfiguration.class}
+)
+@ActiveProfiles("integration")
+@Testcontainers
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+public abstract class BaseIntegrationTest {
+
+    @Container
+    public static final LocalStackContainer localstack = new LocalStackContainer(
+            DockerImageName.parse("localstack/localstack:3.0.2"))
+            .withServices(LocalStackContainer.Service.S3);
+
+    @Container
+    public static final GenericContainer<?> redis = new GenericContainer<>(
+            DockerImageName.parse("redis:7.2.4-alpine"))
+            .withExposedPorts(6379);
+
+    @Autowired
+    protected RedisTemplate<String, Object> redisTemplate;
+
+    @DynamicPropertySource
+    static void dynamicProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.cloud.aws.endpoint", () -> localstack.getEndpointOverride(LocalStackContainer.Service.S3).toString());
+        registry.add("spring.cloud.aws.s3.endpoint", () -> localstack.getEndpointOverride(LocalStackContainer.Service.S3).toString());
+        registry.add("spring.data.redis.host", redis::getHost);
+        registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379).toString());
+    }
+
+    @BeforeEach
+    void setupInfrastructure() {
+        redisTemplate.getConnectionFactory().getConnection().serverCommands().flushAll();
+
+        var s3Client = createS3Client();
+        createBucketIfMissing(s3Client, "projects");
+        createBucketIfMissing(s3Client, "refactored-projects");
+        s3Client.close();
+    }
+
+    protected S3Client createS3Client() {
+        return S3Client.builder()
+                .endpointOverride(localstack.getEndpointOverride(LocalStackContainer.Service.S3))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create("fakeAccessKeyId", "fakeSecretAccessKey")))
+                .region(Region.of("sa-east-1"))
+                .forcePathStyle(true)
+                .build();
+    }
+
+    private void createBucketIfMissing(S3Client s3Client, String bucket) {
+        try {
+            s3Client.createBucket(CreateBucketRequest.builder()
+                    .bucket(bucket)
+                    .build());
+        } catch (S3Exception e) {
+            var errorCode = e.awsErrorDetails() == null ? null : e.awsErrorDetails().errorCode();
+            if (!"BucketAlreadyExists".equals(errorCode) && !"BucketAlreadyOwnedByYou".equals(errorCode)) {
+                throw e;
+            }
+        }
+    }
+}
