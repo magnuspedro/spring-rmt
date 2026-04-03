@@ -1,27 +1,19 @@
 package br.com.magnus.projectsyncbff.refactor;
 
-import br.com.magnus.config.starter.configuration.JavaParserSingleton;
 import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.file.extractor.FileExtractor;
 import br.com.magnus.config.starter.projects.BaseProject;
 import br.com.magnus.config.starter.projects.CandidateInformation;
-import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.ast.expr.ObjectCreationExpr;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import lombok.Builder;
+import br.com.magnus.config.starter.projects.ChangedFilesAnalyzer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayDeque;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,13 +41,13 @@ public class ProjectSelectionPlanner {
         }
 
         var analysis = analyze(project, candidates);
-        var validKeys = analysis.fileToCandidate().keySet();
+        var validKeys = analysis.groupByFileKey().keySet();
         var requested = Optional.ofNullable(requestedFileKeys)
                 .orElseGet(List::of)
                 .stream()
                 .filter(validKeys::contains)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-        var selected = expand(requested, analysis.internalDependenciesByKey());
+        var selected = expand(requested, analysis.groupByFileKey());
 
         var candidateSelections = candidates.stream()
                 .map(candidate -> {
@@ -65,8 +57,9 @@ public class ProjectSelectionPlanner {
                                 return FileSelection.builder()
                                         .key(key)
                                         .file(file)
-                                        .dependencyFiles(analysis.dependencyFilesByKey().getOrDefault(key, List.of()))
+                                        .dependencyFiles(analysis.relatedFilesByKey().getOrDefault(key, List.of()))
                                         .blockingReasons(List.of())
+                                        .metrics(candidate.getFileMetrics(file))
                                         .requested(requested.contains(key))
                                         .selected(selected.contains(key))
                                         .locked(selected.contains(key) && !requested.contains(key))
@@ -78,7 +71,7 @@ public class ProjectSelectionPlanner {
                             .candidate(candidate)
                             .files(fileSelections)
                             .selected(fileSelections.stream().anyMatch(FileSelection::isSelected))
-                            .blocked(fileSelections.stream().allMatch(FileSelection::isBlocked))
+                            .blocked(false)
                             .build();
                 })
                 .toList();
@@ -96,7 +89,7 @@ public class ProjectSelectionPlanner {
     public void validateSelection(BaseProject project, List<String> selectedFileKeys) {
         var candidates = Optional.ofNullable(project.getCandidatesInformation()).orElseGet(List::of);
         var analysis = analyze(project, candidates);
-        var validKeys = analysis.fileToCandidate().keySet();
+        var validKeys = analysis.groupByFileKey().keySet();
         var selected = Optional.ofNullable(selectedFileKeys)
                 .orElseGet(List::of)
                 .stream()
@@ -107,7 +100,7 @@ public class ProjectSelectionPlanner {
             throw new SelectionValidationException("Select at least one file before downloading the refactored project.", List.of());
         }
 
-        var closure = expand(selected, analysis.internalDependenciesByKey());
+        var closure = expand(selected, analysis.groupByFileKey());
         if (!closure.equals(selected)) {
             var missing = closure.stream()
                     .filter(key -> !selected.contains(key))
@@ -127,111 +120,45 @@ public class ProjectSelectionPlanner {
     }
 
     private SelectionAnalysis analyze(BaseProject project, List<CandidateInformation> candidates) {
-        var sourceFiles = buildSourceFiles(project);
-        var sourceFilesByPath = sourceFiles.stream()
-                .collect(Collectors.toMap(SourceFile::fullName, file -> file, (left, right) -> left, LinkedHashMap::new));
-        var typeToFile = new LinkedHashMap<String, String>();
-        sourceFiles.forEach(sourceFile -> sourceFile.declaredTypes().forEach(type -> typeToFile.putIfAbsent(type, sourceFile.fullName())));
+        final List<JavaFile> sourceFiles;
+        try {
+            sourceFiles = fileExtractor.extract(project);
+        } catch (Exception exception) {
+            log.warn("Skipping dependency analysis for project {} because the original sources could not be extracted", project.getId(), exception);
+            return emptyAnalysis(candidates);
+        }
 
-        var fileToCandidate = new LinkedHashMap<String, String>();
-        var dependencyFilesByKey = new LinkedHashMap<String, List<String>>();
-        var internalDependenciesByKey = new LinkedHashMap<String, Set<String>>();
+        var relatedFilesByKey = new LinkedHashMap<String, List<String>>();
+        var groupByFileKey = new LinkedHashMap<String, Set<String>>();
 
         candidates.forEach(candidate -> {
             var candidateFiles = filesChanged(candidate);
+            var candidateAnalysis = ChangedFilesAnalyzer.analyze(sourceFiles, candidateFiles);
             candidateFiles.forEach(file -> {
                 var key = fileKey(candidate.getId(), file);
-                fileToCandidate.put(key, candidate.getId());
-
-                var dependencies = Optional.ofNullable(sourceFilesByPath.get(file))
-                        .stream()
-                        .flatMap(sourceFile -> sourceFile.referencedTypes().stream())
-                        .map(typeToFile::get)
-                        .filter(Objects::nonNull)
-                        .filter(dependencyFile -> !dependencyFile.equals(file))
-                        .distinct()
-                        .toList();
-
-                dependencyFilesByKey.put(key, dependencies);
-                internalDependenciesByKey.put(key, dependencies.stream()
-                        .filter(candidateFiles::contains)
-                        .map(dependencyFile -> fileKey(candidate.getId(), dependencyFile))
+                relatedFilesByKey.put(key, candidateAnalysis.relatedFiles(file));
+                groupByFileKey.put(key, candidateAnalysis.groupedFiles(file).stream()
+                        .filter(groupedFile -> !groupedFile.equals(file))
+                        .map(groupedFile -> fileKey(candidate.getId(), groupedFile))
                         .collect(Collectors.toCollection(LinkedHashSet::new)));
             });
         });
 
-        return new SelectionAnalysis(fileToCandidate, dependencyFilesByKey, internalDependenciesByKey);
+        return new SelectionAnalysis(relatedFilesByKey, groupByFileKey);
     }
 
-    private List<SourceFile> buildSourceFiles(BaseProject project) {
-        final List<JavaFile> javaFiles;
-        try {
-            javaFiles = fileExtractor.extract(project);
-        } catch (Exception exception) {
-            log.warn("Skipping dependency analysis for project {} because the original sources could not be extracted", project.getId(), exception);
-            return List.of();
-        }
-        if (CollectionUtils.isEmpty(javaFiles)) {
-            return List.of();
-        }
-
-        var rawFiles = javaFiles.stream()
-                .map(javaFile -> {
-                    var compilationUnit = JavaParserSingleton.getInstance()
-                            .parse(javaFile.getOriginalClass())
-                            .getResult()
-                            .orElse(null);
-                    if (compilationUnit == null) {
-                        return null;
-                    }
-                    var declaredTypes = compilationUnit.findAll(TypeDeclaration.class).stream()
-                            .map(TypeDeclaration::getNameAsString)
-                            .collect(Collectors.toCollection(LinkedHashSet::new));
-                    var packageName = compilationUnit.getPackageDeclaration()
-                            .map(packageDeclaration -> packageDeclaration.getNameAsString())
-                            .orElse("");
-                    var explicitImports = compilationUnit.getImports().stream()
-                            .filter(importDeclaration -> !importDeclaration.isAsterisk())
-                            .collect(Collectors.toMap(ProjectSelectionPlanner::getImportedSimpleName, ImportDeclaration::getNameAsString,
-                                    (left, right) -> left, LinkedHashMap::new));
-                    var rawTypeReferences = compilationUnit.findAll(ClassOrInterfaceType.class).stream()
-                            .map(ClassOrInterfaceType::getNameAsString)
-                            .collect(Collectors.toCollection(LinkedHashSet::new));
-                    compilationUnit.findAll(ObjectCreationExpr.class).stream()
-                            .map(objectCreationExpr -> objectCreationExpr.getType().getNameAsString())
-                            .forEach(rawTypeReferences::add);
-                    return RawSourceFile.builder()
-                            .fullName(javaFile.getFullName())
-                            .packageName(packageName)
-                            .declaredTypes(declaredTypes)
-                            .explicitImports(explicitImports)
-                            .rawTypeReferences(rawTypeReferences)
-                            .build();
-                })
-                .filter(Objects::nonNull)
-                .toList();
-
-        var knownTypesBySimpleName = new HashMap<String, Set<String>>();
-        rawFiles.forEach(file -> file.declaredTypes().forEach(type -> {
-            var fqcn = toQualifiedName(file.packageName(), type);
-            knownTypesBySimpleName.computeIfAbsent(type, ignored -> new LinkedHashSet<>()).add(fqcn);
+    private SelectionAnalysis emptyAnalysis(List<CandidateInformation> candidates) {
+        var relatedFilesByKey = new LinkedHashMap<String, List<String>>();
+        var groupByFileKey = new LinkedHashMap<String, Set<String>>();
+        candidates.forEach(candidate -> filesChanged(candidate).forEach(file -> {
+            var key = fileKey(candidate.getId(), file);
+            relatedFilesByKey.put(key, List.of());
+            groupByFileKey.put(key, new LinkedHashSet<>());
         }));
-
-        return rawFiles.stream()
-                .map(file -> SourceFile.builder()
-                        .fullName(file.fullName())
-                        .declaredTypes(file.declaredTypes().stream()
-                                .map(type -> toQualifiedName(file.packageName(), type))
-                                .collect(Collectors.toCollection(LinkedHashSet::new)))
-                        .referencedTypes(file.rawTypeReferences().stream()
-                                .map(type -> resolveType(type, file, knownTypesBySimpleName))
-                                .flatMap(Optional::stream)
-                                .collect(Collectors.toCollection(LinkedHashSet::new)))
-                        .build())
-                .toList();
+        return new SelectionAnalysis(relatedFilesByKey, groupByFileKey);
     }
 
-    private static LinkedHashSet<String> expand(Set<String> requested, Map<String, Set<String>> dependencies) {
+    private static LinkedHashSet<String> expand(Set<String> requested, Map<String, Set<String>> groupedFilesByKey) {
         var expanded = new LinkedHashSet<String>();
         var queue = new ArrayDeque<>(requested);
         while (!queue.isEmpty()) {
@@ -239,40 +166,9 @@ public class ProjectSelectionPlanner {
             if (!expanded.add(key)) {
                 continue;
             }
-            dependencies.getOrDefault(key, Set.of()).forEach(queue::addLast);
+            groupedFilesByKey.getOrDefault(key, Set.of()).forEach(queue::addLast);
         }
         return expanded;
-    }
-
-    private static Optional<String> resolveType(String simpleType,
-                                                RawSourceFile file,
-                                                Map<String, Set<String>> knownTypesBySimpleName) {
-        if (file.explicitImports().containsKey(simpleType)) {
-            return Optional.of(file.explicitImports().get(simpleType));
-        }
-
-        var packageLocal = toQualifiedName(file.packageName(), simpleType);
-        if (knownTypesBySimpleName.getOrDefault(simpleType, Set.of()).contains(packageLocal)) {
-            return Optional.of(packageLocal);
-        }
-
-        var knownTypes = knownTypesBySimpleName.getOrDefault(simpleType, Set.of());
-        if (knownTypes.size() == 1) {
-            return knownTypes.stream().findFirst();
-        }
-
-        return Optional.empty();
-    }
-
-    private static String toQualifiedName(String packageName, String simpleName) {
-        if (packageName == null || packageName.isBlank()) {
-            return simpleName;
-        }
-        return packageName + "." + simpleName;
-    }
-
-    private static String getImportedSimpleName(ImportDeclaration importDeclaration) {
-        return importDeclaration.getName().getIdentifier();
     }
 
     private static Set<String> filesChanged(CandidateInformation candidate) {
@@ -288,25 +184,10 @@ public class ProjectSelectionPlanner {
         return new FileKey(split[0], split.length > 1 ? split[1] : "");
     }
 
-    private record SelectionAnalysis(Map<String, String> fileToCandidate,
-                                     Map<String, List<String>> dependencyFilesByKey,
-                                     Map<String, Set<String>> internalDependenciesByKey) {
+    private record SelectionAnalysis(Map<String, List<String>> relatedFilesByKey,
+                                     Map<String, Set<String>> groupByFileKey) {
     }
 
     private record FileKey(String candidateId, String file) {
-    }
-
-    @Builder
-    private record RawSourceFile(String fullName,
-                                 String packageName,
-                                 Set<String> declaredTypes,
-                                 Map<String, String> explicitImports,
-                                 Set<String> rawTypeReferences) {
-    }
-
-    @Builder
-    private record SourceFile(String fullName,
-                              Set<String> declaredTypes,
-                              Set<String> referencedTypes) {
     }
 }

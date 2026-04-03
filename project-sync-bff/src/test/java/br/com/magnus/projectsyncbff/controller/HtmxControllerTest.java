@@ -2,6 +2,7 @@ package br.com.magnus.projectsyncbff.controller;
 
 import br.com.magnus.config.starter.members.detectors.methods.Reference;
 import br.com.magnus.config.starter.members.metrics.BasicQualityAttributeResult;
+import br.com.magnus.config.starter.members.metrics.FileMetrics;
 import br.com.magnus.config.starter.members.metrics.QualityAttributeResult;
 import br.com.magnus.config.starter.patterns.DesignPattern;
 import br.com.magnus.config.starter.projects.CandidateInformation;
@@ -27,10 +28,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -87,9 +90,11 @@ class HtmxControllerTest {
 
         mockMvc.perform(get("/project/{id}", "project-1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Files in this refactoring")))
+                .andExpect(content().string(containsString("Files available in this refactoring")))
                 .andExpect(content().string(containsString("Reference")))
-                .andExpect(content().string(containsString("Strategy candidate")))
+                .andExpect(content().string(containsString("Linked files")))
+                .andExpect(content().string(containsString("Strategy")))
+                .andExpect(content().string(not(containsString("Strategy candidate"))))
                 .andExpect(content().string(containsString("MovieTicket.java")));
     }
 
@@ -116,6 +121,9 @@ class HtmxControllerTest {
                         "src/main/java/example/MovieTicket.java",
                         "src/main/java/example/PaymentStrategy.java")))
                 .metrics(metrics())
+                .fileMetrics(Map.of(
+                        "src/main/java/example/MovieTicket.java", fileMetrics(),
+                        "src/main/java/example/PaymentStrategy.java", fileMetrics()))
                 .build();
 
         var selection = ProjectSelection.builder()
@@ -128,6 +136,7 @@ class HtmxControllerTest {
                                                 .file("src/main/java/example/MovieTicket.java")
                                                 .dependencyFiles(List.of("src/main/java/example/PaymentStrategy.java"))
                                                 .blockingReasons(List.of())
+                                                .metrics(metrics())
                                                 .requested(selected)
                                                 .selected(selected)
                                                 .locked(false)
@@ -138,6 +147,7 @@ class HtmxControllerTest {
                                                 .file("src/main/java/example/PaymentStrategy.java")
                                                 .dependencyFiles(List.of())
                                                 .blockingReasons(List.of())
+                                                .metrics(metrics())
                                                 .requested(false)
                                                 .selected(selected)
                                                 .locked(selected)
@@ -172,5 +182,14 @@ class HtmxControllerTest {
                 new BasicQualityAttributeResult("REUSABILITY", BigDecimal.ONE),
                 new BasicQualityAttributeResult("RELIABILITY", BigDecimal.ONE)
         );
+    }
+
+    private FileMetrics fileMetrics() {
+        return FileMetrics.builder()
+                .metrics(List.of(
+                        new BasicQualityAttributeResult("MAINTAINABILITY", BigDecimal.ONE),
+                        new BasicQualityAttributeResult("REUSABILITY", BigDecimal.ONE),
+                        new BasicQualityAttributeResult("RELIABILITY", BigDecimal.ONE)))
+                .build();
     }
 }

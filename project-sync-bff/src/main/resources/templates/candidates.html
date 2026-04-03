@@ -24,41 +24,20 @@
             <article th:each="candidate : ${project.selection.candidates}" class="candidate-card"
                      th:classappend="${candidate.selected} ? ' candidate-card-selected' : ''">
                 <div class="candidate-card-top">
-                    <div class="candidate-check">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               th:checked="${candidate.selected}"
-                               disabled>
-                    </div>
                     <div class="candidate-headline">
                         <div class="candidate-badges">
                             <span class="badge text-bg-light" th:text="${candidate.displayPatternName}">Strategy</span>
                             <span th:if="${candidate.selected}" class="badge text-bg-success">Selected</span>
                             <span th:if="${!candidate.selected}" class="badge text-bg-success">Ready</span>
                         </div>
-                        <h3 th:text="${candidate.displayPatternName + ' candidate'}">Strategy candidate</h3>
+                        <h3 th:text="${candidate.displayPatternName}">Strategy</h3>
                     </div>
                 </div>
 
                 <div class="candidate-body">
-                    <div class="metric-row">
-                        <div class="metric-box">
-                            <span>Maintainability</span>
-                            <strong th:text="${candidate.getMetricValue('MAINTAINABILITY')}">0</strong>
-                        </div>
-                        <div class="metric-box">
-                            <span>Reusability</span>
-                            <strong th:text="${candidate.getMetricValue('REUSABILITY')}">0</strong>
-                        </div>
-                        <div class="metric-box">
-                            <span>Reliability</span>
-                            <strong th:text="${candidate.getMetricValue('RELIABILITY')}">0</strong>
-                        </div>
-                    </div>
-
                     <div class="file-groups">
                         <div class="file-group">
-                            <p class="section-label">Files in this refactoring</p>
+                            <p class="section-label">Files available in this refactoring</p>
                             <div class="file-selection-list">
                                 <label th:each="fileSelection : ${candidate.files}" class="file-selection-item"
                                        th:classappend="${fileSelection.blocked} ? ' file-selection-blocked' : (${fileSelection.locked} ? ' file-selection-locked' : '')">
@@ -74,11 +53,34 @@
                                     <span th:if="${fileSelection.locked}" class="file-selection-tag">Auto-selected</span>
                                     <span th:if="${fileSelection.blocked}" class="file-selection-tag danger">Unavailable</span>
 
-                                    <span class="file-selection-copy" th:if="${#lists.isEmpty(fileSelection.dependencyFiles)}">No related files required.</span>
-                                    <span class="file-selection-copy" th:if="${!#lists.isEmpty(fileSelection.dependencyFiles)}"
-                                          th:text="'Depends on: ' + ${#strings.listJoin(fileSelection.dependencyFiles, ', ')}">
-                                        Depends on: src/main/java/example/Other.java
-                                    </span>
+                                    <div class="file-selection-meta">
+                                        <span class="file-selection-copy" th:if="${#lists.isEmpty(fileSelection.dependencyFiles)}">No linked refactored files.</span>
+                                        <div th:if="${!#lists.isEmpty(fileSelection.dependencyFiles)}">
+                                            <span class="section-label compact">Linked files</span>
+                                            <div class="path-chip-list">
+                                                <span th:each="dependencyFile : ${fileSelection.dependencyFiles}"
+                                                      class="path-chip"
+                                                      th:text="${dependencyFile}">
+                                                    src/main/java/example/Other.java
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="metric-row compact" th:if="${fileSelection.hasMetrics()}">
+                                        <div class="metric-box">
+                                            <span>Maintainability</span>
+                                            <strong th:text="${fileSelection.getMetricValue('MAINTAINABILITY')}">0</strong>
+                                        </div>
+                                        <div class="metric-box">
+                                            <span>Reusability</span>
+                                            <strong th:text="${fileSelection.getMetricValue('REUSABILITY')}">0</strong>
+                                        </div>
+                                        <div class="metric-box">
+                                            <span>Reliability</span>
+                                            <strong th:text="${fileSelection.getMetricValue('RELIABILITY')}">0</strong>
+                                        </div>
+                                    </div>
 
                                     <span class="file-selection-copy danger" th:if="${!#lists.isEmpty(fileSelection.blockingReasons)}"
                                           th:text="${#strings.listJoin(fileSelection.blockingReasons, ' ')}">
@@ -120,7 +122,7 @@
                 </div>
 
                 <p class="summary-copy" th:if="${project.selection.downloadable}">
-                    Selecting a file also includes the related files from the same refactoring group that it depends on.
+                    Selecting a file also includes the linked files from the same refactoring group.
                 </p>
                 <p class="summary-copy" th:if="${!project.selection.downloadable}">
                     Pick one or more available files to download a valid refactored project.

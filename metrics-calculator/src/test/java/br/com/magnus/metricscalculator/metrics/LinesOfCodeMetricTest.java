@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,8 +68,8 @@ class LinesOfCodeMetricTest {
         when(original.getLinesOfCode()).thenReturn(50);
         when(refactored.getLinesOfCode()).thenReturn(0);
 
-        var result = assertThrows(ArithmeticException.class, () -> metricCalculator.calculate(original, refactored));
+        BigDecimal result = metricCalculator.calculate(original, refactored).get(Metric.LINES_OF_CODE);
 
-        assertEquals("/ by zero", result.getMessage());
+        assertEquals(BigInteger.valueOf(100), result.toBigInteger());
     }
 }

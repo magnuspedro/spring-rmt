@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -24,7 +25,20 @@ public class ExtractProjects {
         Assert.notNull(id, "Id cannot be null");
         Assert.notNull(bucket, "Bucket cannot be null");
 
-        var files = fileExtractor.extract(bucket, id);
+        return extractProject(loadProjectFiles(id, bucket));
+    }
+
+    public List<JavaFile> loadProjectFiles(String id, String bucket) {
+        Assert.notNull(id, "Id cannot be null");
+        Assert.notNull(bucket, "Bucket cannot be null");
+
+        return fileExtractor.extract(bucket, id);
+    }
+
+    @SneakyThrows
+    public Path extractProject(List<JavaFile> files) {
+        Assert.notNull(files, "Files cannot be null");
+
         var basePath = Files.createTempDirectory("project-").toAbsolutePath().normalize();
         files.forEach(file -> createTempFile(basePath, file));
 

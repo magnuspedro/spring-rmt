@@ -123,6 +123,10 @@ class MetricsCalculationIntegrationTest extends BaseIntegrationTest {
                 .containsExactlyInAnyOrder("MAINTAINABILITY", "RELIABILITY", "REUSABILITY");
         assertThat(candidate.getMetrics())
                 .allSatisfy(metric -> assertThat(metric.changePercentage()).isGreaterThan(BigDecimal.ZERO));
+        assertThat(candidate.getFileMetrics()).hasSize(3);
+        assertThat(candidate.getFileMetrics("example/MovieTicket.java"))
+                .extracting(QualityAttributeResult::qualityAttributeName)
+                .containsExactlyInAnyOrder("MAINTAINABILITY", "RELIABILITY", "REUSABILITY");
         assertThat(candidate.getMetricValue("MAINTAINABILITY")).isEqualByComparingTo("166.67");
         assertThat(candidate.getMetricValue("RELIABILITY")).isEqualByComparingTo("250.00");
         assertThat(candidate.getMetricValue("REUSABILITY")).isEqualByComparingTo("100.00");

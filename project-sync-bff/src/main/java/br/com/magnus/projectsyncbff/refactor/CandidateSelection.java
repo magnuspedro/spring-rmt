@@ -6,7 +6,6 @@ import br.com.magnus.config.starter.projects.CandidateInformation;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -36,10 +35,6 @@ public class CandidateSelection {
 
     public Reference getReference() {
         return candidate.getReference();
-    }
-
-    public BigDecimal getMetricValue(String metric) {
-        return candidate.getMetricValue(metric);
     }
 
     public int getSelectedFilesCount() {
