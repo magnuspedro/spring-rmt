@@ -1,12 +1,14 @@
 :root {
-    --page-bg: linear-gradient(180deg, #f7f4eb 0%, #f4f7fb 45%, #eef2f7 100%);
-    --panel-bg: rgba(255, 255, 255, 0.88);
-    --panel-border: rgba(15, 23, 42, 0.08);
-    --text-strong: #172033;
-    --text-soft: #52607a;
-    --accent: #0f766e;
-    --accent-dark: #115e59;
-    --danger-soft: #fff1f2;
+    --page-bg: radial-gradient(circle at top, #311016 0%, #14070a 42%, #090609 100%);
+    --panel-bg: rgba(17, 17, 22, 0.88);
+    --panel-bg-soft: rgba(27, 27, 33, 0.92);
+    --panel-border: rgba(255, 255, 255, 0.08);
+    --text-strong: #f4f1f1;
+    --text-soft: #b7abb1;
+    --accent: #d92d20;
+    --accent-dark: #b42318;
+    --accent-soft: rgba(217, 45, 32, 0.12);
+    --danger-soft: rgba(95, 18, 28, 0.45);
 }
 
 body {
@@ -29,7 +31,7 @@ body {
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     border-radius: 24px;
-    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.36);
     backdrop-filter: blur(12px);
 }
 
@@ -55,10 +57,10 @@ body {
 }
 
 .hero-title {
-    max-width: 12ch;
-    font-size: clamp(2.4rem, 5vw, 4rem);
-    line-height: 1;
-    margin-bottom: 1rem;
+    max-width: 16ch;
+    font-size: clamp(1.8rem, 3.8vw, 2.75rem);
+    line-height: 1.08;
+    margin-bottom: 0.85rem;
 }
 
 .hero-copy,
@@ -126,7 +128,8 @@ body {
 }
 
 .candidate-card-selected {
-    border-color: rgba(15, 118, 110, 0.35);
+    border-color: rgba(217, 45, 32, 0.45);
+    box-shadow: inset 0 0 0 1px rgba(217, 45, 32, 0.18);
 }
 
 .candidate-card-blocked {
@@ -165,8 +168,8 @@ body {
 .metric-box,
 .summary-metrics div {
     padding: 0.9rem;
-    background: rgba(255, 255, 255, 0.72);
-    border: 1px solid rgba(15, 23, 42, 0.06);
+    background: var(--panel-bg-soft);
+    border: 1px solid var(--panel-border);
     border-radius: 18px;
 }
 
@@ -191,7 +194,7 @@ body {
 }
 
 .reason-list.danger {
-    color: #b42318;
+    color: #ff9087;
 }
 
 .summary-column {
@@ -235,6 +238,42 @@ body {
 .status-badge {
     border-radius: 999px;
     padding: 0.45rem 0.7rem;
+}
+
+.form-control {
+    background: rgba(9, 9, 12, 0.88);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--text-strong);
+}
+
+.form-control:focus {
+    background: rgba(9, 9, 12, 0.96);
+    border-color: rgba(217, 45, 32, 0.58);
+    box-shadow: 0 0 0 0.25rem rgba(217, 45, 32, 0.2);
+    color: var(--text-strong);
+}
+
+.form-control::file-selector-button {
+    background: rgba(217, 45, 32, 0.16);
+    color: var(--text-strong);
+    border: 0;
+}
+
+.badge.text-bg-light {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: var(--text-strong) !important;
+}
+
+.btn-outline-primary {
+    color: #ffb4ae;
+    border-color: rgba(255, 180, 174, 0.4);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
 }
 
 @media (max-width: 991px) {
