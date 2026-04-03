@@ -1,5 +1,12 @@
-<button id="evaluate" class="m-3 h-75 align-self-end btn btn-primary" hx-disabled-elt="this"
-        hx-encoding='multipart/form-data'
-        hx-indicator="#spinner" hx-target-error="#table" hx-target="#table" hx-swap="outerHTML" th:hx-get="${url}">
-    Evaluate
-</button>
+<section id="workspace"
+         class="workspace-panel processing-panel"
+         th:attr="hx-get=${url},hx-trigger='load delay:800ms, every 2s',hx-swap='outerHTML'">
+    <div class="processing-copy">
+        <span class="badge text-bg-warning-subtle status-badge" th:text="${status}">EVALUATING_CANDIDATES</span>
+        <h2>Building the candidate list</h2>
+        <p>Parsing the uploaded project and waiting for the refactoring pipeline to finish.</p>
+    </div>
+    <div class="processing-spinner">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+</section>

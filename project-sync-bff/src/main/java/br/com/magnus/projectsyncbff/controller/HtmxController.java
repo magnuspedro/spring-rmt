@@ -2,6 +2,7 @@ package br.com.magnus.projectsyncbff.controller;
 
 import br.com.magnus.config.starter.projects.BaseProject;
 import br.com.magnus.config.starter.projects.Project;
+import br.com.magnus.config.starter.projects.ProjectStatus;
 import br.com.magnus.projectsyncbff.refactor.RefactorProject;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.IOException;
 import java.security.MessageDigest;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,6 +29,11 @@ import java.util.UUID;
 public class HtmxController {
 
     private final RefactorProject refactorProject;
+
+    @GetMapping(path = "/")
+    public String index() {
+        return "index";
+    }
 
     @SneakyThrows
     @PostMapping(path = "/upload")
@@ -49,27 +56,52 @@ public class HtmxController {
 
         refactorProject.process(project);
 
+        model.put("projectId", id);
         model.put("url", "/project/" + id);
+        model.put("status", ProjectStatus.EVALUATING_CANDIDATES);
         return "evaluation";
     }
 
     @SneakyThrows
     @GetMapping(path = "/project/{id}")
     public String getProject(Map<String, Object> model, @PathVariable String id) {
-        var project = refactorProject.retrieveRetryable(id);
-        model.put("url", "/project/" + id + "/download");
-        model.put("status", project.status());
-        model.put("candidates", project.candidatesInformation());
-        model.put("duration", project.duration());
+        var project = refactorProject.retrieve(id);
+        if (!isTerminal(project.status())) {
+            model.put("projectId", id);
+            model.put("url", "/project/" + id);
+            model.put("status", project.status());
+            return "evaluation";
+        }
+        model.put("projectId", id);
+        model.put("project", project);
+        model.put("selectionUrl", "/project/" + id + "/selection");
+        model.put("downloadUrl", "/project/" + id + "/download");
+        return "candidates";
+    }
 
+    @PostMapping(path = "/project/{id}/selection")
+    public String updateSelection(Map<String, Object> model,
+                                  @PathVariable String id,
+                                  @RequestParam(name = "requestedId", required = false) List<String> requestedIds) {
+        var project = refactorProject.retrieve(id, requestedIds == null ? Collections.emptyList() : requestedIds);
+        model.put("projectId", id);
+        model.put("project", project);
+        model.put("selectionUrl", "/project/" + id + "/selection");
+        model.put("downloadUrl", "/project/" + id + "/download");
         return "candidates";
     }
 
     @PostMapping(path = "/project/{id}/download")
-    public String downloadProject(Map<String, Object> model, @PathVariable String id, @RequestParam("id") List<String> candidatesIds) {
+    public String downloadProject(Map<String, Object> model,
+                                  @PathVariable String id,
+                                  @RequestParam(name = "selectedId", required = false) List<String> candidatesIds) {
         log.info("Downloading project id: {}, candidates: {}", id, candidatesIds);
-        var url = refactorProject.downloadProject(id, candidatesIds);
+        var url = refactorProject.downloadProject(id, candidatesIds == null ? List.of() : candidatesIds);
         model.put("url", url);
         return "link";
+    }
+
+    private boolean isTerminal(ProjectStatus status) {
+        return status == ProjectStatus.FINISHED || status == ProjectStatus.NO_CANDIDATES;
     }
 }

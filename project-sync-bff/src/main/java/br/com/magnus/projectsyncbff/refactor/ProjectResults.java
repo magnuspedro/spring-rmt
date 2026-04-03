@@ -7,5 +7,9 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record ProjectResults(String name, ProjectStatus status, List<CandidateInformation> candidatesInformation, String duration) {
+public record ProjectResults(String name,
+                             ProjectStatus status,
+                             List<CandidateInformation> candidatesInformation,
+                             String duration,
+                             ProjectSelection selection) {
 }

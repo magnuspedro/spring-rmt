@@ -1,0 +1,266 @@
+:root {
+    --page-bg: linear-gradient(180deg, #f7f4eb 0%, #f4f7fb 45%, #eef2f7 100%);
+    --panel-bg: rgba(255, 255, 255, 0.88);
+    --panel-border: rgba(15, 23, 42, 0.08);
+    --text-strong: #172033;
+    --text-soft: #52607a;
+    --accent: #0f766e;
+    --accent-dark: #115e59;
+    --danger-soft: #fff1f2;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--page-bg);
+    color: var(--text-strong);
+}
+
+.app-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem 3rem;
+}
+
+.hero-panel,
+.workspace-panel,
+.summary-card,
+.candidate-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 24px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(12px);
+}
+
+.hero-panel,
+.workspace-panel {
+    padding: 1.5rem;
+}
+
+.eyebrow {
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.hero-title,
+.results-header h2,
+.summary-card h3,
+.candidate-headline h3 {
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.hero-title {
+    max-width: 12ch;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    line-height: 1;
+    margin-bottom: 1rem;
+}
+
+.hero-copy,
+.candidate-reference,
+.summary-copy,
+.empty-copy,
+.results-meta,
+.status-row {
+    color: var(--text-soft);
+}
+
+.upload-panel {
+    margin-top: 1.5rem;
+}
+
+.upload-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.status-row {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: var(--accent-dark);
+    border-color: var(--accent-dark);
+}
+
+.workspace-panel {
+    margin-top: 1.5rem;
+}
+
+.processing-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) minmax(280px, 0.9fr);
+    gap: 1rem;
+}
+
+.candidate-column {
+    display: grid;
+    gap: 1rem;
+}
+
+.candidate-card {
+    padding: 1.25rem;
+}
+
+.candidate-card-selected {
+    border-color: rgba(15, 118, 110, 0.35);
+}
+
+.candidate-card-blocked {
+    background: var(--danger-soft);
+}
+
+.candidate-card-top {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.candidate-check {
+    padding-top: 0.4rem;
+}
+
+.candidate-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.35rem;
+}
+
+.candidate-body {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.metric-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.metric-box,
+.summary-metrics div {
+    padding: 0.9rem;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    border-radius: 18px;
+}
+
+.metric-box span,
+.summary-metrics span,
+.section-label {
+    display: block;
+    color: var(--text-soft);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.metric-box strong,
+.summary-metrics strong {
+    font-size: 1.2rem;
+}
+
+.file-list,
+.reason-list {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.reason-list.danger {
+    color: #b42318;
+}
+
+.summary-column {
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+}
+
+.summary-card {
+    padding: 1.25rem;
+}
+
+.summary-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+
+.download-link {
+    margin-top: 1rem;
+}
+
+.empty-state {
+    min-height: 240px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+}
+
+.empty-state.compact {
+    min-height: 180px;
+}
+
+.empty-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.status-badge {
+    border-radius: 999px;
+    padding: 0.45rem 0.7rem;
+}
+
+@media (max-width: 991px) {
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-column {
+        position: static;
+    }
+}
+
+@media (max-width: 767px) {
+    .app-shell {
+        padding: 1rem 0.75rem 2rem;
+    }
+
+    .upload-row,
+    .metric-row,
+    .summary-metrics,
+    .processing-panel {
+        grid-template-columns: 1fr;
+        display: grid;
+    }
+
+    .candidate-card-top {
+        flex-direction: column;
+    }
+}

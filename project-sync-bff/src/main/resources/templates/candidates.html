@@ -1,43 +1,129 @@
-<form id="table" class="row">
-    <p class="hiding" id="file-link"></p>
-    <p><strong>Time to Execute: </strong><span th:text="${duration}"></span>s</p>
-    <table class="table table-bordered table-hover m-3">
-        <thead>
-        <tr>
-            <th scope="col">Select</th>
-            <th scope="col" style="width:40%">Files</th>
-            <th scope="col">Pattern</th>
-            <th scope="col">Maintainability</th>
-            <th scope="col">Reusability</th>
-            <th scope="col">Reliability</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:if="${candidates == null || candidates.isEmpty()}">
-            <td>No candidates found</td>
-        </tr>
-        <tr th:each="candidate : ${candidates}" data-toggle="tooltip"
-            th:title="'Title: '+${candidate.getReference().title()} + ' Authors: ' + ${candidate.getReference().getAuthors()} +' Year: '+ ${candidate.getReference().year()}">
-            <td class="position-relative h-100">
-                <input class="form-check-input position-absolute top-0 start-0 m-0 w-100 h-100" type="checkbox"
-                       name="id" th:value="${candidate.getId()}">
-            </td>
-            <td>
-                <div class="p-1 border-bottom" th:each="file: ${candidate.getFilesChanged()}">
-                    <span th:text="${file}"></span>
+<section id="workspace" class="workspace-panel results-panel">
+    <div class="results-header">
+        <div>
+            <p class="eyebrow">Candidate review</p>
+            <h2 th:text="${project.name}">project.zip</h2>
+            <p class="results-meta">
+                <span class="badge text-bg-success-subtle status-badge" th:text="${project.status}">FINISHED</span>
+                <span th:if="${project.duration != null}" th:text="'Finished in ' + ${project.duration} + 's'">Finished in 0s</span>
+            </p>
+        </div>
+    </div>
+
+    <div th:if="${!project.selection.hasCandidates()}" class="empty-state compact">
+        <div>
+            <p class="empty-title">No candidates found</p>
+            <p class="empty-copy">This project finished processing, but no supported refactoring opportunities were detected.</p>
+        </div>
+    </div>
+
+    <div th:if="${project.selection.hasCandidates()}" class="results-grid">
+        <form id="selection-form"
+              class="candidate-column"
+              th:attr="hx-post=${selectionUrl},hx-target='#workspace',hx-swap='outerHTML',hx-trigger='change from:input[type=checkbox]'">
+            <article th:each="candidate : ${project.selection.candidates}" class="candidate-card"
+                     th:classappend="${candidate.blocked} ? ' candidate-card-blocked' : (${candidate.selected} ? ' candidate-card-selected' : '')">
+                <div class="candidate-card-top">
+                    <label class="candidate-check">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="requestedId"
+                               th:value="${candidate.id}"
+                               th:checked="${candidate.requested}"
+                               th:disabled="${candidate.locked || candidate.blocked}">
+                        <span></span>
+                    </label>
+                    <div class="candidate-headline">
+                        <div class="candidate-badges">
+                            <span class="badge text-bg-light" th:text="${candidate.designPattern}">STRATEGY</span>
+                            <span th:if="${candidate.locked}" class="badge text-bg-info">Auto-selected</span>
+                            <span th:if="${candidate.blocked}" class="badge text-bg-danger">Unavailable</span>
+                        </div>
+                        <h3 th:text="${candidate.reference.title}">Wei et al.</h3>
+                        <p class="candidate-reference"
+                           th:text="${#strings.listJoin(candidate.reference.authors, ', ') + ' · ' + candidate.reference.year}">
+                            Author · 2014
+                        </p>
+                    </div>
                 </div>
-            </td>
-            <td><span th:text="${candidate.getDesignPattern()}"></span></td>
-            <td><span th:text="${candidate.getMetricValue('MAINTAINABILITY')}"></span></td>
-            <td><span th:text="${candidate.getMetricValue('REUSABILITY')}"></span></td>
-            <td><span th:text="${candidate.getMetricValue('RELIABILITY')}"></span></td>
-        </tr>
-    </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    <button class="m-3 h-50 align-self-end btn btn-primary" th:hx-post="${url}" hx-target="#file-link"
-            hx-swap="outerHTML">Refactor
-    </button>
-</form>
+
+                <div class="candidate-body">
+                    <div class="metric-row">
+                        <div class="metric-box">
+                            <span>Maintainability</span>
+                            <strong th:text="${candidate.getMetricValue('MAINTAINABILITY')}">0</strong>
+                        </div>
+                        <div class="metric-box">
+                            <span>Reusability</span>
+                            <strong th:text="${candidate.getMetricValue('REUSABILITY')}">0</strong>
+                        </div>
+                        <div class="metric-box">
+                            <span>Reliability</span>
+                            <strong th:text="${candidate.getMetricValue('RELIABILITY')}">0</strong>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="section-label">Files changed</p>
+                        <ul class="file-list">
+                            <li th:each="file : ${candidate.filesChanged}" th:text="${file}">src/main/java/example/MovieTicket.java</li>
+                        </ul>
+                    </div>
+
+                    <div th:if="${!#lists.isEmpty(candidate.blockingReasons)}">
+                        <p class="section-label">Why this is unavailable</p>
+                        <ul class="reason-list danger">
+                            <li th:each="reason : ${candidate.blockingReasons}" th:text="${reason}">Dependent file is not covered.</li>
+                        </ul>
+                    </div>
+
+                    <div th:if="${!#lists.isEmpty(candidate.dependencyReasons)}">
+                        <p class="section-label">Dependent files included automatically</p>
+                        <ul class="reason-list">
+                            <li th:each="reason : ${candidate.dependencyReasons}" th:text="${reason}">Related file also needs refactoring.</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+        </form>
+
+        <aside class="summary-column">
+            <div class="summary-card">
+                <p class="eyebrow">Selection summary</p>
+                <h3>Dependency-safe refactoring set</h3>
+                <div class="summary-metrics">
+                    <div>
+                        <span>Requested</span>
+                        <strong th:text="${#lists.size(project.selection.requestedCandidateIds)}">0</strong>
+                    </div>
+                    <div>
+                        <span>Auto-selected</span>
+                        <strong th:text="${project.selection.autoSelectedCount}">0</strong>
+                    </div>
+                    <div>
+                        <span>Unavailable</span>
+                        <strong th:text="${project.selection.blockedCount}">0</strong>
+                    </div>
+                </div>
+
+                <p class="summary-copy" th:if="${project.selection.downloadable}">
+                    Every dependent candidate required by the current selection is already included.
+                </p>
+                <p class="summary-copy" th:if="${!project.selection.downloadable}">
+                    Pick one or more available candidates to assemble a valid download.
+                </p>
+
+                <form class="download-form"
+                      th:attr="hx-post=${downloadUrl},hx-target='#download-link',hx-swap='outerHTML'">
+                    <input th:each="selectedId : ${project.selection.selectedCandidateIds}" type="hidden" name="selectedId" th:value="${selectedId}">
+                    <button class="btn btn-primary btn-lg w-100"
+                            type="submit"
+                            th:disabled="${!project.selection.downloadable}">
+                        Download refactored project
+                    </button>
+                </form>
+                <div id="download-link" class="download-link"></div>
+            </div>
+        </aside>
+    </div>
+</section>

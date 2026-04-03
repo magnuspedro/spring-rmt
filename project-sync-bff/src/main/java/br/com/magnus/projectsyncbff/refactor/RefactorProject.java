@@ -13,6 +13,8 @@ public interface RefactorProject {
 
     ProjectResults retrieve(String id);
 
+    ProjectResults retrieve(String id, List<String> requestedCandidateIds);
+
     @Retryable(retryFor = ResponseStatusException.class, maxAttemptsExpression = "${retry.max-attempts}", backoff = @Backoff(delayExpression = "${retry.delay}", multiplierExpression = "${retry.multiplier}"))
     ProjectResults retrieveRetryable(String id);
 

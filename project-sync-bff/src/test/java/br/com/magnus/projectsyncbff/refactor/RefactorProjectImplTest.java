@@ -34,6 +34,8 @@ class RefactorProjectImplTest {
     private SendProject sendProject;
     @Mock
     private FileExtractor fileExtractor;
+    @Mock
+    private ProjectSelectionPlanner selectionPlanner;
 
     private final BucketProperties bucket = new BucketProperties();
     private RefactorProjectImpl refactorProject;
@@ -41,7 +43,7 @@ class RefactorProjectImplTest {
     @BeforeEach
     void setup() {
         this.bucket.setProjectBucket("bucket");
-        this.refactorProject = new RefactorProjectImpl(s3ProjectRepository, projectRepository, sendProject, bucket, fileExtractor);
+        this.refactorProject = new RefactorProjectImpl(s3ProjectRepository, projectRepository, sendProject, bucket, fileExtractor, selectionPlanner);
     }
 
     @Test

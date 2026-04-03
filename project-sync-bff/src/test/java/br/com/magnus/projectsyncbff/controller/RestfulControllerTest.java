@@ -1,5 +1,6 @@
 package br.com.magnus.projectsyncbff.controller;
 
+import br.com.magnus.projectsyncbff.refactor.ProjectResults;
 import br.com.magnus.projectsyncbff.refactor.RefactorProject;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
@@ -14,11 +15,16 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockPart;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.assertArg;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @ExtendWith({MockitoExtension.class})
 @WebMvcTest(RestfulController.class)
@@ -50,5 +56,26 @@ class RestfulControllerTest {
                         () -> assertThat(it.getContentType(), is(MediaType.TEXT_PLAIN_VALUE)),
                         () -> assertThat(it.getZipContent(), is(content)))
         ));
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldExposeSelectionPayload() {
+        when(refactorProject.retrieve("project-1")).thenReturn(ProjectResults.builder()
+                .name("project.zip")
+                .status(br.com.magnus.config.starter.projects.ProjectStatus.FINISHED)
+                .selection(br.com.magnus.projectsyncbff.refactor.ProjectSelection.builder()
+                        .candidates(List.of())
+                        .requestedCandidateIds(List.of())
+                        .selectedCandidateIds(List.of())
+                        .autoSelectedCount(0)
+                        .blockedCount(0)
+                        .downloadable(false)
+                        .build())
+                .build());
+
+        mockMvc.perform(get("/rmt/api/v1/project/{id}", "project-1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.selection.downloadable").value(false));
     }
 }

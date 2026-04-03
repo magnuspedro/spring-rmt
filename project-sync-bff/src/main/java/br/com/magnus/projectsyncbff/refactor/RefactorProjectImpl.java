@@ -33,6 +33,7 @@ public class RefactorProjectImpl implements RefactorProject {
     private final SendProject sendProject;
     private final BucketProperties bucket;
     private final FileExtractor fileExtractor;
+    private final ProjectSelectionPlanner selectionPlanner;
 
     @Override
     public void process(Project project) {
@@ -63,6 +64,19 @@ public class RefactorProjectImpl implements RefactorProject {
                 .name(project.getName())
                 .candidatesInformation(project.getCandidatesInformation())
                 .status(status)
+                .selection(selectionPlanner.plan(project, List.of()))
+                .build();
+    }
+
+    @Override
+    public ProjectResults retrieve(String id, List<String> requestedCandidateIds) {
+        var project = projectRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        var status = project.getStatus().stream().toList().getLast();
+        return ProjectResults.builder()
+                .name(project.getName())
+                .candidatesInformation(project.getCandidatesInformation())
+                .status(status)
+                .selection(selectionPlanner.plan(project, requestedCandidateIds))
                 .build();
     }
 
@@ -81,6 +95,7 @@ public class RefactorProjectImpl implements RefactorProject {
                 .candidatesInformation(project.getCandidatesInformation())
                 .status(status.getLast())
                 .duration(new DecimalFormat("#.#####").format(duration))
+                .selection(selectionPlanner.plan(project, List.of()))
                 .build();
     }
 
@@ -90,6 +105,7 @@ public class RefactorProjectImpl implements RefactorProject {
         log.info("Downloading project: {}, candidates: {}", projectId, candidatesIds);
         var candidateFiles = new HashMap<String, JavaFile>();
         var project = projectRepository.findById(projectId).orElseThrow(IllegalArgumentException::new);
+        selectionPlanner.validateSelection(project, candidatesIds);
         var projectZip = s3ProjectRepository.download(project.getBucket(), project.getId());
         project.getCandidatesInformation().stream()
                 .filter(candidate -> candidatesIds.contains(candidate.getId()))
