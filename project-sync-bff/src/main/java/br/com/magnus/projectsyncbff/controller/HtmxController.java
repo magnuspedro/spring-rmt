@@ -82,8 +82,8 @@ public class HtmxController {
     @PostMapping(path = "/project/{id}/selection")
     public String updateSelection(Map<String, Object> model,
                                   @PathVariable String id,
-                                  @RequestParam(name = "requestedId", required = false) List<String> requestedIds) {
-        var project = refactorProject.retrieve(id, requestedIds == null ? Collections.emptyList() : requestedIds);
+                                  @RequestParam(name = "requestedFileKey", required = false) List<String> requestedFileKeys) {
+        var project = refactorProject.retrieve(id, requestedFileKeys == null ? Collections.emptyList() : requestedFileKeys);
         model.put("projectId", id);
         model.put("project", project);
         model.put("selectionUrl", "/project/" + id + "/selection");
@@ -94,9 +94,9 @@ public class HtmxController {
     @PostMapping(path = "/project/{id}/download")
     public String downloadProject(Map<String, Object> model,
                                   @PathVariable String id,
-                                  @RequestParam(name = "selectedId", required = false) List<String> candidatesIds) {
-        log.info("Downloading project id: {}, candidates: {}", id, candidatesIds);
-        var url = refactorProject.downloadProject(id, candidatesIds == null ? List.of() : candidatesIds);
+                                  @RequestParam(name = "selectedFileKey", required = false) List<String> selectedFileKeys) {
+        log.info("Downloading project id: {}, files: {}", id, selectedFileKeys);
+        var url = refactorProject.downloadProject(id, selectedFileKeys == null ? List.of() : selectedFileKeys);
         model.put("url", url);
         return "link";
     }

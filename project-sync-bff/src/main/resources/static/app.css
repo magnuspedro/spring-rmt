@@ -187,10 +187,75 @@ body {
     font-size: 1.2rem;
 }
 
+.file-groups {
+    display: grid;
+    gap: 1rem;
+}
+
+.file-group {
+    padding: 1rem;
+    background: var(--panel-bg-soft);
+    border: 1px solid var(--panel-border);
+    border-radius: 18px;
+}
+
 .file-list,
 .reason-list {
     margin: 0;
     padding-left: 1.1rem;
+}
+
+.file-selection-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.file-selection-item {
+    display: grid;
+    gap: 0.4rem;
+    padding: 0.9rem;
+    border: 1px solid var(--panel-border);
+    border-radius: 16px;
+    background: rgba(9, 9, 12, 0.45);
+}
+
+.file-selection-main {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.file-selection-name {
+    word-break: break-word;
+}
+
+.file-selection-copy,
+.section-copy {
+    color: var(--text-soft);
+    font-size: 0.92rem;
+}
+
+.file-selection-copy.danger {
+    color: #ff9087;
+}
+
+.file-selection-tag {
+    justify-self: start;
+    border-radius: 999px;
+    padding: 0.18rem 0.6rem;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-strong);
+    font-size: 0.8rem;
+}
+
+.file-selection-tag.danger {
+    background: rgba(180, 35, 24, 0.22);
+    color: #ffb4ae;
+}
+
+.candidate-reference-box {
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--panel-border);
 }
 
 .reason-list.danger {

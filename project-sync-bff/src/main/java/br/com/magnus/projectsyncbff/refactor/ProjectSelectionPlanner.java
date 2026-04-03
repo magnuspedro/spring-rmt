@@ -16,9 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -27,7 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,197 +31,155 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProjectSelectionPlanner {
 
+    private static final String KEY_SEPARATOR = "::";
+
     private final FileExtractor fileExtractor;
 
-    public ProjectSelection plan(BaseProject project, Collection<String> requestedCandidateIds) {
+    public ProjectSelection plan(BaseProject project, List<String> requestedFileKeys) {
         var candidates = Optional.ofNullable(project.getCandidatesInformation()).orElseGet(List::of);
         if (candidates.isEmpty()) {
             return ProjectSelection.builder()
                     .candidates(List.of())
-                    .requestedCandidateIds(List.of())
-                    .selectedCandidateIds(List.of())
-                    .autoSelectedCount(0)
+                    .requestedFileKeys(List.of())
+                    .selectedFileKeys(List.of())
+                    .selectableFileCount(0)
                     .blockedCount(0)
                     .downloadable(false)
                     .build();
         }
 
-        var graph = buildGraph(project, candidates);
-        var candidateIds = candidates.stream()
-                .map(CandidateInformation::getId)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-        var requested = Optional.ofNullable(requestedCandidateIds)
+        var analysis = analyze(project, candidates);
+        var validKeys = analysis.fileToCandidate().keySet();
+        var requested = Optional.ofNullable(requestedFileKeys)
                 .orElseGet(List::of)
                 .stream()
-                .filter(candidateIds::contains)
-                .filter(id -> !graph.blockedReasons().containsKey(id))
+                .filter(validKeys::contains)
+                .filter(key -> !analysis.blockingReasonsByKey().containsKey(key))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-        var selected = expand(requested, graph.requiredCandidateIds());
+        var selected = expand(requested, analysis.internalDependenciesByKey());
 
         var candidateSelections = candidates.stream()
-                .map(candidate -> CandidateSelection.builder()
-                        .candidate(candidate)
-                        .requiredCandidateIds(graph.requiredCandidateIds().getOrDefault(candidate.getId(), Set.of()))
-                        .dependencyReasons(graph.dependencyReasons().getOrDefault(candidate.getId(), List.of()))
-                        .blockingReasons(graph.blockedReasons().getOrDefault(candidate.getId(), List.of()))
-                        .requested(requested.contains(candidate.getId()))
-                        .selected(selected.contains(candidate.getId()))
-                        .locked(selected.contains(candidate.getId()) && !requested.contains(candidate.getId()))
-                        .blocked(graph.blockedReasons().containsKey(candidate.getId()))
-                        .build())
+                .map(candidate -> {
+                    var fileSelections = filesChanged(candidate).stream()
+                            .map(file -> {
+                                var key = fileKey(candidate.getId(), file);
+                                return FileSelection.builder()
+                                        .key(key)
+                                        .file(file)
+                                        .dependencyFiles(analysis.dependencyFilesByKey().getOrDefault(key, List.of()))
+                                        .blockingReasons(analysis.blockingReasonsByKey().getOrDefault(key, List.of()))
+                                        .requested(requested.contains(key))
+                                        .selected(selected.contains(key))
+                                        .locked(selected.contains(key) && !requested.contains(key))
+                                        .blocked(analysis.blockingReasonsByKey().containsKey(key))
+                                        .build();
+                            })
+                            .toList();
+                    return CandidateSelection.builder()
+                            .candidate(candidate)
+                            .files(fileSelections)
+                            .selected(fileSelections.stream().anyMatch(FileSelection::isSelected))
+                            .blocked(fileSelections.stream().allMatch(FileSelection::isBlocked))
+                            .build();
+                })
                 .toList();
 
         return ProjectSelection.builder()
                 .candidates(candidateSelections)
-                .requestedCandidateIds(List.copyOf(requested))
-                .selectedCandidateIds(List.copyOf(selected))
-                .autoSelectedCount(Math.max(0, selected.size() - requested.size()))
-                .blockedCount(graph.blockedReasons().size())
+                .requestedFileKeys(List.copyOf(requested))
+                .selectedFileKeys(List.copyOf(selected))
+                .selectableFileCount((int) validKeys.stream().filter(key -> !analysis.blockingReasonsByKey().containsKey(key)).count())
+                .blockedCount(analysis.blockingReasonsByKey().size())
                 .downloadable(!selected.isEmpty())
                 .build();
     }
 
-    public void validateSelection(BaseProject project, Collection<String> selectedCandidateIds) {
+    public void validateSelection(BaseProject project, List<String> selectedFileKeys) {
         var candidates = Optional.ofNullable(project.getCandidatesInformation()).orElseGet(List::of);
-        var graph = buildGraph(project, candidates);
-        var availableIds = candidates.stream()
-                .map(CandidateInformation::getId)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-        var selected = Optional.ofNullable(selectedCandidateIds)
+        var analysis = analyze(project, candidates);
+        var validKeys = analysis.fileToCandidate().keySet();
+        var selected = Optional.ofNullable(selectedFileKeys)
                 .orElseGet(List::of)
                 .stream()
-                .filter(availableIds::contains)
+                .filter(validKeys::contains)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         if (selected.isEmpty()) {
-            throw new SelectionValidationException("Select at least one candidate before downloading the refactored project.", List.of());
+            throw new SelectionValidationException("Select at least one file before downloading the refactored project.", List.of());
         }
 
         var blockedSelections = selected.stream()
-                .filter(graph.blockedReasons()::containsKey)
+                .filter(analysis.blockingReasonsByKey()::containsKey)
                 .toList();
         if (!blockedSelections.isEmpty()) {
-            throw new SelectionValidationException("One or more selected candidates are not allowed because dependent files are not also refactorable.",
+            throw new SelectionValidationException("One or more selected files are not allowed because they depend on files outside the refactoring scope.",
                     blockedSelections);
         }
 
-        var requiredClosure = expand(selected, graph.requiredCandidateIds());
-        if (!requiredClosure.equals(selected)) {
-            var missing = requiredClosure.stream()
-                    .filter(id -> !selected.contains(id))
+        var closure = expand(selected, analysis.internalDependenciesByKey());
+        if (!closure.equals(selected)) {
+            var missing = closure.stream()
+                    .filter(key -> !selected.contains(key))
                     .toList();
-            throw new SelectionValidationException("Some dependent candidates are missing from the selection.", missing);
+            throw new SelectionValidationException("Some dependent files are missing from the selection.", missing);
         }
     }
 
-    private DependencyGraph buildGraph(BaseProject project, List<CandidateInformation> candidates) {
+    public Map<String, List<String>> groupSelectedFilesByCandidate(List<String> selectedFileKeys) {
+        return Optional.ofNullable(selectedFileKeys)
+                .orElseGet(List::of)
+                .stream()
+                .map(ProjectSelectionPlanner::parseFileKey)
+                .collect(Collectors.groupingBy(FileKey::candidateId,
+                        LinkedHashMap::new,
+                        Collectors.mapping(FileKey::file, Collectors.toList())));
+    }
+
+    private SelectionAnalysis analyze(BaseProject project, List<CandidateInformation> candidates) {
         var sourceFiles = buildSourceFiles(project);
         var sourceFilesByPath = sourceFiles.stream()
                 .collect(Collectors.toMap(SourceFile::fullName, file -> file, (left, right) -> left, LinkedHashMap::new));
-        var candidateById = candidates.stream()
-                .collect(Collectors.toMap(CandidateInformation::getId, candidate -> candidate, (left, right) -> left, LinkedHashMap::new));
-        var candidateIdsByFile = new LinkedHashMap<String, Set<String>>();
-        candidates.forEach(candidate -> filesChanged(candidate)
-                .forEach(file -> candidateIdsByFile.computeIfAbsent(file, ignored -> new LinkedHashSet<>()).add(candidate.getId())));
+        var typeToFile = new LinkedHashMap<String, String>();
+        sourceFiles.forEach(sourceFile -> sourceFile.declaredTypes().forEach(type -> typeToFile.putIfAbsent(type, sourceFile.fullName())));
 
-        var directDependencies = new LinkedHashMap<String, Set<String>>();
-        var dependencyReasons = new LinkedHashMap<String, Set<String>>();
-        var blockedReasons = new LinkedHashMap<String, Set<String>>();
+        var fileToCandidate = new LinkedHashMap<String, String>();
+        var dependencyFilesByKey = new LinkedHashMap<String, List<String>>();
+        var internalDependenciesByKey = new LinkedHashMap<String, Set<String>>();
+        var blockingReasonsByKey = new LinkedHashMap<String, List<String>>();
 
         candidates.forEach(candidate -> {
-            directDependencies.put(candidate.getId(), new LinkedHashSet<>());
-            dependencyReasons.put(candidate.getId(), new LinkedHashSet<>());
-        });
+            var candidateFiles = filesChanged(candidate);
+            candidateFiles.forEach(file -> {
+                var key = fileKey(candidate.getId(), file);
+                fileToCandidate.put(key, candidate.getId());
 
-        candidates.forEach(candidate -> {
-            var candidateId = candidate.getId();
-            filesChanged(candidate).forEach(file -> {
-                var overlapping = candidateIdsByFile.getOrDefault(file, Set.of()).stream()
-                        .filter(otherId -> !otherId.equals(candidateId))
+                var dependencies = Optional.ofNullable(sourceFilesByPath.get(file))
+                        .stream()
+                        .flatMap(sourceFile -> sourceFile.referencedTypes().stream())
+                        .map(typeToFile::get)
+                        .filter(Objects::nonNull)
+                        .filter(dependencyFile -> !dependencyFile.equals(file))
+                        .distinct()
                         .toList();
-                overlapping.forEach(otherId -> {
-                    directDependencies.get(candidateId).add(otherId);
-                    dependencyReasons.get(candidateId).add("Also includes " + file + " because multiple candidates change it.");
-                });
-            });
 
-            var changedTypes = filesChanged(candidate).stream()
-                    .map(sourceFilesByPath::get)
-                    .filter(Objects::nonNull)
-                    .flatMap(file -> file.declaredTypes().stream())
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+                dependencyFilesByKey.put(key, dependencies);
+                internalDependenciesByKey.put(key, dependencies.stream()
+                        .filter(candidateFiles::contains)
+                        .map(dependencyFile -> fileKey(candidate.getId(), dependencyFile))
+                        .collect(Collectors.toCollection(LinkedHashSet::new)));
 
-            if (changedTypes.isEmpty()) {
-                return;
-            }
-
-            sourceFiles.forEach(sourceFile -> {
-                if (!Collections.disjoint(filesChanged(candidate), Set.of(sourceFile.fullName()))) {
-                    return;
+                var externalDependencies = dependencies.stream()
+                        .filter(dependencyFile -> !candidateFiles.contains(dependencyFile))
+                        .toList();
+                if (!externalDependencies.isEmpty()) {
+                    blockingReasonsByKey.put(key, externalDependencies.stream()
+                            .map(dependencyFile -> "Depends on " + dependencyFile + ", but that file is not affected by this refactoring.")
+                            .toList());
                 }
-                var referencedTypes = sourceFile.referencedTypes();
-                if (Collections.disjoint(changedTypes, referencedTypes)) {
-                    return;
-                }
-
-                var matchingTypes = referencedTypes.stream()
-                        .filter(changedTypes::contains)
-                        .map(ProjectSelectionPlanner::getSimpleTypeName)
-                        .collect(Collectors.toCollection(TreeSet::new));
-                var dependentCandidates = candidateIdsByFile.getOrDefault(sourceFile.fullName(), Set.of()).stream()
-                        .filter(otherId -> !otherId.equals(candidateId))
-                        .collect(Collectors.toCollection(LinkedHashSet::new));
-
-                if (dependentCandidates.isEmpty()) {
-                    blockedReasons.computeIfAbsent(candidateId, ignored -> new LinkedHashSet<>())
-                            .add(sourceFile.fullName() + " depends on " + String.join(", ", matchingTypes) + " but is not part of any refactoring candidate.");
-                    return;
-                }
-
-                dependentCandidates.forEach(otherId -> {
-                    directDependencies.get(candidateId).add(otherId);
-                    dependencyReasons.get(candidateId).add(sourceFile.fullName() + " also needs refactoring because it references " + String.join(", ", matchingTypes) + ".");
-                });
             });
         });
 
-        var propagatedBlockedReasons = propagateBlockedCandidates(candidateById, directDependencies, blockedReasons);
-
-        return new DependencyGraph(
-                directDependencies.entrySet().stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, entry -> Set.copyOf(entry.getValue()), (left, right) -> left, LinkedHashMap::new)),
-                dependencyReasons.entrySet().stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, entry -> List.copyOf(entry.getValue()), (left, right) -> left, LinkedHashMap::new)),
-                propagatedBlockedReasons.entrySet().stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, entry -> List.copyOf(entry.getValue()), (left, right) -> left, LinkedHashMap::new))
-        );
-    }
-
-    private Map<String, Set<String>> propagateBlockedCandidates(Map<String, CandidateInformation> candidateById,
-                                                                Map<String, Set<String>> directDependencies,
-                                                                Map<String, Set<String>> initialBlockedReasons) {
-        var blockedReasons = new LinkedHashMap<String, Set<String>>();
-        initialBlockedReasons.forEach((candidateId, reasons) -> blockedReasons.put(candidateId, new LinkedHashSet<>(reasons)));
-
-        var changed = true;
-        while (changed) {
-            changed = false;
-            for (var entry : directDependencies.entrySet()) {
-                var candidateId = entry.getKey();
-                var requiredIds = entry.getValue();
-                var reasons = blockedReasons.computeIfAbsent(candidateId, ignored -> new LinkedHashSet<>());
-                var sizeBefore = reasons.size();
-                requiredIds.stream()
-                        .filter(blockedReasons::containsKey)
-                        .forEach(requiredId -> reasons.add("Requires " + describeCandidate(candidateById.get(requiredId)) + ", which is not selectable."));
-                if (reasons.isEmpty()) {
-                    blockedReasons.remove(candidateId);
-                } else if (reasons.size() != sizeBefore) {
-                    changed = true;
-                }
-            }
-        }
-        return blockedReasons;
+        return new SelectionAnalysis(fileToCandidate, dependencyFilesByKey, internalDependenciesByKey, blockingReasonsByKey);
     }
 
     private List<SourceFile> buildSourceFiles(BaseProject project) {
@@ -296,6 +250,19 @@ public class ProjectSelectionPlanner {
                 .toList();
     }
 
+    private static LinkedHashSet<String> expand(Set<String> requested, Map<String, Set<String>> dependencies) {
+        var expanded = new LinkedHashSet<String>();
+        var queue = new ArrayDeque<>(requested);
+        while (!queue.isEmpty()) {
+            var key = queue.removeFirst();
+            if (!expanded.add(key)) {
+                continue;
+            }
+            dependencies.getOrDefault(key, Set.of()).forEach(queue::addLast);
+        }
+        return expanded;
+    }
+
     private static Optional<String> resolveType(String simpleType,
                                                 RawSourceFile file,
                                                 Map<String, Set<String>> knownTypesBySimpleName) {
@@ -327,41 +294,26 @@ public class ProjectSelectionPlanner {
         return importDeclaration.getName().getIdentifier();
     }
 
-    private static String getSimpleTypeName(String qualifiedName) {
-        var lastDot = qualifiedName.lastIndexOf('.');
-        if (lastDot < 0) {
-            return qualifiedName;
-        }
-        return qualifiedName.substring(lastDot + 1);
-    }
-
-    private static LinkedHashSet<String> expand(Collection<String> requestedIds, Map<String, Set<String>> directDependencies) {
-        var expanded = new LinkedHashSet<String>();
-        var queue = new ArrayDeque<>(requestedIds);
-        while (!queue.isEmpty()) {
-            var candidateId = queue.removeFirst();
-            if (!expanded.add(candidateId)) {
-                continue;
-            }
-            directDependencies.getOrDefault(candidateId, Set.of()).forEach(queue::addLast);
-        }
-        return expanded;
-    }
-
-    private static String describeCandidate(CandidateInformation candidate) {
-        if (candidate == null) {
-            return "another candidate";
-        }
-        return candidate.getDesignPattern() + " candidate " + candidate.getId();
-    }
-
     private static Set<String> filesChanged(CandidateInformation candidate) {
         return Optional.ofNullable(candidate.getFilesChanged()).orElseGet(Set::of);
     }
 
-    private record DependencyGraph(Map<String, Set<String>> requiredCandidateIds,
-                                   Map<String, List<String>> dependencyReasons,
-                                   Map<String, List<String>> blockedReasons) {
+    public static String fileKey(String candidateId, String file) {
+        return candidateId + KEY_SEPARATOR + file;
+    }
+
+    private static FileKey parseFileKey(String key) {
+        var split = key.split(KEY_SEPARATOR, 2);
+        return new FileKey(split[0], split.length > 1 ? split[1] : "");
+    }
+
+    private record SelectionAnalysis(Map<String, String> fileToCandidate,
+                                     Map<String, List<String>> dependencyFilesByKey,
+                                     Map<String, Set<String>> internalDependenciesByKey,
+                                     Map<String, List<String>> blockingReasonsByKey) {
+    }
+
+    private record FileKey(String candidateId, String file) {
     }
 
     @Builder

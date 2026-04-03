@@ -69,14 +69,14 @@ public class RefactorProjectImpl implements RefactorProject {
     }
 
     @Override
-    public ProjectResults retrieve(String id, List<String> requestedCandidateIds) {
+    public ProjectResults retrieve(String id, List<String> requestedFileKeys) {
         var project = projectRepository.findById(id).orElseThrow(IllegalArgumentException::new);
         var status = project.getStatus().stream().toList().getLast();
         return ProjectResults.builder()
                 .name(project.getName())
                 .candidatesInformation(project.getCandidatesInformation())
                 .status(status)
-                .selection(selectionPlanner.plan(project, requestedCandidateIds))
+                .selection(selectionPlanner.plan(project, requestedFileKeys))
                 .build();
     }
 
@@ -101,15 +101,16 @@ public class RefactorProjectImpl implements RefactorProject {
 
     @SneakyThrows
     @Override
-    public String downloadProject(String projectId, List<String> candidatesIds) {
-        log.info("Downloading project: {}, candidates: {}", projectId, candidatesIds);
+    public String downloadProject(String projectId, List<String> selectedFileKeys) {
+        log.info("Downloading project: {}, files: {}", projectId, selectedFileKeys);
         var candidateFiles = new HashMap<String, JavaFile>();
         var project = projectRepository.findById(projectId).orElseThrow(IllegalArgumentException::new);
-        selectionPlanner.validateSelection(project, candidatesIds);
+        selectionPlanner.validateSelection(project, selectedFileKeys);
+        var selectedFilesByCandidate = selectionPlanner.groupSelectedFilesByCandidate(selectedFileKeys);
         var projectZip = s3ProjectRepository.download(project.getBucket(), project.getId());
         project.getCandidatesInformation().stream()
-                .filter(candidate -> candidatesIds.contains(candidate.getId()))
-                .map(candidate -> fileExtractor.extractRefactoredFiles(project.getBucket(), candidate.getId(), candidate.getFilesChanged().stream().toList()))
+                .filter(candidate -> selectedFilesByCandidate.containsKey(candidate.getId()))
+                .map(candidate -> fileExtractor.extractRefactoredFiles(project.getBucket(), candidate.getId(), selectedFilesByCandidate.get(candidate.getId())))
                 .flatMap(List::stream)
                 .forEach(javaFile -> candidateFiles.put(javaFile.getFullName(), javaFile));
 

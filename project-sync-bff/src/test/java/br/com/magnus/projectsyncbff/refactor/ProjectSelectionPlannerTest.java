@@ -33,101 +33,124 @@ class ProjectSelectionPlannerTest {
     }
 
     @Test
-    void shouldAutoSelectDependentCandidates() {
-        var project = baseProject(List.of(
-                candidate("candidate-a", "src/main/java/example/PaymentStrategy.java"),
-                candidate("candidate-b", "src/main/java/example/Checkout.java")
-        ));
+    void shouldAutoSelectDependentFilesInsideSameCandidate() {
+        var candidate = candidate("candidate-a",
+                "src/main/java/example/Checkout.java",
+                "src/main/java/example/PaymentStrategy.java");
+        var project = baseProject(List.of(candidate));
         when(fileExtractor.extract(project)).thenReturn(List.of(
-                javaFile("src/main/java/example/PaymentStrategy.java", """
-                        package example;
-
-                        public interface PaymentStrategy {
-                        }
-                        """),
                 javaFile("src/main/java/example/Checkout.java", """
                         package example;
 
                         public class Checkout {
                             private PaymentStrategy paymentStrategy;
                         }
+                        """),
+                javaFile("src/main/java/example/PaymentStrategy.java", """
+                        package example;
+
+                        public interface PaymentStrategy {
+                        }
                         """)
         ));
 
-        var selection = planner.plan(project, List.of("candidate-a"));
+        var selection = planner.plan(project, List.of(ProjectSelectionPlanner.fileKey("candidate-a", "src/main/java/example/Checkout.java")));
 
-        assertThat(selection.getSelectedCandidateIds()).containsExactly("candidate-a", "candidate-b");
-        assertThat(selection.getAutoSelectedCount()).isEqualTo(1);
-        assertThat(selection.getCandidates())
-                .filteredOn(CandidateSelection::getId, "candidate-b")
+        assertThat(selection.getSelectedFileKeys())
+                .containsExactly(
+                        ProjectSelectionPlanner.fileKey("candidate-a", "src/main/java/example/Checkout.java"),
+                        ProjectSelectionPlanner.fileKey("candidate-a", "src/main/java/example/PaymentStrategy.java"));
+        assertThat(selection.getCandidates().getFirst().getFiles())
+                .filteredOn(FileSelection::getFile, "src/main/java/example/PaymentStrategy.java")
                 .singleElement()
-                .satisfies(candidate -> {
-                    assertThat(candidate.isSelected()).isTrue();
-                    assertThat(candidate.isLocked()).isTrue();
+                .satisfies(file -> {
+                    assertThat(file.isSelected()).isTrue();
+                    assertThat(file.isLocked()).isTrue();
                 });
     }
 
     @Test
-    void shouldBlockCandidateWhenDependentFileHasNoCandidate() {
-        var project = baseProject(List.of(
-                candidate("candidate-a", "src/main/java/example/PaymentStrategy.java")
-        ));
+    void shouldAllowSelectingOnlyOneIndependentFileInSameCandidate() {
+        var candidate = candidate("candidate-a",
+                "src/main/java/example/IndependentOne.java",
+                "src/main/java/example/IndependentTwo.java");
+        var project = baseProject(List.of(candidate));
         when(fileExtractor.extract(project)).thenReturn(List.of(
-                javaFile("src/main/java/example/PaymentStrategy.java", """
+                javaFile("src/main/java/example/IndependentOne.java", """
                         package example;
 
-                        public interface PaymentStrategy {
+                        public class IndependentOne {
                         }
                         """),
+                javaFile("src/main/java/example/IndependentTwo.java", """
+                        package example;
+
+                        public class IndependentTwo {
+                        }
+                        """)
+        ));
+
+        var selection = planner.plan(project, List.of(ProjectSelectionPlanner.fileKey("candidate-a", "src/main/java/example/IndependentOne.java")));
+
+        assertThat(selection.getSelectedFileKeys())
+                .containsExactly(ProjectSelectionPlanner.fileKey("candidate-a", "src/main/java/example/IndependentOne.java"));
+    }
+
+    @Test
+    void shouldBlockFileWhenDependencyIsOutsideCandidateScope() {
+        var candidate = candidate("candidate-a", "src/main/java/example/Checkout.java");
+        var project = baseProject(List.of(candidate));
+        when(fileExtractor.extract(project)).thenReturn(List.of(
                 javaFile("src/main/java/example/Checkout.java", """
                         package example;
 
                         public class Checkout {
                             private PaymentStrategy paymentStrategy;
                         }
+                        """),
+                javaFile("src/main/java/example/PaymentStrategy.java", """
+                        package example;
+
+                        public interface PaymentStrategy {
+                        }
                         """)
         ));
 
-        var selection = planner.plan(project, List.of("candidate-a"));
+        var selection = planner.plan(project, List.of(ProjectSelectionPlanner.fileKey("candidate-a", "src/main/java/example/Checkout.java")));
 
         assertThat(selection.isDownloadable()).isFalse();
         assertThat(selection.getBlockedCount()).isEqualTo(1);
-        assertThat(selection.getCandidates())
-                .filteredOn(CandidateSelection::getId, "candidate-a")
-                .singleElement()
-                .satisfies(candidate -> {
-                    assertThat(candidate.isBlocked()).isTrue();
-                    assertThat(candidate.getBlockingReasons()).isNotEmpty();
-                });
+        assertThat(selection.getCandidates().getFirst().getFiles().getFirst().isBlocked()).isTrue();
     }
 
     @Test
-    void shouldRejectSelectionsMissingDependentCandidates() {
-        var project = baseProject(List.of(
-                candidate("candidate-a", "src/main/java/example/PaymentStrategy.java"),
-                candidate("candidate-b", "src/main/java/example/Checkout.java")
-        ));
+    void shouldRejectSelectionsMissingDependentFiles() {
+        var candidate = candidate("candidate-a",
+                "src/main/java/example/Checkout.java",
+                "src/main/java/example/PaymentStrategy.java");
+        var project = baseProject(List.of(candidate));
         when(fileExtractor.extract(project)).thenReturn(List.of(
-                javaFile("src/main/java/example/PaymentStrategy.java", """
-                        package example;
-
-                        public interface PaymentStrategy {
-                        }
-                        """),
                 javaFile("src/main/java/example/Checkout.java", """
                         package example;
 
                         public class Checkout {
                             private PaymentStrategy paymentStrategy;
                         }
+                        """),
+                javaFile("src/main/java/example/PaymentStrategy.java", """
+                        package example;
+
+                        public interface PaymentStrategy {
+                        }
                         """)
         ));
 
-        assertThatThrownBy(() -> planner.validateSelection(project, List.of("candidate-a")))
+        assertThatThrownBy(() -> planner.validateSelection(project,
+                List.of(ProjectSelectionPlanner.fileKey("candidate-a", "src/main/java/example/Checkout.java"))))
                 .isInstanceOf(SelectionValidationException.class)
-                .hasMessageContaining("dependent candidates are missing")
+                .hasMessageContaining("dependent files are missing")
                 .satisfies(throwable -> assertThat(((SelectionValidationException) throwable).getMissingCandidateIds())
-                        .containsExactly("candidate-b"));
+                        .containsExactly(ProjectSelectionPlanner.fileKey("candidate-a", "src/main/java/example/PaymentStrategy.java")));
     }
 
     private BaseProject baseProject(List<CandidateInformation> candidates) {
@@ -138,12 +161,12 @@ class ProjectSelectionPlannerTest {
                 .build();
     }
 
-    private CandidateInformation candidate(String id, String file) {
+    private CandidateInformation candidate(String id, String... files) {
         return CandidateInformation.builder()
                 .id(id)
                 .designPattern(DesignPattern.STRATEGY)
                 .reference(Reference.builder().title("Wei et al.").year(2014).authors(List.of("Wei")).build())
-                .filesChanged(new LinkedHashSet<>(List.of(file)))
+                .filesChanged(new LinkedHashSet<>(List.of(files)))
                 .build();
     }
 

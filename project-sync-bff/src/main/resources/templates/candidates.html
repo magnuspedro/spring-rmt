@@ -24,26 +24,13 @@
             <article th:each="candidate : ${project.selection.candidates}" class="candidate-card"
                      th:classappend="${candidate.blocked} ? ' candidate-card-blocked' : (${candidate.selected} ? ' candidate-card-selected' : '')">
                 <div class="candidate-card-top">
-                    <label class="candidate-check">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               name="requestedId"
-                               th:value="${candidate.id}"
-                               th:checked="${candidate.requested}"
-                               th:disabled="${candidate.locked || candidate.blocked}">
-                        <span></span>
-                    </label>
                     <div class="candidate-headline">
                         <div class="candidate-badges">
                             <span class="badge text-bg-light" th:text="${candidate.designPattern}">STRATEGY</span>
-                            <span th:if="${candidate.locked}" class="badge text-bg-info">Auto-selected</span>
                             <span th:if="${candidate.blocked}" class="badge text-bg-danger">Unavailable</span>
+                            <span th:if="${!candidate.blocked}" class="badge text-bg-success">Ready</span>
                         </div>
-                        <h3 th:text="${candidate.reference.title}">Wei et al.</h3>
-                        <p class="candidate-reference"
-                           th:text="${#strings.listJoin(candidate.reference.authors, ', ') + ' · ' + candidate.reference.year}">
-                            Author · 2014
-                        </p>
+                        <h3 th:text="${candidate.designPattern} + ' candidate'">Strategy candidate</h3>
                     </div>
                 </div>
 
@@ -63,25 +50,45 @@
                         </div>
                     </div>
 
-                    <div>
-                        <p class="section-label">Files changed</p>
-                        <ul class="file-list">
-                            <li th:each="file : ${candidate.filesChanged}" th:text="${file}">src/main/java/example/MovieTicket.java</li>
-                        </ul>
+                    <div class="file-groups">
+                        <div class="file-group">
+                            <p class="section-label">Files in this refactoring</p>
+                            <div class="file-selection-list">
+                                <label th:each="fileSelection : ${candidate.files}" class="file-selection-item"
+                                       th:classappend="${fileSelection.blocked} ? ' file-selection-blocked' : (${fileSelection.locked} ? ' file-selection-locked' : '')">
+                                    <span class="file-selection-main">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="requestedFileKey"
+                                               th:value="${fileSelection.key}"
+                                               th:checked="${fileSelection.requested}"
+                                               th:disabled="${fileSelection.locked || fileSelection.blocked}">
+                                        <span class="file-selection-name" th:text="${fileSelection.file}">src/main/java/example/MovieTicket.java</span>
+                                    </span>
+                                    <span th:if="${fileSelection.locked}" class="file-selection-tag">Auto-selected</span>
+                                    <span th:if="${fileSelection.blocked}" class="file-selection-tag danger">Unavailable</span>
+
+                                    <span class="file-selection-copy" th:if="${#lists.isEmpty(fileSelection.dependencyFiles)}">No related files required.</span>
+                                    <span class="file-selection-copy" th:if="${!#lists.isEmpty(fileSelection.dependencyFiles)}"
+                                          th:text="'Depends on: ' + ${#strings.listJoin(fileSelection.dependencyFiles, ', ')}">
+                                        Depends on: src/main/java/example/Other.java
+                                    </span>
+
+                                    <span class="file-selection-copy danger" th:if="${!#lists.isEmpty(fileSelection.blockingReasons)}"
+                                          th:text="${#strings.listJoin(fileSelection.blockingReasons, ' ')}">
+                                        Depends on file outside the refactoring scope.
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
-                    <div th:if="${!#lists.isEmpty(candidate.blockingReasons)}">
-                        <p class="section-label">Why this is unavailable</p>
-                        <ul class="reason-list danger">
-                            <li th:each="reason : ${candidate.blockingReasons}" th:text="${reason}">Dependent file is not covered.</li>
-                        </ul>
-                    </div>
-
-                    <div th:if="${!#lists.isEmpty(candidate.dependencyReasons)}">
-                        <p class="section-label">Dependent files included automatically</p>
-                        <ul class="reason-list">
-                            <li th:each="reason : ${candidate.dependencyReasons}" th:text="${reason}">Related file also needs refactoring.</li>
-                        </ul>
+                    <div class="candidate-reference-box">
+                        <p class="section-label">Reference</p>
+                        <p class="candidate-reference"
+                           th:text="${candidate.reference.title + ' · ' + #strings.listJoin(candidate.reference.authors, ', ') + ' · ' + candidate.reference.year}">
+                            Wei et al. · Wei · 2014
+                        </p>
                     </div>
                 </div>
             </article>
@@ -93,29 +100,29 @@
                 <h3>Dependency-safe refactoring set</h3>
                 <div class="summary-metrics">
                     <div>
-                        <span>Requested</span>
-                        <strong th:text="${#lists.size(project.selection.requestedCandidateIds)}">0</strong>
+                        <span>Requested files</span>
+                        <strong th:text="${#lists.size(project.selection.requestedFileKeys)}">0</strong>
                     </div>
                     <div>
-                        <span>Auto-selected</span>
-                        <strong th:text="${project.selection.autoSelectedCount}">0</strong>
+                        <span>Selectable files</span>
+                        <strong th:text="${project.selection.selectableFileCount}">0</strong>
                     </div>
                     <div>
-                        <span>Unavailable</span>
+                        <span>Unavailable files</span>
                         <strong th:text="${project.selection.blockedCount}">0</strong>
                     </div>
                 </div>
 
                 <p class="summary-copy" th:if="${project.selection.downloadable}">
-                    Every dependent candidate required by the current selection is already included.
+                    Selecting a file also includes the related files from the same refactoring group that it depends on.
                 </p>
                 <p class="summary-copy" th:if="${!project.selection.downloadable}">
-                    Pick one or more available candidates to assemble a valid download.
+                    Pick one or more available files to download a valid refactored project.
                 </p>
 
                 <form class="download-form"
                       th:attr="hx-post=${downloadUrl},hx-target='#download-link',hx-swap='outerHTML'">
-                    <input th:each="selectedId : ${project.selection.selectedCandidateIds}" type="hidden" name="selectedId" th:value="${selectedId}">
+                    <input th:each="selectedFileKey : ${project.selection.selectedFileKeys}" type="hidden" name="selectedFileKey" th:value="${selectedFileKey}">
                     <button class="btn btn-primary btn-lg w-100"
                             type="submit"
                             th:disabled="${!project.selection.downloadable}">

@@ -13,10 +13,10 @@ public interface RefactorProject {
 
     ProjectResults retrieve(String id);
 
-    ProjectResults retrieve(String id, List<String> requestedCandidateIds);
+    ProjectResults retrieve(String id, List<String> requestedFileKeys);
 
     @Retryable(retryFor = ResponseStatusException.class, maxAttemptsExpression = "${retry.max-attempts}", backoff = @Backoff(delayExpression = "${retry.delay}", multiplierExpression = "${retry.multiplier}"))
     ProjectResults retrieveRetryable(String id);
 
-    String downloadProject(String projectId, List<String> candidatesIds);
+    String downloadProject(String projectId, List<String> selectedFileKeys);
 }

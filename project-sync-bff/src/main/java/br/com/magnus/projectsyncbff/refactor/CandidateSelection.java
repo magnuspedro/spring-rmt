@@ -8,18 +8,13 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Builder
 public class CandidateSelection {
     private final CandidateInformation candidate;
-    private final Set<String> requiredCandidateIds;
-    private final List<String> dependencyReasons;
-    private final List<String> blockingReasons;
-    private final boolean requested;
+    private final List<FileSelection> files;
     private final boolean selected;
-    private final boolean locked;
     private final boolean blocked;
 
     public String getId() {
@@ -34,15 +29,11 @@ public class CandidateSelection {
         return candidate.getReference();
     }
 
-    public Set<String> getFilesChanged() {
-        return candidate.getFilesChanged();
-    }
-
     public BigDecimal getMetricValue(String metric) {
         return candidate.getMetricValue(metric);
     }
 
-    public boolean isSelectable() {
-        return !blocked;
+    public int getSelectedFilesCount() {
+        return (int) files.stream().filter(FileSelection::isSelected).count();
     }
 }

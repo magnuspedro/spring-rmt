@@ -9,9 +9,9 @@ import java.util.List;
 @Builder
 public class ProjectSelection {
     private final List<CandidateSelection> candidates;
-    private final List<String> requestedCandidateIds;
-    private final List<String> selectedCandidateIds;
-    private final int autoSelectedCount;
+    private final List<String> requestedFileKeys;
+    private final List<String> selectedFileKeys;
+    private final int selectableFileCount;
     private final int blockedCount;
     private final boolean downloadable;
 

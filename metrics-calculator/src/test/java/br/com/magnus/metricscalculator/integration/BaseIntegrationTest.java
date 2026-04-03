@@ -25,7 +25,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
         classes = {MetricsCalculatorApplication.class, TestRedisConfiguration.class}
 )
 @ActiveProfiles("integration")
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 public abstract class BaseIntegrationTest {
 
     @Container

@@ -7,6 +7,7 @@ import br.com.magnus.config.starter.patterns.DesignPattern;
 import br.com.magnus.config.starter.projects.CandidateInformation;
 import br.com.magnus.config.starter.projects.ProjectStatus;
 import br.com.magnus.projectsyncbff.refactor.CandidateSelection;
+import br.com.magnus.projectsyncbff.refactor.FileSelection;
 import br.com.magnus.projectsyncbff.refactor.ProjectResults;
 import br.com.magnus.projectsyncbff.refactor.ProjectSelection;
 import br.com.magnus.projectsyncbff.refactor.RefactorProject;
@@ -18,18 +19,17 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockPart;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.ArgumentMatchers.eq;
@@ -87,19 +87,20 @@ class HtmxControllerTest {
 
         mockMvc.perform(get("/project/{id}", "project-1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Dependency-safe refactoring set")))
-                .andExpect(content().string(containsString("Auto-selected")))
+                .andExpect(content().string(containsString("Files in this refactoring")))
+                .andExpect(content().string(containsString("Reference")))
                 .andExpect(content().string(containsString("MovieTicket.java")));
     }
 
     @Test
     @SneakyThrows
-    void shouldRenderSelectionUpdateWithLockedDependentCandidate() {
-        when(refactorProject.retrieve(eq("project-1"), eq(List.of("candidate-a")))).thenReturn(projectResults(true));
+    void shouldRenderSelectionUpdateWithLockedDependentFile() {
+        var fileKey = "candidate-a::src/main/java/example/MovieTicket.java";
+        when(refactorProject.retrieve(eq("project-1"), eq(List.of(fileKey)))).thenReturn(projectResults(true));
 
         mockMvc.perform(post("/project/{id}/selection", "project-1")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .param("requestedId", "candidate-a"))
+                        .param("requestedFileKey", fileKey))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Auto-selected")))
                 .andExpect(content().string(containsString("Download refactored project")));
@@ -110,14 +111,9 @@ class HtmxControllerTest {
                 .id("candidate-a")
                 .designPattern(DesignPattern.STRATEGY)
                 .reference(Reference.builder().title("Wei et al.").year(2014).authors(List.of("Wei")).build())
-                .filesChanged(new LinkedHashSet<>(List.of("src/main/java/example/MovieTicket.java")))
-                .metrics(metrics())
-                .build();
-        var dependent = CandidateInformation.builder()
-                .id("candidate-b")
-                .designPattern(DesignPattern.FACTORY_METHOD)
-                .reference(Reference.builder().title("Wei et al.").year(2014).authors(List.of("Wei")).build())
-                .filesChanged(new LinkedHashSet<>(List.of("src/main/java/example/Checkout.java")))
+                .filesChanged(new LinkedHashSet<>(List.of(
+                        "src/main/java/example/MovieTicket.java",
+                        "src/main/java/example/PaymentStrategy.java")))
                 .metrics(metrics())
                 .build();
 
@@ -125,28 +121,37 @@ class HtmxControllerTest {
                 .candidates(List.of(
                         CandidateSelection.builder()
                                 .candidate(candidate)
-                                .requiredCandidateIds(Set.of("candidate-b"))
-                                .dependencyReasons(List.of("Checkout.java also needs refactoring because it references MovieTicket."))
-                                .blockingReasons(List.of())
-                                .requested(selected)
+                                .files(List.of(
+                                        FileSelection.builder()
+                                                .key("candidate-a::src/main/java/example/MovieTicket.java")
+                                                .file("src/main/java/example/MovieTicket.java")
+                                                .dependencyFiles(List.of("src/main/java/example/PaymentStrategy.java"))
+                                                .blockingReasons(List.of())
+                                                .requested(selected)
+                                                .selected(selected)
+                                                .locked(false)
+                                                .blocked(false)
+                                                .build(),
+                                        FileSelection.builder()
+                                                .key("candidate-a::src/main/java/example/PaymentStrategy.java")
+                                                .file("src/main/java/example/PaymentStrategy.java")
+                                                .dependencyFiles(List.of())
+                                                .blockingReasons(List.of())
+                                                .requested(false)
+                                                .selected(selected)
+                                                .locked(selected)
+                                                .blocked(false)
+                                                .build()
+                                ))
                                 .selected(selected)
-                                .locked(false)
-                                .blocked(false)
-                                .build(),
-                        CandidateSelection.builder()
-                                .candidate(dependent)
-                                .requiredCandidateIds(Set.of())
-                                .dependencyReasons(List.of())
-                                .blockingReasons(List.of())
-                                .requested(false)
-                                .selected(selected)
-                                .locked(selected)
                                 .blocked(false)
                                 .build()
                 ))
-                .requestedCandidateIds(selected ? List.of("candidate-a") : List.of())
-                .selectedCandidateIds(selected ? List.of("candidate-a", "candidate-b") : List.of())
-                .autoSelectedCount(selected ? 1 : 0)
+                .requestedFileKeys(selected ? List.of("candidate-a::src/main/java/example/MovieTicket.java") : List.of())
+                .selectedFileKeys(selected ? List.of(
+                        "candidate-a::src/main/java/example/MovieTicket.java",
+                        "candidate-a::src/main/java/example/PaymentStrategy.java") : List.of())
+                .selectableFileCount(2)
                 .blockedCount(0)
                 .downloadable(selected)
                 .build();
@@ -155,7 +160,7 @@ class HtmxControllerTest {
                 .name("project.zip")
                 .status(ProjectStatus.FINISHED)
                 .duration("1.23")
-                .candidatesInformation(List.of(candidate, dependent))
+                .candidatesInformation(List.of(candidate))
                 .selection(selection)
                 .build();
     }
