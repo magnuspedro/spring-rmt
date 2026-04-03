@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -34,11 +35,13 @@ class DetectionMethodsManagerWeiTest {
     private RefactoringCandidate refactoringCandidate;
 
     private DetectionMethodsManagerWei detectionMethodsManager;
-    private final RefactoringProperties refactoringProperties = new RefactoringProperties(2);
+    private final RefactoringProperties refactoringProperties = new RefactoringProperties();
+    private final Executor weiRefactoringExecutor = Runnable::run;
 
     @BeforeEach
     void setUp() {
-        detectionMethodsManager = new DetectionMethodsManagerWei(weiEtAl2014, refactoringProperties);
+        refactoringProperties.getWei().setParallelism(2);
+        detectionMethodsManager = new DetectionMethodsManagerWei(weiEtAl2014, refactoringProperties, weiRefactoringExecutor);
     }
 
     @Test

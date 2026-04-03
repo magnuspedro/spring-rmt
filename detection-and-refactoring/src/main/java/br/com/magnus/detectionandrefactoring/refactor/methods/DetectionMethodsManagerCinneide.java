@@ -8,10 +8,12 @@ import br.com.magnus.detectionandrefactoring.configuration.RefactoringProperties
 import br.com.magnus.detectionandrefactoring.refactor.methods.cinneide.CinneideEtAl2000;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -21,6 +23,8 @@ public class DetectionMethodsManagerCinneide implements DetectionMethodsManager 
 
     private final CinneideEtAl2000 cinneideEtAl2000;
     private final RefactoringProperties refactoringProperties;
+    @Qualifier("cinneideRefactoringExecutor")
+    private final Executor cinneideRefactoringExecutor;
 
     @Override
     public List<RefactorFiles> refactor(Project project) {
@@ -31,7 +35,11 @@ public class DetectionMethodsManagerCinneide implements DetectionMethodsManager 
             return List.of();
         }
 
-        final var toRefactorList = executeInParallel(candidates, refactoringProperties.parallelism(), candidate -> {
+        final var toRefactorList = DetectionMethodsManager.executeInParallel(
+                        candidates,
+                        cinneideRefactoringExecutor,
+                        refactoringProperties.getCinneide().getParallelism(),
+                        candidate -> {
                     try {
                         final var files = project.getOriginalContent().stream()
                                 .map(JavaFile::clone)

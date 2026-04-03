@@ -8,10 +8,12 @@ import br.com.magnus.detectionandrefactoring.configuration.RefactoringProperties
 import br.com.magnus.detectionandrefactoring.refactor.methods.weiL.WeiEtAl2014;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -21,6 +23,8 @@ public class DetectionMethodsManagerWei implements DetectionMethodsManager {
 
     private final WeiEtAl2014 weiEtAl2014;
     private final RefactoringProperties refactoringProperties;
+    @Qualifier("weiRefactoringExecutor")
+    private final Executor weiRefactoringExecutor;
 
     @Override
     public List<RefactorFiles> refactor(Project project) {
@@ -38,7 +42,11 @@ public class DetectionMethodsManagerWei implements DetectionMethodsManager {
     }
 
     private List<RefactorFiles> refactor(List<JavaFile> javaFiles, List<RefactoringCandidate> candidates) {
-        return executeInParallel(candidates, refactoringProperties.parallelism(), candidate -> {
+        return DetectionMethodsManager.executeInParallel(
+                        candidates,
+                        weiRefactoringExecutor,
+                        refactoringProperties.getWei().getParallelism(),
+                        candidate -> {
                     var files = javaFiles.stream().map(JavaFile::clone).collect(Collectors.toCollection(ArrayList::new));
                     var refactorFiles = RefactorFiles.builder()
                             .files(files)

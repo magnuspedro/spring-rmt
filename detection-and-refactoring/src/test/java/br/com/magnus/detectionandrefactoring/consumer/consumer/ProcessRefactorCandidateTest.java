@@ -7,6 +7,7 @@ import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.projects.ProjectStatus;
 import br.com.magnus.detectionandrefactoring.consumer.ProcessRefactorCandidate;
 import br.com.magnus.detectionandrefactoring.consumer.RefactorCandidateConsumer;
+import br.com.magnus.detectionandrefactoring.configuration.RefactoringProperties;
 import br.com.magnus.detectionandrefactoring.gateway.SendProject;
 import br.com.magnus.detectionandrefactoring.refactor.methods.DetectionMethodsManager;
 import br.com.magnus.detectionandrefactoring.repository.ProjectRepository;
@@ -20,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -43,11 +45,20 @@ class ProcessRefactorCandidateTest {
     @Mock
     private FileExtractor fileExtractor;
     private ProcessRefactorCandidate processRefactorCandidate;
+    private final Executor detectionMethodsManagerExecutor = Runnable::run;
+    private final RefactoringProperties refactoringProperties = new RefactoringProperties();
 
     @BeforeEach
     void setUp() {
         List<DetectionMethodsManager> detectionMethodsManagerList = List.of(detectionMethodsManager);
-        processRefactorCandidate = new ProcessRefactorCandidate(detectionMethodsManagerList, projectUpdater, sendProject, projectsRepository, fileExtractor);
+        processRefactorCandidate = new ProcessRefactorCandidate(
+                detectionMethodsManagerList,
+                projectUpdater,
+                sendProject,
+                projectsRepository,
+                fileExtractor,
+                detectionMethodsManagerExecutor,
+                refactoringProperties);
     }
 
     @Test

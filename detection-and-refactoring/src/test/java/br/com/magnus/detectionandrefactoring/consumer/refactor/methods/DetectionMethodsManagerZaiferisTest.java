@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -33,11 +34,13 @@ class DetectionMethodsManagerZaiferisTest {
     private ZafeirisEtAl2016Candidate refactoringCandidate;
 
     private DetectionMethodsManagerZaiferis detectionMethodsManager;
-    private final RefactoringProperties refactoringProperties = new RefactoringProperties(2);
+    private final RefactoringProperties refactoringProperties = new RefactoringProperties();
+    private final Executor zafeirisRefactoringExecutor = Runnable::run;
 
     @BeforeEach
     void setUp() {
-        detectionMethodsManager = new DetectionMethodsManagerZaiferis(zafeirisEtAl2016, refactoringProperties);
+        refactoringProperties.getZafeiris().setParallelism(2);
+        detectionMethodsManager = new DetectionMethodsManagerZaiferis(zafeirisEtAl2016, refactoringProperties, zafeirisRefactoringExecutor);
     }
 
     @Test

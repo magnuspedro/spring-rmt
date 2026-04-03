@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 
 
@@ -20,14 +20,14 @@ public interface DetectionMethodsManager {
         return candidates.isEmpty();
     }
 
-    default <T, R> List<R> executeInParallel(List<T> items, int parallelism, Function<T, R> task) {
+    static <T, R> List<R> executeInParallel(List<T> items, Executor executor, int parallelism, Function<T, R> task) {
         if (items.isEmpty()) {
             return List.of();
         }
 
         var boundedParallelism = Math.max(1, parallelism);
 
-        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        try {
             var results = new ArrayList<R>(items.size());
             for (var start = 0; start < items.size(); start += boundedParallelism) {
                 var end = Math.min(start + boundedParallelism, items.size());

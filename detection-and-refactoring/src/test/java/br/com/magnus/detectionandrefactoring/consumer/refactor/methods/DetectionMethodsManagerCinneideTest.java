@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -34,11 +35,13 @@ class DetectionMethodsManagerCinneideTest {
     private RefactoringCandidate refactoringCandidate;
 
     private DetectionMethodsManagerCinneide detectionMethodsManager;
-    private final RefactoringProperties refactoringProperties = new RefactoringProperties(2);
+    private final RefactoringProperties refactoringProperties = new RefactoringProperties();
+    private final Executor cinneideRefactoringExecutor = Runnable::run;
 
     @BeforeEach
     void setUp() {
-        detectionMethodsManager = new DetectionMethodsManagerCinneide(cinneideEtAl2000, refactoringProperties);
+        refactoringProperties.getCinneide().setParallelism(2);
+        detectionMethodsManager = new DetectionMethodsManagerCinneide(cinneideEtAl2000, refactoringProperties, cinneideRefactoringExecutor);
     }
 
     @Test

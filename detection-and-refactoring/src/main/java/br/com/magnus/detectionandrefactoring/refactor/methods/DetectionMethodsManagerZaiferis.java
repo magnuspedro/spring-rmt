@@ -9,11 +9,13 @@ import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.Zafeiri
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 
@@ -24,6 +26,8 @@ public class DetectionMethodsManagerZaiferis implements DetectionMethodsManager 
 
     private final ZafeirisEtAl2016 zafeirisEtAl2016;
     private final RefactoringProperties refactoringProperties;
+    @Qualifier("zafeirisRefactoringExecutor")
+    private final Executor zafeirisRefactoringExecutor;
 
     @Override
     public List<RefactorFiles> refactor(Project project) {
@@ -42,7 +46,11 @@ public class DetectionMethodsManagerZaiferis implements DetectionMethodsManager 
     }
 
     private List<RefactorFiles> refactor(List<JavaFile> javaFiles, HashMap<String, List<RefactoringCandidate>> candidates) {
-        return executeInParallel(new ArrayList<>(candidates.entrySet()), refactoringProperties.parallelism(), entry -> {
+        return DetectionMethodsManager.executeInParallel(
+                        new ArrayList<>(candidates.entrySet()),
+                        zafeirisRefactoringExecutor,
+                        refactoringProperties.getZafeiris().getParallelism(),
+                        entry -> {
                     var files = javaFiles.stream().map(JavaFile::clone).collect(Collectors.toCollection(ArrayList::new));
                     var refactorFiles = RefactorFiles.builder()
                             .files(files)
