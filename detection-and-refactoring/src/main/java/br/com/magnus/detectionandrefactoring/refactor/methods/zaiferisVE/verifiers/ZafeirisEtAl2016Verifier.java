@@ -43,7 +43,7 @@ public class ZafeirisEtAl2016Verifier {
                 continue;
             }
 
-            if (siblingPreconditions.violates(candidateWithSameOverriddenMethod)) {
+            if (siblingPreconditions.violates(candidateWithSameOverriddenMethod, javaFiles)) {
                 candidates.removeAll(candidates.stream()
                         .filter(c -> c.getOverriddenMethod().equals(overriddenMethod))
                         .toList()

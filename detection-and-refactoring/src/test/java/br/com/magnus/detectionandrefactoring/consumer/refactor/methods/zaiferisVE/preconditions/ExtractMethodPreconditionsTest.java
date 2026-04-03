@@ -143,7 +143,9 @@ class ExtractMethodPreconditionsTest {
                 NodeList.nodeList(Modifier.publicModifier()),
                 "overridenMethod",
                 new VoidType(),
-                NodeList.nodeList()
+                NodeList.nodeList(
+                        new Parameter(new PrimitiveType(), "expected1"),
+                        new Parameter(new PrimitiveType(), "expected2"))
         );
         var superExpr = new SuperExpr();
         var method = new MethodDeclaration(
@@ -152,11 +154,14 @@ class ExtractMethodPreconditionsTest {
                 NodeList.nodeList(),
                 new VoidType(),
                 new SimpleName("parentMethod"),
-                NodeList.nodeList(new Parameter()),
+                NodeList.nodeList(
+                        new Parameter(new PrimitiveType(), "actual1"),
+                        new Parameter(new PrimitiveType(), "actual2")),
                 NodeList.nodeList(),
                 new BlockStmt(NodeList.nodeList(
-                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
-                        new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), superExpr))
+                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive1")),
+                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive2")),
+                        new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive1"), new NameExpr("primitive2"), superExpr))
                 )));
 
         var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
@@ -198,7 +203,7 @@ class ExtractMethodPreconditionsTest {
                 NodeList.nodeList(Modifier.publicModifier()),
                 "overridenMethod",
                 new VoidType(),
-                NodeList.nodeList()
+                NodeList.nodeList(new Parameter(new PrimitiveType(), "arg"))
         );
         var superExpr = new SuperExpr();
         var method = new MethodDeclaration(
@@ -207,12 +212,12 @@ class ExtractMethodPreconditionsTest {
                 NodeList.nodeList(),
                 new VoidType(),
                 new SimpleName("parentMethod"),
-                NodeList.nodeList(),
+                NodeList.nodeList(new Parameter(new PrimitiveType(), "arg")),
                 NodeList.nodeList(),
                 new BlockStmt(NodeList.nodeList(
-                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
-                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive2")),
-                        new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), superExpr))
+                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "localValue")),
+                        new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "localValue2")),
+                        new ExpressionStmt(new MethodCallExpr("super", new NameExpr("arg"), superExpr))
                 )));
 
         var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
@@ -227,7 +232,7 @@ class ExtractMethodPreconditionsTest {
                 NodeList.nodeList(Modifier.publicModifier()),
                 "overridenMethod",
                 new VoidType(),
-                NodeList.nodeList()
+                NodeList.nodeList(new Parameter(new PrimitiveType(), "arg"))
         );
         var superExpr = new SuperExpr();
         var method = new MethodDeclaration(
@@ -236,13 +241,13 @@ class ExtractMethodPreconditionsTest {
                 NodeList.nodeList(),
                 new VoidType(),
                 new SimpleName("parentMethod"),
-                NodeList.nodeList(),
+                NodeList.nodeList(new Parameter(new PrimitiveType(), "arg")),
                 NodeList.nodeList(),
                 new BlockStmt(NodeList.nodeList(
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive2")),
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive3")),
-                        new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), superExpr))
+                        new ExpressionStmt(new MethodCallExpr("super", new NameExpr("arg"), superExpr))
                 )));
 
         var result = this.extractMethodPreconditions.isValid(overriddenMethod, method);
@@ -257,12 +262,12 @@ class ExtractMethodPreconditionsTest {
                 NodeList.nodeList(Modifier.publicModifier()),
                 "overridenMethod",
                 new VoidType(),
-                NodeList.nodeList()
+                NodeList.nodeList(new Parameter(new PrimitiveType(), "arg"))
         );
         var superExpr = new SuperExpr();
         var tryStmt = new TryStmt();
         tryStmt.setTryBlock(new BlockStmt(NodeList.nodeList(
-                new ExpressionStmt(new MethodCallExpr("super", new NameExpr("primitive"), superExpr))
+                new ExpressionStmt(new MethodCallExpr("super", new NameExpr("arg"), superExpr))
         )));
         var method = new MethodDeclaration(
                 NodeList.nodeList(Modifier.publicModifier()),
@@ -270,7 +275,7 @@ class ExtractMethodPreconditionsTest {
                 NodeList.nodeList(),
                 new VoidType(),
                 new SimpleName("parentMethod"),
-                NodeList.nodeList(),
+                NodeList.nodeList(new Parameter(new PrimitiveType(), "arg")),
                 NodeList.nodeList(),
                 new BlockStmt(NodeList.nodeList(
                         new ExpressionStmt(new VariableDeclarationExpr(new PrimitiveType(), "primitive")),
