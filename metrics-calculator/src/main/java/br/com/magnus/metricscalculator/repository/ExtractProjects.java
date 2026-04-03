@@ -38,7 +38,7 @@ public class ExtractProjects {
         Assert.notNull(javaFile.getPath(), "Path cannot be null");
         Assert.notNull(javaFile.getOriginalClass(), "Original class cannot be null");
 
-        var safePath = resolveInsideBasePath(basePath, javaFile.getPath(), javaFile.getName());
+        var safePath = resolveInsideBasePath(basePath, javaFile.getPath(), javaFile.getName().toString());
         Files.createDirectories(safePath.getParent());
         Files.writeString(safePath, javaFile.getOriginalClass(), StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
