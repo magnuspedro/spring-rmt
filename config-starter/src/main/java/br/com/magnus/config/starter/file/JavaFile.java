@@ -27,7 +27,7 @@ public class JavaFile implements Cloneable {
         return null;
     }
 
-    public String getName() {
+    public Object getName() {
         return this.name;
     }
 
