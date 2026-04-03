@@ -151,10 +151,7 @@ public class WeiEtAl2014FactoryExecutor implements WeiEtAl2014Executor {
         classDclr.setAbstract(true);
         candidateMethod.setBody(null);
         candidateMethod.setAbstract(true);
-        final var discriminatorIndex = findDiscriminatorParameterIndex(candidate.getMethodDcl(), candidate.getIfStatements());
-        if (discriminatorIndex < candidateMethod.getParameters().size()) {
-            candidateMethod.getParameter(discriminatorIndex).remove();
-        }
+        candidateMethod.getParameters().clear();
     }
 
     private CompilationUnit updateBaseCompilationUnit(Collection<CompilationUnit> classes,

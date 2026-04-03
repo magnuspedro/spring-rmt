@@ -4,7 +4,28 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+Set-StrictMode -Version Latest
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+function Test-Command {
+    param([string]$Name)
+    return $null -ne (Get-Command $Name -ErrorAction SilentlyContinue)
+}
+
+function Assert-Command {
+    param([string]$Name)
+    if (-not (Test-Command $Name)) {
+        throw "Missing required command: $Name"
+    }
+}
+
+function Assert-DockerCompose {
+    Assert-Command "docker"
+    docker compose version *> $null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Missing required Docker Compose plugin (docker compose)."
+    }
+}
 
 function Show-Usage {
     Write-Host @"
@@ -25,11 +46,13 @@ Examples:
 }
 
 function Invoke-Build {
+    Assert-Command "mvn"
     Write-Host "==> Building all modules..."
-    mvn clean install -f "$ScriptDir\pom.xml"
+    mvn -B -ntp clean package -DskipTests -f "$ScriptDir\pom.xml"
 }
 
 function Invoke-Images {
+    Assert-Command "docker"
     Write-Host "==> Building Docker images..."
     docker build -t magnus/detection "$ScriptDir\detection-and-refactoring"
     docker build -t magnus/manager   "$ScriptDir\project-sync-bff"
@@ -37,6 +60,8 @@ function Invoke-Images {
 }
 
 function Invoke-Infra {
+    Assert-DockerCompose
+    Assert-Command "tflocal"
     Write-Host "==> Starting infrastructure..."
     docker compose -f "$ScriptDir\infra\local\docker-compose.yml" up -d
 
@@ -45,6 +70,8 @@ function Invoke-Infra {
 }
 
 function Invoke-InfraFull {
+    Assert-DockerCompose
+    Assert-Command "tflocal"
     Write-Host "==> Starting full environment..."
     docker compose -f "$ScriptDir\infra\local\docker-compose-full.yml" up -d
 

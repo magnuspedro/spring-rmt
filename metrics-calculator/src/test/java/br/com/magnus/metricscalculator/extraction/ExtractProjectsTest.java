@@ -108,4 +108,20 @@ class ExtractProjectsTest {
 
         assertEquals("Original class cannot be null", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("Throws IllegalArgumentException when JavaFile path tries directory traversal")
+    void shouldThrowExceptionWhenJavaFilePathHasTraversal() {
+        when(fileExtractor.extract(anyString(), anyString()))
+                .thenReturn(Collections.singletonList(JavaFile.builder()
+                        .name("Test.java")
+                        .originalClass("public class Test {}")
+                        .path("../../../../tmp/")
+                        .build()));
+
+        var exception = assertThrows(IllegalArgumentException.class,
+                () -> extractProjects.extractProject("id", "bucket"));
+
+        assertEquals("Invalid file path", exception.getMessage());
+    }
 }
