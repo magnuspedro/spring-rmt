@@ -49,7 +49,7 @@ public class WeiEtAl2014StrategyVerifier extends WeiEtAl2014Verifier {
 
         return (binaryExpr.isPresent() || methodCallExpr.isPresent())
                 && this.isParameterUsedInIfStmtConditional(method.getParameters(), binaryExpr, methodCallExpr)
-                &&variables.size() == 1 && this.usesNoMethodInnerVariables(method, ifStmt);
+                && this.usesNoMethodInnerVariables(method, ifStmt);
     }
 
     private boolean usesNoMethodInnerVariables(MethodDeclaration method, IfStmt ifStmt) {

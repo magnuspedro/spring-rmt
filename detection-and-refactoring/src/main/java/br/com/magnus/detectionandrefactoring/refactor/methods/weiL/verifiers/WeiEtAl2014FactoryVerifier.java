@@ -42,8 +42,7 @@ public class WeiEtAl2014FactoryVerifier extends WeiEtAl2014Verifier {
         final var hasReturn = AstHandler.getReturnStmt(ifStmt).isPresent();
         final var hasValidReturn = this.isOfTypeOrIsSubtype(javaFiles, baseType, objectCreationExpr);
 
-        return ((binaryExpr.isPresent()
-                || !objectCreationExpr.isEmpty())
+        return (binaryExpr.isPresent()
                 && isParameterUsedInIfStmtConditional(parameter, binaryExpr))
                 && hasReturn
                 && hasValidReturn;

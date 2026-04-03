@@ -2,9 +2,10 @@ package br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.precon
 
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.FragmentsSplitter;
-import com.github.javaparser.ast.DataKey;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.SuperExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithCondition;
 import com.github.javaparser.ast.stmt.BlockStmt;
@@ -14,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -46,25 +47,36 @@ public class ExtractMethodPreconditions {
     }
 
     private boolean methodsValuesMatch(MethodDeclaration m1, MethodDeclaration m2) {
-
-        if (m1.getParameters() == null && m2.getParameters() == null) {
-            return true;
-        } else if ((m1.getParameters() == null && m2.getParameters() != null) || (m1.getParameters() != null && m2.getParameters() == null)) {
+        if (m1.getParameters().size() != m2.getParameters().size()) {
             return false;
-        } else if (m1.getParameters().size() != m2.getParameters().size()) {
+        }
+
+        final var superCallExpr = AstHandler.getSuperCalls(m2).stream()
+                .findFirst()
+                .flatMap(SuperExpr::getParentNode)
+                .filter(MethodCallExpr.class::isInstance)
+                .map(MethodCallExpr.class::cast);
+
+        if (superCallExpr.isEmpty()) {
+            return false;
+        }
+        final List<com.github.javaparser.ast.expr.Expression> actualArguments = superCallExpr.get().getArguments().stream()
+                .filter(argument -> !argument.isSuperExpr())
+                .toList();
+
+        if (actualArguments.size() != m2.getParameters().size()) {
             return false;
         }
 
         int differentValuesCounter = 0;
-        for (int i = 0; i < m1.getParameters().size(); i++) {
-
-            final var v1 = m1.getParameters().get(i).findData(new DataKey<>() {
-            }).orElse(null);
-
-            final var v2 = m2.getParameters().get(i).findData(new DataKey<>() {
-            }).orElse(null);
-
-            differentValuesCounter += v1 == null && v2 == null ? 0 : (Objects.equals(v1, v2) ? 0 : 1);
+        for (int i = 0; i < m2.getParameters().size(); i++) {
+            final var expectedName = m2.getParameter(i).getNameAsString();
+            final var actualArgument = actualArguments.get(i);
+            final var isMatchingParameter = actualArgument.isNameExpr()
+                    && expectedName.equals(actualArgument.asNameExpr().getNameAsString());
+            if (!isMatchingParameter) {
+                differentValuesCounter++;
+            }
         }
         return differentValuesCounter <= 1;
     }

@@ -1,8 +1,11 @@
 package br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.preconditions;
 
+import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHandler;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.FragmentsSplitter;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
@@ -17,6 +20,11 @@ import java.util.stream.Collectors;
 public class SiblingPreconditions {
 
     public boolean violates(Collection<ZafeirisEtAl2016Candidate> candidatesOfSameOverriddenMethod) {
+        return this.violates(candidatesOfSameOverriddenMethod, List.of());
+    }
+
+    public boolean violates(Collection<ZafeirisEtAl2016Candidate> candidatesOfSameOverriddenMethod,
+                            Collection<JavaFile> javaFiles) {
         final List<ZafeirisEtAl2016Candidate.CandidateWithVariables> candidatesWithVariables = candidatesOfSameOverriddenMethod.stream()
                 .map(ZafeirisEtAl2016Candidate::toCandidateWithVariables)
                 .collect(Collectors.toList());
@@ -30,6 +38,7 @@ public class SiblingPreconditions {
 
         return !beforeFragmentReturnEqual(candidatesWithVariables)
                 || !this.beforeReturnIsUsedInSuper(candidatesWithVariables)
+                || this.hasFurtherOverrideInHierarchy(candidatesOfSameOverriddenMethod, javaFiles)
                 || this.isAShortHierarchy(candidatesWithVariables);
     }
 
@@ -111,4 +120,89 @@ public class SiblingPreconditions {
         return isUsed;
     }
 
+    private boolean hasFurtherOverrideInHierarchy(Collection<ZafeirisEtAl2016Candidate> candidates,
+                                                  Collection<JavaFile> javaFiles) {
+        if (this.hasFurtherOverrideInCandidateHierarchy(candidates)) {
+            return true;
+        }
+        if (javaFiles == null || javaFiles.isEmpty() || candidates.isEmpty()) {
+            return false;
+        }
+
+        final var overriddenMethod = candidates.stream()
+                .findFirst()
+                .map(ZafeirisEtAl2016Candidate::getOverriddenMethod)
+                .orElse(null);
+        if (overriddenMethod == null) {
+            return false;
+        }
+
+        final var classNames = candidates.stream()
+                .map(ZafeirisEtAl2016Candidate::getClassDeclaration)
+                .filter(Objects::nonNull)
+                .map(ClassOrInterfaceDeclaration::getNameAsString)
+                .collect(Collectors.toSet());
+
+        final Map<String, ClassOrInterfaceDeclaration> classesByName = javaFiles.stream()
+                .map(JavaFile::getCompilationUnit)
+                .map(AstHandler::getClassOrInterfaceDeclaration)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toMap(
+                        ClassOrInterfaceDeclaration::getNameAsString,
+                        classDcl -> classDcl,
+                        (left, right) -> left
+                ));
+
+        return classesByName.entrySet().stream()
+                .filter(entry -> !classNames.contains(entry.getKey()))
+                .filter(entry -> this.extendsAnyCandidate(entry.getValue(), classNames, classesByName, new HashSet<>()))
+                .map(Map.Entry::getValue)
+                .anyMatch(classDcl -> this.hasMethodOverride(classDcl, overriddenMethod));
+    }
+
+    private boolean hasFurtherOverrideInCandidateHierarchy(Collection<ZafeirisEtAl2016Candidate> candidates) {
+        final var classNames = candidates.stream()
+                .map(ZafeirisEtAl2016Candidate::getClassDeclaration)
+                .filter(Objects::nonNull)
+                .map(classDeclaration -> classDeclaration.getNameAsString())
+                .collect(Collectors.toSet());
+
+        return candidates.stream()
+                .map(ZafeirisEtAl2016Candidate::getClassDeclaration)
+                .filter(Objects::nonNull)
+                .flatMap(classDeclaration -> classDeclaration.getExtendedTypes().stream())
+                .map(ClassOrInterfaceType::asString)
+                .anyMatch(classNames::contains);
+    }
+
+    private boolean extendsAnyCandidate(ClassOrInterfaceDeclaration classDcl,
+                                        Set<String> candidateClassNames,
+                                        Map<String, ClassOrInterfaceDeclaration> classesByName,
+                                        Set<String> visiting) {
+        final var className = classDcl.getNameAsString();
+        if (!visiting.add(className)) {
+            return false;
+        }
+
+        final var extendedTypes = classDcl.getExtendedTypes().stream()
+                .map(ClassOrInterfaceType::asString)
+                .toList();
+
+        for (var extendedType : extendedTypes) {
+            if (candidateClassNames.contains(extendedType)) {
+                return true;
+            }
+            final var parentClass = classesByName.get(extendedType);
+            if (parentClass != null && this.extendsAnyCandidate(parentClass, candidateClassNames, classesByName, visiting)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasMethodOverride(ClassOrInterfaceDeclaration classDcl, MethodDeclaration overriddenMethod) {
+        return AstHandler.getMethods(classDcl).stream()
+                .filter(method -> method.getNameAsString().equals(overriddenMethod.getNameAsString()))
+                .anyMatch(method -> AstHandler.methodsParamsMatch(method, overriddenMethod));
+    }
 }

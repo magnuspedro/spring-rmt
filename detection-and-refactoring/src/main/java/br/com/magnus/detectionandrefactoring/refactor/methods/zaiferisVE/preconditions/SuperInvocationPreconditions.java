@@ -36,7 +36,7 @@ public class SuperInvocationPreconditions {
                 .map(BlockStmt.class::cast)
                 .findFirst();
 
-        return blk.isPresent() && blk.get().getChildNodes().size() > 1
+        return blk.isPresent() && !blk.get().getChildNodes().isEmpty()
                 && this.isOverriddenMethodLessAccessible(overriddenMethod, method);
     }
 
@@ -46,9 +46,8 @@ public class SuperInvocationPreconditions {
         } else if (overriddenMethod.getModifiers().contains(Modifier.protectedModifier())) {
             return method.getModifiers().stream()
                     .anyMatch(m -> m.equals(Modifier.protectedModifier()));
-        } else if (overriddenMethod.getModifiers().contains(Modifier.privateModifier())) {
-            return method.getModifiers().stream().anyMatch(m -> m.equals(Modifier.privateModifier()));
         }
-        throw new IllegalStateException();
+        return method.getModifiers().stream()
+                .noneMatch(m -> m.equals(Modifier.publicModifier()) || m.equals(Modifier.protectedModifier()) || m.equals(Modifier.privateModifier()));
     }
 }
