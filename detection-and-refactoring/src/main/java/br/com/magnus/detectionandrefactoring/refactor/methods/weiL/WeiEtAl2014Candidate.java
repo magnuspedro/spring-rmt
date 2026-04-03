@@ -83,7 +83,7 @@ public abstract class WeiEtAl2014Candidate implements RefactoringCandidate {
 
     @Override
     public String getClassName() {
-        return this.file.getName();
+        return this.file.getName().toString();
     }
 
     @Override

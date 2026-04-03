@@ -10,7 +10,15 @@ The project is organized as a Maven monorepo with independent Spring Boot servic
 
 - **Strategy** and **Factory Method** detection based on Wei et al. (2014)
 - **Template Method** detection based on Zafeiris et al. (2016)
+- **Cinneide refactoring tool methods** for composed mini-transformations
 - Quality comparison between original and refactored code
+
+### Cinneide Tool Methods
+
+Implemented in `detection-and-refactoring` as AST transformations:
+
+- Mini-transformations: `ABSTRACTION`, `ENCAPSULATE_CONSTRUCTION`, `ABSTRACT_ACCESS`, `PARTIAL_ABSTRACTION`, `DELEGATION`, `WRAPPER`
+- Composed pattern methods: `applyFactoryMethod`, `applySingleton`, `applyAbstractFactory`, `applyStrategy`, `applyBridge`
 
 ## Modules
 
@@ -125,3 +133,4 @@ The API returns a project identifier that can be used to poll the analysis statu
 
 - Liu Wei, Hu Zhi-gang, Liu Hong-tao, and Yang Liu. (2014). *Automated pattern-directed refactoring for complex conditional statements*
 - Vassilis E. Zafeiris, Sotiris H. Poulias, N.A. Diamantidis, and E.A. Giakoumakis. (2017). *Automated refactoring of super-class method invocations to the Template Method design pattern*
+- Mel Ó Cinnéide. (2000). *Automated Application of Design Patterns: A Refactoring Approach*. PhD thesis, Trinity College Dublin, University of Dublin.

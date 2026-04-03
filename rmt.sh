@@ -3,6 +3,20 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+require_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "Missing required command: $1"
+    exit 1
+  fi
+}
+
+require_docker_compose() {
+  if ! docker compose version >/dev/null 2>&1; then
+    echo "Missing required Docker Compose plugin (docker compose)."
+    exit 1
+  fi
+}
+
 usage() {
   cat <<EOF
 Usage: ./rmt.sh [command]
@@ -22,11 +36,13 @@ EOF
 }
 
 build() {
+  require_cmd mvn
   echo "==> Building all modules..."
-  mvn clean install -f "$SCRIPT_DIR/pom.xml"
+  mvn -B -ntp clean package -DskipTests -f "$SCRIPT_DIR/pom.xml"
 }
 
 images() {
+  require_cmd docker
   echo "==> Building Docker images..."
   docker build -t magnus/detection "$SCRIPT_DIR/detection-and-refactoring"
   docker build -t magnus/manager   "$SCRIPT_DIR/project-sync-bff"
@@ -34,6 +50,9 @@ images() {
 }
 
 infra() {
+  require_cmd docker
+  require_docker_compose
+  require_cmd tflocal
   echo "==> Starting infrastructure..."
   docker compose -f "$SCRIPT_DIR/infra/local/docker-compose.yml" up -d
 
@@ -42,6 +61,9 @@ infra() {
 }
 
 infra_full() {
+  require_cmd docker
+  require_docker_compose
+  require_cmd tflocal
   echo "==> Starting full environment..."
   docker compose -f "$SCRIPT_DIR/infra/local/docker-compose-full.yml" up -d
 
