@@ -8,10 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 @Slf4j
 @Component
@@ -25,24 +25,31 @@ public class ExtractProjects {
         Assert.notNull(bucket, "Bucket cannot be null");
 
         var files = fileExtractor.extract(bucket, id);
-        var basePath = Files.createTempDirectory(id).toAbsolutePath();
-        files.forEach(file -> createTempFile(basePath.toString(), file));
+        var basePath = Files.createTempDirectory("project-").toAbsolutePath().normalize();
+        files.forEach(file -> createTempFile(basePath, file));
 
         return basePath;
     }
 
     @SneakyThrows
-    private void createTempFile(String basePath, JavaFile javaFile) {
+    private void createTempFile(Path basePath, JavaFile javaFile) {
+        Assert.notNull(javaFile, "Java file cannot be null");
         Assert.notNull(javaFile.getName(), "Name cannot be null");
+        Assert.notNull(javaFile.getPath(), "Path cannot be null");
         Assert.notNull(javaFile.getOriginalClass(), "Original class cannot be null");
 
-        var file = new File(basePath + "/" + javaFile.getFullName());
-        file.getParentFile().mkdirs();
-        file.createNewFile();
-        try (var fileWriter = new FileWriter(file)) {
-            fileWriter.write(javaFile.getOriginalClass());
-        } catch (Exception e) {
-           log.error("Erro to Read File", e);
+        var safePath = resolveInsideBasePath(basePath, javaFile.getPath(), javaFile.getName());
+        Files.createDirectories(safePath.getParent());
+        Files.writeString(safePath, javaFile.getOriginalClass(), StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    private Path resolveInsideBasePath(Path basePath, String relativePath, String fileName) {
+        var normalizedRelativePath = relativePath.replace("\\", "/");
+        var normalizedName = fileName.replace("\\", "/");
+        var candidate = basePath.resolve(normalizedRelativePath).resolve(normalizedName).normalize();
+        if (!candidate.startsWith(basePath)) {
+            throw new IllegalArgumentException("Invalid file path");
         }
+        return candidate;
     }
 }
