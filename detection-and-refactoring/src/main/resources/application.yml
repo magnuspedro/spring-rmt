@@ -28,6 +28,8 @@ queue:
   detect-pattern: detect-pattern
   measure-pattern: measure-pattern
 
+refactoring:
+  parallelism: ${REFACTORING_PARALLELISM:4}
+
 server:
   port: 8081
-

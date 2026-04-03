@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class AbstractSyntaxTree implements ExtractionMethod {
-    private static final JavaParser javaParser = JavaParserSingleton.getInstance();
-
     @Override
     public List<Object> parseAll(List<JavaFile> files) {
         return Optional.ofNullable(files)
@@ -64,7 +62,7 @@ public class AbstractSyntaxTree implements ExtractionMethod {
     }
 
     private static CompilationUnit parseFile(Object file) {
-        var parsed = javaParser.parse(file.toString());
+        var parsed = JavaParserSingleton.getInstance().parse(file.toString());
         if (parsed.getResult().isEmpty()) {
             log.error("Error parsing Java File: {}", parsed.getProblems());
             throw new IllegalArgumentException("Error parsing Java File ");

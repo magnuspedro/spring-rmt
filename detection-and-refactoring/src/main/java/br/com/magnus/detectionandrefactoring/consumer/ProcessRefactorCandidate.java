@@ -1,6 +1,7 @@
 package br.com.magnus.detectionandrefactoring.consumer;
 
 import br.com.magnus.config.starter.file.extractor.FileExtractor;
+import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.projects.ProjectStatus;
 import br.com.magnus.detectionandrefactoring.gateway.SendProject;
@@ -31,7 +32,10 @@ public class ProcessRefactorCandidate {
         log.info("[AUDIT] detection event=start projectId={} timestamp={}", id, java.time.Instant.now());
         var project = retrieveProject(id);
         try {
-            detectionMethodsManager.forEach(method -> method.refactor(project));
+            project.addAllRefactorFiles(detectionMethodsManager.stream()
+                    .map(method -> method.refactor(project))
+                    .flatMap(List::stream)
+                    .toList());
             projectUpdater.saveProject(project);
             send(project);
             log.info("[AUDIT] detection event=complete projectId={} timestamp={} durationMs={}",

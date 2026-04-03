@@ -16,7 +16,6 @@ public class JavaFile implements Cloneable {
     private final String name;
     private final String path;
     private final String originalClass;
-    private final JavaParser javaParser = JavaParserSingleton.getInstance();
 
     @Setter
     private Object parsed;
@@ -44,7 +43,10 @@ public class JavaFile implements Cloneable {
         try {
             var clone = (JavaFile) super.clone();
             if (clone.getParsed() instanceof CompilationUnit) {
-                clone.setParsed(javaParser.parse(clone.getParsed().toString()).getResult().orElseThrow(() -> new IllegalArgumentException("Error parsing JavaFile")));
+                clone.setParsed(JavaParserSingleton.getInstance()
+                        .parse(clone.getParsed().toString())
+                        .getResult()
+                        .orElseThrow(() -> new IllegalArgumentException("Error parsing JavaFile")));
             }
             return clone;
         } catch (CloneNotSupportedException e) {

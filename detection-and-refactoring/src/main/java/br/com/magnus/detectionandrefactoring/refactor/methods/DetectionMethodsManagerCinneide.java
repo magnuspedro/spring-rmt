@@ -4,6 +4,7 @@ import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.projects.Project;
+import br.com.magnus.detectionandrefactoring.configuration.RefactoringProperties;
 import br.com.magnus.detectionandrefactoring.refactor.methods.cinneide.CinneideEtAl2000;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,41 +20,42 @@ import java.util.stream.Collectors;
 public class DetectionMethodsManagerCinneide implements DetectionMethodsManager {
 
     private final CinneideEtAl2000 cinneideEtAl2000;
+    private final RefactoringProperties refactoringProperties;
 
     @Override
-    public void refactor(Project project) {
+    public List<RefactorFiles> refactor(Project project) {
         final var candidates = cinneideEtAl2000.extractCandidates(project.getOriginalContent());
 
         if (hasNoCandidates(candidates)) {
             log.info("No candidates found for Cinneide");
-            return;
+            return List.of();
         }
 
-        final var toRefactorList = new ArrayList<RefactorFiles>();
-        for (var candidate : candidates) {
-            try {
-                final var files = project.getOriginalContent().stream()
-                        .map(JavaFile::clone)
-                        .collect(Collectors.toCollection(ArrayList::new));
-                final var refactorFiles = RefactorFiles.builder()
-                        .files(files)
-                        .candidates(List.of(candidate))
-                        .build();
-                cinneideEtAl2000.refactor(refactorFiles);
-                if (!refactorFiles.filesChanged().isEmpty()) {
-                    toRefactorList.add(refactorFiles);
-                }
-            } catch (RuntimeException ex) {
-                log.warn("Skipping invalid Cinneide candidate {} due to transformation error: {}", candidate.getClassName(), ex.getMessage());
-            }
-        }
+        final var toRefactorList = executeInParallel(candidates, refactoringProperties.parallelism(), candidate -> {
+                    try {
+                        final var files = project.getOriginalContent().stream()
+                                .map(JavaFile::clone)
+                                .collect(Collectors.toCollection(ArrayList::new));
+                        final var refactorFiles = RefactorFiles.builder()
+                                .files(files)
+                                .candidates(List.of(candidate))
+                                .build();
+                        cinneideEtAl2000.refactor(refactorFiles);
+                        return refactorFiles.filesChanged().isEmpty() ? null : refactorFiles;
+                    } catch (RuntimeException ex) {
+                        log.warn("Skipping invalid Cinneide candidate {} due to transformation error: {}", candidate.getClassName(), ex.getMessage());
+                        return null;
+                    }
+                }).stream()
+                .filter(java.util.Objects::nonNull)
+                .toList();
 
         if (toRefactorList.isEmpty()) {
             log.info("No candidates successfully refactored for Cinneide");
-            return;
+            return List.of();
         }
         log.info("Candidates for Cinneide {}", candidates.stream().map(RefactoringCandidate::getClassName).toList());
-        project.addAllRefactorFiles(toRefactorList);
         log.info("Candidates Refactored with success");
+        return toRefactorList;
     }
 }

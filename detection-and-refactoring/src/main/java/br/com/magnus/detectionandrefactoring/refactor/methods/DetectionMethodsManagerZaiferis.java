@@ -4,6 +4,7 @@ import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.projects.Project;
+import br.com.magnus.detectionandrefactoring.configuration.RefactoringProperties;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.ZafeirisEtAl2016;
 import br.com.magnus.detectionandrefactoring.refactor.methods.zaiferisVE.ZafeirisEtAl2016Candidate;
 import lombok.RequiredArgsConstructor;
@@ -22,35 +23,36 @@ import java.util.stream.Collectors;
 public class DetectionMethodsManagerZaiferis implements DetectionMethodsManager {
 
     private final ZafeirisEtAl2016 zafeirisEtAl2016;
+    private final RefactoringProperties refactoringProperties;
 
     @Override
-    public void refactor(Project project) {
+    public List<RefactorFiles> refactor(Project project) {
         var candidates = zafeirisEtAl2016.extractCandidates(project.getOriginalContent());
 
         if (hasNoCandidates(candidates)) {
             log.info("No candidates found for zafeiris");
-            return;
+            return List.of();
         }
         var candidatesGroup = groupCandidates(candidates);
         log.info("Candidates for zafeiris {}", candidatesGroup.keySet());
 
         var refactoredFiles = this.refactor(project.getOriginalContent(), candidatesGroup);
-        project.addAllRefactorFiles(refactoredFiles);
         log.info("Candidates Refactored with success");
+        return refactoredFiles;
     }
 
     private List<RefactorFiles> refactor(List<JavaFile> javaFiles, HashMap<String, List<RefactoringCandidate>> candidates) {
-        final var toRefactorList = new ArrayList<RefactorFiles>();
-        for (var parent : candidates.keySet()) {
-            var files = javaFiles.stream().map(JavaFile::clone).collect(Collectors.toCollection(ArrayList::new));
-            var refactorFiles = RefactorFiles.builder()
-                    .files(files)
-                    .candidates(candidates.get(parent))
-                    .build();
-            toRefactorList.add(refactorFiles);
-            zafeirisEtAl2016.refactor(refactorFiles);
-        }
-        return toRefactorList;
+        return executeInParallel(new ArrayList<>(candidates.entrySet()), refactoringProperties.parallelism(), entry -> {
+                    var files = javaFiles.stream().map(JavaFile::clone).collect(Collectors.toCollection(ArrayList::new));
+                    var refactorFiles = RefactorFiles.builder()
+                            .files(files)
+                            .candidates(entry.getValue())
+                            .build();
+                    zafeirisEtAl2016.refactor(refactorFiles);
+                    return refactorFiles;
+                })
+                .stream()
+                .toList();
     }
 
     private HashMap<String, List<RefactoringCandidate>> groupCandidates(List<RefactoringCandidate> refactoringCandidates) {

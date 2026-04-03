@@ -1,6 +1,7 @@
 package br.com.magnus.detectionandrefactoring.consumer.consumer;
 
 import br.com.magnus.config.starter.file.extractor.FileExtractor;
+import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.magnus.config.starter.projects.BaseProject;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.projects.ProjectStatus;
@@ -26,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.ArgumentMatchers.assertArg;
 
 @ExtendWith(MockitoExtension.class)
 class ProcessRefactorCandidateTest {
@@ -70,6 +72,8 @@ class ProcessRefactorCandidateTest {
                 .build();
         project.addStatus(ProjectStatus.NO_CANDIDATES);
         when(projectsRepository.findById(anyString())).thenReturn(Optional.of(project.getBaseProject()));
+        when(fileExtractor.extract(project.getBaseProject())).thenReturn(List.of());
+        when(detectionMethodsManager.refactor(any())).thenReturn(List.of());
 
         assertDoesNotThrow(() -> processRefactorCandidate.process("id"));
 
@@ -88,11 +92,15 @@ class ProcessRefactorCandidateTest {
                 .build();
         project.addStatus(ProjectStatus.REFACTORED);
         when(projectsRepository.findById(anyString())).thenReturn(Optional.of(project.getBaseProject()));
+        when(fileExtractor.extract(project.getBaseProject())).thenReturn(List.of());
+        var refactorFiles = RefactorFiles.builder().build();
+        when(detectionMethodsManager.refactor(any())).thenReturn(List.of(refactorFiles));
 
         assertDoesNotThrow(() -> processRefactorCandidate.process("id"));
 
         verify(detectionMethodsManager, atLeastOnce()).refactor(any());
-        verify(projectUpdater, atLeastOnce()).saveProject(any());
+        verify(projectUpdater, atLeastOnce()).saveProject(assertArg(savedProject ->
+                assertTrue(savedProject.getRefactorFiles().contains(refactorFiles))));
         verify(sendProject, atLeastOnce()).send(anyString());
     }
 

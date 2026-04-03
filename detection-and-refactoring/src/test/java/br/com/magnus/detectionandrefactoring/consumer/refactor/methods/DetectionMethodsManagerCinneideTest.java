@@ -1,8 +1,10 @@
 package br.com.magnus.detectionandrefactoring.consumer.refactor.methods;
 
 import br.com.magnus.config.starter.file.JavaFile;
+import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.projects.Project;
+import br.com.magnus.detectionandrefactoring.configuration.RefactoringProperties;
 import br.com.magnus.detectionandrefactoring.refactor.methods.DetectionMethodsManagerCinneide;
 import br.com.magnus.detectionandrefactoring.refactor.methods.cinneide.CinneideEtAl2000;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,31 +34,40 @@ class DetectionMethodsManagerCinneideTest {
     private RefactoringCandidate refactoringCandidate;
 
     private DetectionMethodsManagerCinneide detectionMethodsManager;
+    private final RefactoringProperties refactoringProperties = new RefactoringProperties(2);
 
     @BeforeEach
     void setUp() {
-        detectionMethodsManager = new DetectionMethodsManagerCinneide(cinneideEtAl2000);
+        detectionMethodsManager = new DetectionMethodsManagerCinneide(cinneideEtAl2000, refactoringProperties);
     }
 
     @Test
     void refactorWithNoCandidates() {
         when(cinneideEtAl2000.extractCandidates(any())).thenReturn(List.of());
 
-        detectionMethodsManager.refactor(project);
+        var result = detectionMethodsManager.refactor(project);
 
         verify(cinneideEtAl2000).extractCandidates(any());
         verify(cinneideEtAl2000, never()).refactor(any());
-        verify(project, never()).addAllRefactorFiles(any());
+        assertEquals(List.of(), result);
     }
 
     @Test
     void refactorWithCandidates() {
         when(cinneideEtAl2000.extractCandidates(any())).thenReturn(List.of(refactoringCandidate));
         when(project.getOriginalContent()).thenReturn(List.of(javaFile));
+        when(refactoringCandidate.getClassName()).thenReturn("ClassName");
+        doAnswer(invocation -> {
+            var refactorFiles = invocation.<RefactorFiles>getArgument(0);
+            refactorFiles.addFileChanged("ClassName.java");
+            return null;
+        }).when(cinneideEtAl2000).refactor(any());
 
-        detectionMethodsManager.refactor(project);
+        var result = detectionMethodsManager.refactor(project);
 
         verify(cinneideEtAl2000).extractCandidates(any());
         verify(cinneideEtAl2000, atLeastOnce()).refactor(any());
+        assertEquals(1, result.size());
+        assertEquals(refactoringCandidate, result.getFirst().candidate());
     }
 }
