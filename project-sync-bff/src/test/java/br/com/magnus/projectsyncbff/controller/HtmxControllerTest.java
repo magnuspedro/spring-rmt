@@ -89,6 +89,7 @@ class HtmxControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Files in this refactoring")))
                 .andExpect(content().string(containsString("Reference")))
+                .andExpect(content().string(containsString("Strategy candidate")))
                 .andExpect(content().string(containsString("MovieTicket.java")));
     }
 

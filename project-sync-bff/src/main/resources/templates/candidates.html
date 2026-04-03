@@ -24,13 +24,19 @@
             <article th:each="candidate : ${project.selection.candidates}" class="candidate-card"
                      th:classappend="${candidate.selected} ? ' candidate-card-selected' : ''">
                 <div class="candidate-card-top">
+                    <div class="candidate-check">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               th:checked="${candidate.selected}"
+                               disabled>
+                    </div>
                     <div class="candidate-headline">
                         <div class="candidate-badges">
-                            <span class="badge text-bg-light" th:text="${candidate.designPattern}">STRATEGY</span>
+                            <span class="badge text-bg-light" th:text="${candidate.displayPatternName}">Strategy</span>
                             <span th:if="${candidate.selected}" class="badge text-bg-success">Selected</span>
                             <span th:if="${!candidate.selected}" class="badge text-bg-success">Ready</span>
                         </div>
-                        <h3 th:text="${candidate.designPattern} + ' candidate'">Strategy candidate</h3>
+                        <h3 th:text="${candidate.displayPatternName + ' candidate'}">Strategy candidate</h3>
                     </div>
                 </div>
 

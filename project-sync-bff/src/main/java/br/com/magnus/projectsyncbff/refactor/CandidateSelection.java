@@ -7,7 +7,10 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -23,6 +26,12 @@ public class CandidateSelection {
 
     public DesignPattern getDesignPattern() {
         return candidate.getDesignPattern();
+    }
+
+    public String getDisplayPatternName() {
+        return Arrays.stream(candidate.getDesignPattern().name().toLowerCase(Locale.ROOT).split("_"))
+                .map(part -> part.isEmpty() ? part : Character.toUpperCase(part.charAt(0)) + part.substring(1))
+                .collect(Collectors.joining(" "));
     }
 
     public Reference getReference() {
