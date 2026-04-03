@@ -31,6 +31,11 @@
                             <span th:if="${!candidate.selected}" class="badge text-bg-success">Ready</span>
                         </div>
                         <h3 th:text="${candidate.displayPatternName}">Strategy</h3>
+                        <button type="button"
+                                class="btn btn-outline-primary btn-sm candidate-select-all"
+                                onclick="const article=this.closest('article'); const checkboxes=[...article.querySelectorAll('input[name=&quot;requestedFileKey&quot;]:not(:disabled)')]; const trigger=checkboxes.find(checkbox=>!checkbox.checked) || checkboxes[0]; checkboxes.forEach(checkbox=>checkbox.checked=true); if (trigger) { trigger.dispatchEvent(new Event('change', { bubbles: true })); }">
+                            Select all files
+                        </button>
                     </div>
                     <div class="candidate-reference-box compact">
                         <p class="section-label compact">Reference</p>

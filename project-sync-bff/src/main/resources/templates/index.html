@@ -30,7 +30,6 @@
             </div>
             <div class="status-row">
                 <div class="spinner-border spinner-border-sm htmx-indicator" id="upload-indicator" role="status"></div>
-                <span>HTMX keeps this flow server-rendered while refreshing only the active workspace.</span>
             </div>
         </form>
     </section>
@@ -53,7 +52,18 @@
     </div>
 </main>
 <script>
+    function shouldIgnorePollingError(event) {
+        const target = event.detail.target;
+        if (!target || target.id !== 'workspace') {
+            return false;
+        }
+        return target.classList.contains('processing-panel');
+    }
+
     document.addEventListener('htmx:responseError', event => {
+        if (shouldIgnorePollingError(event)) {
+            return;
+        }
         const toastEl = document.getElementById('toast');
         let message = 'The request failed.';
         try {

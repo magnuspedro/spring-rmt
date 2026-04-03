@@ -40,6 +40,10 @@ body {
     padding: 1.5rem;
 }
 
+.hero-panel {
+    padding-bottom: 0.45rem;
+}
+
 .eyebrow {
     margin-bottom: 0.5rem;
     color: var(--accent);
@@ -73,7 +77,8 @@ body {
 }
 
 .upload-panel {
-    margin-top: 1.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
 }
 
 .upload-row {
@@ -84,10 +89,11 @@ body {
 }
 
 .status-row {
-    margin-top: 0.75rem;
+    margin-top: 0.15rem;
     display: flex;
     gap: 0.75rem;
     align-items: center;
+    min-height: 0.35rem;
 }
 
 .btn-primary {
@@ -158,6 +164,12 @@ body {
 
 .candidate-headline {
     min-width: 0;
+}
+
+.candidate-select-all {
+    margin-top: 0.45rem;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.78rem;
 }
 
 .metric-row {

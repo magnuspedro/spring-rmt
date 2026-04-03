@@ -58,7 +58,9 @@ class HtmxControllerTest {
     void shouldRenderIndexPage() {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Analyze candidates")));
+                .andExpect(content().string(containsString("Analyze candidates")))
+                .andExpect(content().string(containsString("shouldIgnorePollingError")))
+                .andExpect(content().string(containsString("target.classList.contains('processing-panel')")));
     }
 
     @Test
@@ -94,6 +96,7 @@ class HtmxControllerTest {
                 .andExpect(content().string(containsString("Reference")))
                 .andExpect(content().string(containsString("Linked files")))
                 .andExpect(content().string(containsString("Refactoring set")))
+                .andExpect(content().string(containsString("Select all files")))
                 .andExpect(content().string(containsString("Strategy")))
                 .andExpect(content().string(not(containsString("Strategy candidate"))))
                 .andExpect(content().string(containsString("MovieTicket.java")));
