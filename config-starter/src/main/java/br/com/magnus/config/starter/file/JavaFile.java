@@ -27,6 +27,10 @@ public class JavaFile implements Cloneable {
         return null;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     public String getFileNameWithoutExtension() {
         return this.name.substring(0, this.name.lastIndexOf('.'));
     }
