@@ -93,6 +93,7 @@ class HtmxControllerTest {
                 .andExpect(content().string(containsString("Files available in this refactoring")))
                 .andExpect(content().string(containsString("Reference")))
                 .andExpect(content().string(containsString("Linked files")))
+                .andExpect(content().string(containsString("Refactoring set")))
                 .andExpect(content().string(containsString("Strategy")))
                 .andExpect(content().string(not(containsString("Strategy candidate"))))
                 .andExpect(content().string(containsString("MovieTicket.java")));
@@ -109,6 +110,8 @@ class HtmxControllerTest {
                         .param("requestedFileKey", fileKey))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Auto-selected")))
+                .andExpect(content().string(containsString("checked=\"checked\"")))
+                .andExpect(content().string(containsString(">1.00<")))
                 .andExpect(content().string(containsString("Download refactored project")));
     }
 
@@ -135,6 +138,9 @@ class HtmxControllerTest {
                                                 .key("candidate-a::src/main/java/example/MovieTicket.java")
                                                 .file("src/main/java/example/MovieTicket.java")
                                                 .dependencyFiles(List.of("src/main/java/example/PaymentStrategy.java"))
+                                                .selectionGroupKeys(List.of(
+                                                        "candidate-a::src/main/java/example/MovieTicket.java",
+                                                        "candidate-a::src/main/java/example/PaymentStrategy.java"))
                                                 .blockingReasons(List.of())
                                                 .metrics(metrics())
                                                 .requested(selected)
@@ -146,6 +152,9 @@ class HtmxControllerTest {
                                                 .key("candidate-a::src/main/java/example/PaymentStrategy.java")
                                                 .file("src/main/java/example/PaymentStrategy.java")
                                                 .dependencyFiles(List.of())
+                                                .selectionGroupKeys(List.of(
+                                                        "candidate-a::src/main/java/example/MovieTicket.java",
+                                                        "candidate-a::src/main/java/example/PaymentStrategy.java"))
                                                 .blockingReasons(List.of())
                                                 .metrics(metrics())
                                                 .requested(false)

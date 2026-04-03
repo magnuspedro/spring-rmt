@@ -58,6 +58,7 @@ public class ProjectSelectionPlanner {
                                         .key(key)
                                         .file(file)
                                         .dependencyFiles(analysis.relatedFilesByKey().getOrDefault(key, List.of()))
+                                        .selectionGroupKeys(analysis.selectionGroupKeysByFileKey().getOrDefault(key, List.of(key)))
                                         .blockingReasons(List.of())
                                         .metrics(candidate.getFileMetrics(file))
                                         .requested(requested.contains(key))
@@ -130,13 +131,18 @@ public class ProjectSelectionPlanner {
 
         var relatedFilesByKey = new LinkedHashMap<String, List<String>>();
         var groupByFileKey = new LinkedHashMap<String, Set<String>>();
+        var selectionGroupKeysByFileKey = new LinkedHashMap<String, List<String>>();
 
         candidates.forEach(candidate -> {
             var candidateFiles = filesChanged(candidate);
             var candidateAnalysis = ChangedFilesAnalyzer.analyze(sourceFiles, candidateFiles);
             candidateFiles.forEach(file -> {
                 var key = fileKey(candidate.getId(), file);
+                var groupKeys = candidateAnalysis.groupedFiles(file).stream()
+                        .map(groupedFile -> fileKey(candidate.getId(), groupedFile))
+                        .toList();
                 relatedFilesByKey.put(key, candidateAnalysis.relatedFiles(file));
+                selectionGroupKeysByFileKey.put(key, groupKeys);
                 groupByFileKey.put(key, candidateAnalysis.groupedFiles(file).stream()
                         .filter(groupedFile -> !groupedFile.equals(file))
                         .map(groupedFile -> fileKey(candidate.getId(), groupedFile))
@@ -144,18 +150,20 @@ public class ProjectSelectionPlanner {
             });
         });
 
-        return new SelectionAnalysis(relatedFilesByKey, groupByFileKey);
+        return new SelectionAnalysis(relatedFilesByKey, groupByFileKey, selectionGroupKeysByFileKey);
     }
 
     private SelectionAnalysis emptyAnalysis(List<CandidateInformation> candidates) {
         var relatedFilesByKey = new LinkedHashMap<String, List<String>>();
         var groupByFileKey = new LinkedHashMap<String, Set<String>>();
+        var selectionGroupKeysByFileKey = new LinkedHashMap<String, List<String>>();
         candidates.forEach(candidate -> filesChanged(candidate).forEach(file -> {
             var key = fileKey(candidate.getId(), file);
             relatedFilesByKey.put(key, List.of());
             groupByFileKey.put(key, new LinkedHashSet<>());
+            selectionGroupKeysByFileKey.put(key, List.of(key));
         }));
-        return new SelectionAnalysis(relatedFilesByKey, groupByFileKey);
+        return new SelectionAnalysis(relatedFilesByKey, groupByFileKey, selectionGroupKeysByFileKey);
     }
 
     private static LinkedHashSet<String> expand(Set<String> requested, Map<String, Set<String>> groupedFilesByKey) {
@@ -185,7 +193,8 @@ public class ProjectSelectionPlanner {
     }
 
     private record SelectionAnalysis(Map<String, List<String>> relatedFilesByKey,
-                                     Map<String, Set<String>> groupByFileKey) {
+                                     Map<String, Set<String>> groupByFileKey,
+                                     Map<String, List<String>> selectionGroupKeysByFileKey) {
     }
 
     private record FileKey(String candidateId, String file) {

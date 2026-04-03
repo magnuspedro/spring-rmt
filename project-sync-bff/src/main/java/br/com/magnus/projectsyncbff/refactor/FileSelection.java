@@ -7,6 +7,7 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -14,6 +15,7 @@ public class FileSelection {
     private final String key;
     private final String file;
     private final List<String> dependencyFiles;
+    private final List<String> selectionGroupKeys;
     private final List<String> blockingReasons;
     private final List<QualityAttributeResult> metrics;
     private final boolean requested;
@@ -33,5 +35,13 @@ public class FileSelection {
 
     public boolean hasMetrics() {
         return metrics != null && !metrics.isEmpty();
+    }
+
+    public String getSelectionGroupId() {
+        return Optional.ofNullable(selectionGroupKeys)
+                .orElseGet(List::of)
+                .stream()
+                .sorted()
+                .collect(Collectors.joining("|"));
     }
 }

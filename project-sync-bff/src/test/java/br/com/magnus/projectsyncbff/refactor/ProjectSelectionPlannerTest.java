@@ -209,6 +209,51 @@ class ProjectSelectionPlannerTest {
                 .isEqualByComparingTo("10");
     }
 
+    @Test
+    void shouldAggregateSelectedMetricsByUniqueLinkedGroup() {
+        var candidate = candidate("candidate-a",
+                "src/main/java/example/Checkout.java",
+                "src/main/java/example/PaymentStrategy.java",
+                "src/main/java/example/Independent.java");
+        candidate.setFileMetrics(Map.of(
+                "src/main/java/example/Checkout.java", FileMetrics.builder()
+                        .metrics(List.of(new BasicQualityAttributeResult("MAINTAINABILITY", new java.math.BigDecimal("10"))))
+                        .build(),
+                "src/main/java/example/PaymentStrategy.java", FileMetrics.builder()
+                        .metrics(List.of(new BasicQualityAttributeResult("MAINTAINABILITY", new java.math.BigDecimal("10"))))
+                        .build(),
+                "src/main/java/example/Independent.java", FileMetrics.builder()
+                        .metrics(List.of(new BasicQualityAttributeResult("MAINTAINABILITY", new java.math.BigDecimal("4"))))
+                        .build()));
+        var project = baseProject(List.of(candidate));
+        when(fileExtractor.extract(project)).thenReturn(List.of(
+                javaFile("src/main/java/example/Checkout.java", """
+                        package example;
+
+                        public class Checkout {
+                            private PaymentStrategy paymentStrategy;
+                        }
+                        """),
+                javaFile("src/main/java/example/PaymentStrategy.java", """
+                        package example;
+
+                        public interface PaymentStrategy {
+                        }
+                        """),
+                javaFile("src/main/java/example/Independent.java", """
+                        package example;
+
+                        public class Independent {
+                        }
+                        """)));
+
+        var selection = planner.plan(project, List.of(
+                ProjectSelectionPlanner.fileKey("candidate-a", "src/main/java/example/Checkout.java"),
+                ProjectSelectionPlanner.fileKey("candidate-a", "src/main/java/example/Independent.java")));
+
+        assertThat(selection.getAggregateMetricValue("MAINTAINABILITY")).isEqualByComparingTo("7.00");
+    }
+
     private BaseProject baseProject(List<CandidateInformation> candidates) {
         return BaseProject.builder()
                 .id("project-1")

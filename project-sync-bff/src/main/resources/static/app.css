@@ -140,6 +140,7 @@ body {
     display: flex;
     gap: 0.5rem;
     align-items: flex-start;
+    justify-content: space-between;
 }
 
 .candidate-badges {
@@ -153,6 +154,10 @@ body {
     display: grid;
     gap: 0.65rem;
     margin-top: 0.65rem;
+}
+
+.candidate-headline {
+    min-width: 0;
 }
 
 .metric-row {
@@ -287,6 +292,20 @@ body {
     border-top: 1px solid var(--panel-border);
 }
 
+.candidate-reference-box.compact {
+    flex: 0 0 auto;
+    max-width: 280px;
+    padding-top: 0;
+    border-top: 0;
+    text-align: right;
+}
+
+.candidate-reference.compact {
+    margin: 0;
+    font-size: 0.74rem;
+    line-height: 1.35;
+}
+
 .reason-list.danger {
     color: #ff9087;
 }
@@ -395,5 +414,10 @@ body {
 
     .candidate-card-top {
         flex-direction: column;
+    }
+
+    .candidate-reference-box.compact {
+        max-width: none;
+        text-align: left;
     }
 }
