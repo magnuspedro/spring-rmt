@@ -4,6 +4,7 @@ import br.com.magnus.config.starter.projects.BaseProject;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.config.starter.projects.ProjectStatus;
 import br.com.magnus.projectsyncbff.refactor.RefactorProject;
+import br.com.magnus.projectsyncbff.validation.UploadValidator;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -17,11 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Slf4j
 @Controller
@@ -29,6 +30,7 @@ import java.util.UUID;
 public class HtmxController {
 
     private final RefactorProject refactorProject;
+    private final UploadValidator uploadValidator;
 
     @GetMapping(path = "/")
     public String index() {
@@ -38,9 +40,9 @@ public class HtmxController {
     @SneakyThrows
     @PostMapping(path = "/upload")
     public String registration(Map<String, Object> model, @NotNull @RequestParam("file") MultipartFile file) throws IOException {
+        uploadValidator.validate(file);
         var hash = MessageDigest.getInstance("SHA-256").digest(file.getBytes());
-        // var id = new BigInteger(1, hash).toString(16);
-        var id = UUID.randomUUID().toString();
+        var id = new BigInteger(1, hash).toString(16);
         log.info("Receiving project original name: {},id: {}, size: {}", file.getOriginalFilename(), id, file.getSize());
 
         var project = Project.builder()

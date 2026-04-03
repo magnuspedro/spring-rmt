@@ -1,6 +1,7 @@
 package br.com.magnus.projectsyncbff.controller;
 
 import br.com.magnus.projectsyncbff.refactor.SelectionValidationException;
+import br.com.magnus.projectsyncbff.validation.UploadValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -18,6 +19,15 @@ public class ErrorHandler {
         return Map.of(
                 "message", exception.getMessage(),
                 "missingCandidateIds", exception.getMissingCandidateIds()
+        );
+    }
+
+    @ExceptionHandler(UploadValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, Object> handleUploadValidationException(UploadValidationException exception) {
+        return Map.of(
+                "message", exception.getMessage(),
+                "errors", exception.getErrors()
         );
     }
 

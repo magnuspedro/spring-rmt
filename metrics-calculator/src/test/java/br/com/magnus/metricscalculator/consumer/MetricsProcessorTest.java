@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -123,6 +124,39 @@ class MetricsProcessorTest {
                 .containsExactlyElementsOf(metrics("3"));
         verify(processor).extract(Path.of("/tmp/original"), Path.of("/tmp/candidate"));
         verify(projectRepository).save(project);
+    }
+
+    @Test
+    @DisplayName("Should clean up temporary directories after processing")
+    void shouldCleanUpTemporaryDirectoriesAfterProcessing() throws Exception {
+        var candidate = CandidateInformation.builder()
+                .id("candidate-a")
+                .filesChanged(new LinkedHashSet<>(List.of("src/main/java/example/Checkout.java")))
+                .build();
+        var project = BaseProject.builder()
+                .id("id")
+                .bucket("bucket")
+                .candidatesInformation(List.of(candidate))
+                .build();
+        var files = List.of(javaFile("src/main/java/example/Checkout.java", "class Checkout {}"));
+        var originalPath = Files.createTempDirectory("metrics-original-");
+        var candidatePath = Files.createTempDirectory("metrics-candidate-");
+        var groupOriginalPath = Files.createTempDirectory("metrics-group-original-");
+        var groupCandidatePath = Files.createTempDirectory("metrics-group-candidate-");
+
+        when(projectRepository.findById("id")).thenReturn(Optional.of(project));
+        when(extractProjects.loadProjectFiles("id", "bucket")).thenReturn(files);
+        when(extractProjects.loadProjectFiles("candidate-a", "bucket")).thenReturn(files);
+        when(extractProjects.extractProject(ArgumentMatchers.<List<JavaFile>>any()))
+                .thenReturn(originalPath, candidatePath, groupOriginalPath, groupCandidatePath);
+        when(processor.extract(any(), any())).thenReturn(metrics("1"), metrics("2"));
+
+        metricsProcessor.process("id");
+
+        assertThat(originalPath).doesNotExist();
+        assertThat(candidatePath).doesNotExist();
+        assertThat(groupOriginalPath).doesNotExist();
+        assertThat(groupCandidatePath).doesNotExist();
     }
 
     private List<QualityAttributeResult> metrics(String value) {

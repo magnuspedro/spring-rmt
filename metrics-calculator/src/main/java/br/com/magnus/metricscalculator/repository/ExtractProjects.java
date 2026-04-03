@@ -11,8 +11,12 @@ import org.springframework.util.Assert;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.StandardOpenOption;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -39,7 +43,7 @@ public class ExtractProjects {
     public Path extractProject(List<JavaFile> files) {
         Assert.notNull(files, "Files cannot be null");
 
-        var basePath = Files.createTempDirectory("project-").toAbsolutePath().normalize();
+        var basePath = createTempDirectory().toAbsolutePath().normalize();
         files.forEach(file -> createTempFile(basePath, file));
 
         return basePath;
@@ -53,7 +57,7 @@ public class ExtractProjects {
         Assert.notNull(javaFile.getOriginalClass(), "Original class cannot be null");
 
         var safePath = resolveInsideBasePath(basePath, javaFile.getPath(), javaFile.getName().toString());
-        Files.createDirectories(safePath.getParent());
+        createDirectories(safePath.getParent());
         Files.writeString(safePath, javaFile.getOriginalClass(), StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
@@ -65,5 +69,31 @@ public class ExtractProjects {
             throw new IllegalArgumentException("Invalid file path");
         }
         return candidate;
+    }
+
+    @SneakyThrows
+    private Path createTempDirectory() {
+        try {
+            return Files.createTempDirectory("project-", PosixFilePermissions.asFileAttribute(ownerOnlyPermissions()));
+        } catch (UnsupportedOperationException exception) {
+            return Files.createTempDirectory("project-");
+        }
+    }
+
+    @SneakyThrows
+    private void createDirectories(Path path) {
+        try {
+            Files.createDirectories(path, PosixFilePermissions.asFileAttribute(ownerOnlyPermissions()));
+        } catch (UnsupportedOperationException exception) {
+            Files.createDirectories(path);
+        }
+    }
+
+    private Set<PosixFilePermission> ownerOnlyPermissions() {
+        return EnumSet.of(
+                PosixFilePermission.OWNER_READ,
+                PosixFilePermission.OWNER_WRITE,
+                PosixFilePermission.OWNER_EXECUTE
+        );
     }
 }

@@ -27,12 +27,20 @@ public class ProcessRefactorCandidate {
 
     public void process(String id) {
         Assert.notNull(id, "Id cannot be null");
-        log.info("Message received id: {}", id);
+        var startedAt = System.currentTimeMillis();
+        log.info("[AUDIT] detection event=start projectId={} timestamp={}", id, java.time.Instant.now());
         var project = retrieveProject(id);
-
-        detectionMethodsManager.forEach(method -> method.refactor(project));
-        projectUpdater.saveProject(project);
-        send(project);
+        try {
+            detectionMethodsManager.forEach(method -> method.refactor(project));
+            projectUpdater.saveProject(project);
+            send(project);
+            log.info("[AUDIT] detection event=complete projectId={} timestamp={} durationMs={}",
+                    id, java.time.Instant.now(), System.currentTimeMillis() - startedAt);
+        } catch (RuntimeException exception) {
+            log.warn("[AUDIT] detection event=fail projectId={} timestamp={} durationMs={}",
+                    id, java.time.Instant.now(), System.currentTimeMillis() - startedAt, exception);
+            throw exception;
+        }
     }
 
     private void send(Project project) {

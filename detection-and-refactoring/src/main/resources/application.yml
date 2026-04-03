@@ -19,7 +19,7 @@ spring:
 
 s3:
   project-bucket: projects
-  refactored-project-bucket: refactored-projects
+  downloader-bucket: refactored-projects
 
 rqueue:
   enabled: true
@@ -30,5 +30,4 @@ queue:
 
 server:
   port: 8081
-
 

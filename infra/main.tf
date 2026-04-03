@@ -14,12 +14,42 @@ provider "aws" {
 
 }
 
-resource "aws_s3_bucket" "refactored-projects_bucket" {
+resource "aws_s3_bucket" "refactored_projects_bucket" {
   bucket = "refactored-projects"
 }
 
 resource "aws_s3_bucket" "projects_bucket" {
   bucket = "projects"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "projects_bucket_lifecycle" {
+  bucket = aws_s3_bucket.projects_bucket.id
+
+  rule {
+    id     = "projects-expire-after-one-day"
+    status = "Enabled"
+
+    expiration {
+      days = 1
+    }
+
+    filter {}
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "refactored_projects_bucket_lifecycle" {
+  bucket = aws_s3_bucket.refactored_projects_bucket.id
+
+  rule {
+    id     = "refactored-projects-expire-after-one-day"
+    status = "Enabled"
+
+    expiration {
+      days = 1
+    }
+
+    filter {}
+  }
 }
 
 # resource "aws_elasticache_cluster" "projects_redis" {

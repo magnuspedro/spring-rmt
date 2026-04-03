@@ -19,7 +19,7 @@ spring:
 
 s3:
   project-bucket: projects
-  refactored-projects-bucket: refactored-projects
+  downloader-bucket: refactored-projects
 
 rqueue:
   enabled: true

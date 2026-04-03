@@ -12,6 +12,7 @@ import br.com.magnus.projectsyncbff.refactor.FileSelection;
 import br.com.magnus.projectsyncbff.refactor.ProjectResults;
 import br.com.magnus.projectsyncbff.refactor.ProjectSelection;
 import br.com.magnus.projectsyncbff.refactor.RefactorProject;
+import br.com.magnus.projectsyncbff.validation.UploadValidator;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,15 +21,21 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockPart;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -45,6 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith({MockitoExtension.class})
 @WebMvcTest(HtmxController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class HtmxControllerTest {
 
     @Autowired
@@ -52,6 +60,8 @@ class HtmxControllerTest {
 
     @MockitoBean
     private RefactorProject refactorProject;
+    @MockitoBean
+    private UploadValidator uploadValidator;
 
     @Test
     @SneakyThrows
@@ -66,11 +76,12 @@ class HtmxControllerTest {
     @Test
     @SneakyThrows
     void shouldTest200() {
-        var content = "Hello, World!".getBytes();
-        var filename = "hello.txt";
+        var content = zipFile("src/main/java/example/Hello.java", "class Hello {}");
+        var filename = "hello.zip";
+        var expectedId = new BigInteger(1, MessageDigest.getInstance("SHA-256").digest(content)).toString(16);
 
         var part = new MockPart("file", filename, content);
-        part.getHeaders().setContentType(MediaType.TEXT_PLAIN);
+        part.getHeaders().setContentType(MediaType.parseMediaType("application/zip"));
 
         mockMvc.perform(multipart("/upload")
                 .part(part)
@@ -80,8 +91,9 @@ class HtmxControllerTest {
                 Assertions.assertAll("Verify project construction",
                         () -> assertThat(it.getSize(), is((long) content.length)),
                         () -> assertThat(it.getName(), is(filename)),
-                        () -> assertThat(it.getContentType(), is(MediaType.TEXT_PLAIN_VALUE)),
-                        () -> assertThat(it.getZipContent(), is(content)))
+                        () -> assertThat(it.getContentType(), is("application/zip")),
+                        () -> assertThat(it.getZipContent(), is(content)),
+                        () -> assertThat(it.getId(), is(expectedId)))
         ));
     }
 
@@ -203,5 +215,16 @@ class HtmxControllerTest {
                         new BasicQualityAttributeResult("REUSABILITY", BigDecimal.ONE),
                         new BasicQualityAttributeResult("RELIABILITY", BigDecimal.ONE)))
                 .build();
+    }
+
+    @SneakyThrows
+    private byte[] zipFile(String name, String content) {
+        var outputStream = new ByteArrayOutputStream();
+        try (var zipOutputStream = new ZipOutputStream(outputStream)) {
+            zipOutputStream.putNextEntry(new ZipEntry(name));
+            zipOutputStream.write(content.getBytes());
+            zipOutputStream.closeEntry();
+        }
+        return outputStream.toByteArray();
     }
 }
