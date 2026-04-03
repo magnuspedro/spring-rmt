@@ -22,13 +22,13 @@
               class="candidate-column"
               th:attr="hx-post=${selectionUrl},hx-target='#workspace',hx-swap='outerHTML',hx-trigger='change from:input[type=checkbox]'">
             <article th:each="candidate : ${project.selection.candidates}" class="candidate-card"
-                     th:classappend="${candidate.blocked} ? ' candidate-card-blocked' : (${candidate.selected} ? ' candidate-card-selected' : '')">
+                     th:classappend="${candidate.selected} ? ' candidate-card-selected' : ''">
                 <div class="candidate-card-top">
                     <div class="candidate-headline">
                         <div class="candidate-badges">
                             <span class="badge text-bg-light" th:text="${candidate.designPattern}">STRATEGY</span>
-                            <span th:if="${candidate.blocked}" class="badge text-bg-danger">Unavailable</span>
-                            <span th:if="${!candidate.blocked}" class="badge text-bg-success">Ready</span>
+                            <span th:if="${candidate.selected}" class="badge text-bg-success">Selected</span>
+                            <span th:if="${!candidate.selected}" class="badge text-bg-success">Ready</span>
                         </div>
                         <h3 th:text="${candidate.designPattern} + ' candidate'">Strategy candidate</h3>
                     </div>
@@ -108,8 +108,8 @@
                         <strong th:text="${project.selection.selectableFileCount}">0</strong>
                     </div>
                     <div>
-                        <span>Unavailable files</span>
-                        <strong th:text="${project.selection.blockedCount}">0</strong>
+                        <span>Auto-included files</span>
+                        <strong th:text="${#lists.size(project.selection.selectedFileKeys) - #lists.size(project.selection.requestedFileKeys)}">0</strong>
                     </div>
                 </div>
 

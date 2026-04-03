@@ -62,7 +62,10 @@ class ZafeirisTemplateMethodIntegrationTest extends BaseIntegrationTest {
                 br.com.magnus.config.starter.projects.ProjectStatus.REFACTORED);
 
         assertThat(updatedProject.getCandidatesInformation()).isNotEmpty();
-        var candidateInfo = updatedProject.getCandidatesInformation().iterator().next();
+        var candidateInfo = updatedProject.getCandidatesInformation().stream()
+                .filter(candidate -> candidate.getDesignPattern() == DesignPattern.TEMPLATE_METHOD)
+                .findFirst()
+                .orElseThrow();
         assertThat(candidateInfo.getId()).isNotBlank();
         assertThat(candidateInfo.getDesignPattern()).isEqualTo(DesignPattern.TEMPLATE_METHOD);
         assertThat(candidateInfo.getFilesChanged())

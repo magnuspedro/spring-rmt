@@ -64,7 +64,10 @@ class WeiFactoryMethodIntegrationTest extends BaseIntegrationTest {
                 br.com.magnus.config.starter.projects.ProjectStatus.REFACTORED);
 
         assertThat(updatedProject.getCandidatesInformation()).isNotEmpty();
-        var candidateInfo = updatedProject.getCandidatesInformation().iterator().next();
+        var candidateInfo = updatedProject.getCandidatesInformation().stream()
+                .filter(candidate -> candidate.getDesignPattern() == DesignPattern.FACTORY_METHOD)
+                .findFirst()
+                .orElseThrow();
         assertThat(candidateInfo.getId()).isNotBlank();
         assertThat(candidateInfo.getDesignPattern()).isEqualTo(DesignPattern.FACTORY_METHOD);
         assertThat(candidateInfo.getFilesChanged())

@@ -54,7 +54,6 @@ public class ProjectSelectionPlanner {
                 .orElseGet(List::of)
                 .stream()
                 .filter(validKeys::contains)
-                .filter(key -> !analysis.blockingReasonsByKey().containsKey(key))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         var selected = expand(requested, analysis.internalDependenciesByKey());
 
@@ -67,11 +66,11 @@ public class ProjectSelectionPlanner {
                                         .key(key)
                                         .file(file)
                                         .dependencyFiles(analysis.dependencyFilesByKey().getOrDefault(key, List.of()))
-                                        .blockingReasons(analysis.blockingReasonsByKey().getOrDefault(key, List.of()))
+                                        .blockingReasons(List.of())
                                         .requested(requested.contains(key))
                                         .selected(selected.contains(key))
                                         .locked(selected.contains(key) && !requested.contains(key))
-                                        .blocked(analysis.blockingReasonsByKey().containsKey(key))
+                                        .blocked(false)
                                         .build();
                             })
                             .toList();
@@ -88,8 +87,8 @@ public class ProjectSelectionPlanner {
                 .candidates(candidateSelections)
                 .requestedFileKeys(List.copyOf(requested))
                 .selectedFileKeys(List.copyOf(selected))
-                .selectableFileCount((int) validKeys.stream().filter(key -> !analysis.blockingReasonsByKey().containsKey(key)).count())
-                .blockedCount(analysis.blockingReasonsByKey().size())
+                .selectableFileCount(validKeys.size())
+                .blockedCount(0)
                 .downloadable(!selected.isEmpty())
                 .build();
     }
@@ -106,14 +105,6 @@ public class ProjectSelectionPlanner {
 
         if (selected.isEmpty()) {
             throw new SelectionValidationException("Select at least one file before downloading the refactored project.", List.of());
-        }
-
-        var blockedSelections = selected.stream()
-                .filter(analysis.blockingReasonsByKey()::containsKey)
-                .toList();
-        if (!blockedSelections.isEmpty()) {
-            throw new SelectionValidationException("One or more selected files are not allowed because they depend on files outside the refactoring scope.",
-                    blockedSelections);
         }
 
         var closure = expand(selected, analysis.internalDependenciesByKey());
@@ -145,7 +136,6 @@ public class ProjectSelectionPlanner {
         var fileToCandidate = new LinkedHashMap<String, String>();
         var dependencyFilesByKey = new LinkedHashMap<String, List<String>>();
         var internalDependenciesByKey = new LinkedHashMap<String, Set<String>>();
-        var blockingReasonsByKey = new LinkedHashMap<String, List<String>>();
 
         candidates.forEach(candidate -> {
             var candidateFiles = filesChanged(candidate);
@@ -167,19 +157,10 @@ public class ProjectSelectionPlanner {
                         .filter(candidateFiles::contains)
                         .map(dependencyFile -> fileKey(candidate.getId(), dependencyFile))
                         .collect(Collectors.toCollection(LinkedHashSet::new)));
-
-                var externalDependencies = dependencies.stream()
-                        .filter(dependencyFile -> !candidateFiles.contains(dependencyFile))
-                        .toList();
-                if (!externalDependencies.isEmpty()) {
-                    blockingReasonsByKey.put(key, externalDependencies.stream()
-                            .map(dependencyFile -> "Depends on " + dependencyFile + ", but that file is not affected by this refactoring.")
-                            .toList());
-                }
             });
         });
 
-        return new SelectionAnalysis(fileToCandidate, dependencyFilesByKey, internalDependenciesByKey, blockingReasonsByKey);
+        return new SelectionAnalysis(fileToCandidate, dependencyFilesByKey, internalDependenciesByKey);
     }
 
     private List<SourceFile> buildSourceFiles(BaseProject project) {
@@ -309,8 +290,7 @@ public class ProjectSelectionPlanner {
 
     private record SelectionAnalysis(Map<String, String> fileToCandidate,
                                      Map<String, List<String>> dependencyFilesByKey,
-                                     Map<String, Set<String>> internalDependenciesByKey,
-                                     Map<String, List<String>> blockingReasonsByKey) {
+                                     Map<String, Set<String>> internalDependenciesByKey) {
     }
 
     private record FileKey(String candidateId, String file) {

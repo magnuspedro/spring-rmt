@@ -97,7 +97,7 @@ class ProjectSelectionPlannerTest {
     }
 
     @Test
-    void shouldBlockFileWhenDependencyIsOutsideCandidateScope() {
+    void shouldAllowFileWhenDependencyIsOutsideCandidateScope() {
         var candidate = candidate("candidate-a", "src/main/java/example/Checkout.java");
         var project = baseProject(List.of(candidate));
         when(fileExtractor.extract(project)).thenReturn(List.of(
@@ -118,9 +118,11 @@ class ProjectSelectionPlannerTest {
 
         var selection = planner.plan(project, List.of(ProjectSelectionPlanner.fileKey("candidate-a", "src/main/java/example/Checkout.java")));
 
-        assertThat(selection.isDownloadable()).isFalse();
-        assertThat(selection.getBlockedCount()).isEqualTo(1);
-        assertThat(selection.getCandidates().getFirst().getFiles().getFirst().isBlocked()).isTrue();
+        assertThat(selection.isDownloadable()).isTrue();
+        assertThat(selection.getBlockedCount()).isZero();
+        assertThat(selection.getSelectedFileKeys())
+                .containsExactly(ProjectSelectionPlanner.fileKey("candidate-a", "src/main/java/example/Checkout.java"));
+        assertThat(selection.getCandidates().getFirst().getFiles().getFirst().isBlocked()).isFalse();
     }
 
     @Test
