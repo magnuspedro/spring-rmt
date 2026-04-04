@@ -154,7 +154,7 @@ Terraform (`infra/main.tf`) provisions the S3 buckets and SQS queues in LocalSta
 2. **Commit frequently as work progresses** — don't batch unrelated changes
 3. **Use Conventional Commits format**:
    ```
-   <type>(<scope>): <subject>
+   <type>: <subject>
 
    <body explaining what and why>
    ```
