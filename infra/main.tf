@@ -1,19 +1,3 @@
-provider "aws" {
-
-  access_key                  = "mock_access_key"
-  secret_key                  = "mock_secret_key"
-  region                      = "sa-east-1"
-  s3_use_path_style           = true
-  skip_credentials_validation = true
-  skip_metadata_api_check     = true
-  skip_requesting_account_id  = true
-
-  endpoints {
-    s3 = "http://localstack:4566"
-  }
-
-}
-
 resource "aws_s3_bucket" "refactored_projects_bucket" {
   bucket = "refactored-projects"
 }
@@ -22,35 +6,37 @@ resource "aws_s3_bucket" "projects_bucket" {
   bucket = "projects"
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "projects_bucket_lifecycle" {
-  bucket = aws_s3_bucket.projects_bucket.id
-
-  rule {
-    id     = "projects-expire-after-one-day"
-    status = "Enabled"
-
-    expiration {
-      days = 1
-    }
-
-    filter {}
-  }
-}
-
-resource "aws_s3_bucket_lifecycle_configuration" "refactored_projects_bucket_lifecycle" {
-  bucket = aws_s3_bucket.refactored_projects_bucket.id
-
-  rule {
-    id     = "refactored-projects-expire-after-one-day"
-    status = "Enabled"
-
-    expiration {
-      days = 1
-    }
-
-    filter {}
-  }
-}
+# Lifecycle configurations disabled for LocalStack compatibility
+# Uncomment for production deployment
+# resource "aws_s3_bucket_lifecycle_configuration" "projects_bucket_lifecycle" {
+#   bucket = aws_s3_bucket.projects_bucket.id
+#
+#   rule {
+#     id     = "projects-expire-after-one-day"
+#     status = "Enabled"
+#
+#     expiration {
+#       days = 1
+#     }
+#
+#     filter {}
+#   }
+# }
+#
+# resource "aws_s3_bucket_lifecycle_configuration" "refactored_projects_bucket_lifecycle" {
+#   bucket = aws_s3_bucket.refactored_projects_bucket.id
+#
+#   rule {
+#     id     = "refactored-projects-expire-after-one-day"
+#     status = "Enabled"
+#
+#     expiration {
+#       days = 1
+#     }
+#
+#     filter {}
+#   }
+# }
 
 # resource "aws_elasticache_cluster" "projects_redis" {
 #   cluster_id           = "projectsredis"

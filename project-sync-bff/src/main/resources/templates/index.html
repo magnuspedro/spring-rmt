@@ -29,7 +29,6 @@
                 <button class="btn btn-primary btn-lg" type="submit">Analyze candidates</button>
             </div>
             <div class="status-row">
-                <div class="spinner-border spinner-border-sm htmx-indicator" id="upload-indicator" role="status"></div>
             </div>
         </form>
     </section>
@@ -68,11 +67,15 @@
         let message = 'The request failed.';
         try {
             const response = JSON.parse(event.detail.xhr.response);
-            message = response.message || message;
+            if (response.errors && response.errors.length > 0) {
+                message = response.errors.join('\n');
+            } else {
+                message = response.message || message;
+            }
         } catch (error) {
             message = event.detail.xhr.responseText || message;
         }
-        toastEl.querySelector('.toast-body').textContent = message;
+        toastEl.querySelector('.toast-body').innerText = message;
         const toast = bootstrap.Toast.getOrCreateInstance(toastEl, {delay: 4000});
         toast.show();
     });

@@ -29,10 +29,12 @@ public final class CandidateInformation {
     @Setter
     private List<QualityAttributeResult> metrics;
     @Setter
-    @Builder.Default
     private Map<String, FileMetrics> fileMetrics = new LinkedHashMap<>();
 
     public BigDecimal getMetricValue(String metric) {
+        if (this.metrics == null) {
+            throw new IllegalStateException("Metrics not set for candidate: " + this.id);
+        }
         return this.metrics.stream()
                 .filter(m -> m.qualityAttributeName().equals(metric))
                 .map(QualityAttributeResult::changePercentage)
@@ -41,7 +43,14 @@ public final class CandidateInformation {
     }
 
     public List<QualityAttributeResult> getFileMetrics(String file) {
-        return this.fileMetrics.getOrDefault(file, FileMetrics.builder().build()).getMetrics().stream()
+        if (this.fileMetrics == null) {
+            return List.of();
+        }
+        var metrics = this.fileMetrics.getOrDefault(file, FileMetrics.builder().build());
+        if (metrics == null || metrics.getMetrics() == null) {
+            return List.of();
+        }
+        return metrics.getMetrics().stream()
                 .map(metric -> (QualityAttributeResult) metric)
                 .toList();
     }

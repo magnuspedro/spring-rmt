@@ -93,7 +93,12 @@ body {
     display: flex;
     gap: 0.75rem;
     align-items: center;
-    min-height: 0.35rem;
+    min-height: 2rem;
+}
+
+.status-row .spinner-border {
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 .btn-primary {
@@ -113,9 +118,42 @@ body {
 
 .processing-panel {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 300px;
     gap: 1rem;
+}
+
+.processing-copy {
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.processing-copy h2 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.processing-copy p {
+    margin: 0;
+}
+
+.processing-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.processing-title .spinner-border {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-width: 0.2em;
 }
 
 .results-grid {
@@ -418,8 +456,7 @@ body {
 
     .upload-row,
     .metric-row,
-    .summary-metrics,
-    .processing-panel {
+    .summary-metrics {
         grid-template-columns: 1fr;
         display: grid;
     }

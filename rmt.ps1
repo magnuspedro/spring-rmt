@@ -27,6 +27,27 @@ function Assert-DockerCompose {
     }
 }
 
+function Wait-LocalStack {
+    Assert-Command "curl"
+    $container = if ($env:LOCALSTACK_DOCKER_NAME) { $env:LOCALSTACK_DOCKER_NAME } else { "localstack_cloud" }
+    Write-Host "==> Waiting for LocalStack to be healthy..."
+
+    $maxAttempts = 60
+    $attempt = 0
+
+    while ($attempt -lt $maxAttempts) {
+        $healthStatus = docker inspect $container --format='{{.State.Health.Status}}' 2>$null
+        if ($healthStatus -eq "healthy") {
+            Write-Host "==> LocalStack is healthy"
+            return
+        }
+        $attempt++
+        Start-Sleep -Seconds 1
+    }
+
+    throw "LocalStack did not become healthy in time"
+}
+
 function Show-Usage {
     Write-Host @"
 Usage: .\rmt.ps1 [command]
@@ -65,6 +86,8 @@ function Invoke-Infra {
     Write-Host "==> Starting infrastructure..."
     docker compose -f "$ScriptDir\infra\local\docker-compose.yml" up -d
 
+    Wait-LocalStack
+
     Write-Host "==> Provisioning AWS resources..."
     tflocal -chdir="$ScriptDir\infra" apply -auto-approve
 }
@@ -74,6 +97,8 @@ function Invoke-InfraFull {
     Assert-Command "tflocal"
     Write-Host "==> Starting full environment..."
     docker compose -f "$ScriptDir\infra\local\docker-compose-full.yml" up -d
+
+    Wait-LocalStack
 
     Write-Host "==> Provisioning AWS resources..."
     tflocal -chdir="$ScriptDir\infra" apply -auto-approve

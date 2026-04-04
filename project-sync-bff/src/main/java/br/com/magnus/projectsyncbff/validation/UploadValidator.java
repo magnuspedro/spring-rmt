@@ -82,22 +82,21 @@ public class UploadValidator {
             return;
         }
 
-        if (properties.getAllowedExtensions().stream().noneMatch(zipEntry.getName()::endsWith)) {
-            errors.add("Zip entry is not an allowed source file: " + zipEntry.getName());
-            return;
-        }
-
         var content = readEntry(zipEntry, zipInputStream);
         if (content == null) {
             errors.add("Zip entry exceeds the maximum allowed size: " + zipEntry.getName());
             return;
         }
 
-        var source = content.toString(StandardCharsets.UTF_8);
-        properties.getSuspiciousPatterns().stream()
-                .filter(source::contains)
-                .findFirst()
-                .ifPresent(pattern -> errors.add("Zip entry contains a suspicious pattern (" + pattern + "): " + zipEntry.getName()));
+        // Only check for suspicious patterns in text-based files
+        var fileName = zipEntry.getName().toLowerCase();
+        if (properties.getTextBasedExtensions().stream().anyMatch(fileName::endsWith)) {
+            var source = content.toString(StandardCharsets.UTF_8);
+            properties.getSuspiciousPatterns().stream()
+                    .filter(source::contains)
+                    .findFirst()
+                    .ifPresent(pattern -> errors.add("Zip entry contains a suspicious pattern (" + pattern + "): " + zipEntry.getName()));
+        }
     }
 
     private ByteArrayOutputStream readEntry(ZipEntry zipEntry, ZipInputStream zipInputStream) throws IOException {

@@ -2,11 +2,13 @@
          class="workspace-panel processing-panel"
          th:attr="hx-get=${url},hx-trigger='load delay:800ms, every 2s',hx-swap='outerHTML'">
     <div class="processing-copy">
-        <span class="badge text-bg-warning-subtle status-badge" th:text="${status}">EVALUATING_CANDIDATES</span>
-        <h2>Building the candidate list</h2>
+        <div class="processing-header">
+            <span class="badge text-bg-warning-subtle status-badge" th:text="${status}">EVALUATING_CANDIDATES</span>
+        </div>
+        <div class="processing-title">
+            <h2>Building the candidate list</h2>
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
         <p>Parsing the uploaded project and waiting for the refactoring pipeline to finish.</p>
-    </div>
-    <div class="processing-spinner">
-        <div class="spinner-border text-primary" role="status"></div>
     </div>
 </section>

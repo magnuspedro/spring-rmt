@@ -14,6 +14,7 @@ public class UploadValidationProperties {
     private long maxEntrySize = 10 * 1024 * 1024;
     private List<String> allowedExtensions = List.of(".java");
     private List<String> allowedContentTypes = List.of("application/zip", "application/x-zip-compressed", "application/octet-stream");
+    private List<String> textBasedExtensions;
     private List<String> suspiciousPatterns = List.of(
             "Runtime.getRuntime().exec",
             "ProcessBuilder",
