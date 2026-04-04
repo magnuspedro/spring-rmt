@@ -49,7 +49,7 @@ public class DetectionMethodsManagerZaiferis implements DetectionMethodsManager 
         return DetectionMethodsManager.executeInParallel(
                         new ArrayList<>(candidates.entrySet()),
                         zafeirisRefactoringExecutor,
-                        refactoringProperties.getZafeirisParallelism(),
+                        refactoringProperties.getParallelism("zafeiris"),
                         entry -> {
                     var files = javaFiles.stream().map(JavaFile::clone).collect(Collectors.toCollection(ArrayList::new));
                     var refactorFiles = RefactorFiles.builder()

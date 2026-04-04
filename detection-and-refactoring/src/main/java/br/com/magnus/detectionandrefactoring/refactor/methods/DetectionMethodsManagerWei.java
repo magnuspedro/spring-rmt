@@ -45,7 +45,7 @@ public class DetectionMethodsManagerWei implements DetectionMethodsManager {
         return DetectionMethodsManager.executeInParallel(
                         candidates,
                         weiRefactoringExecutor,
-                        refactoringProperties.getWeiParallelism(),
+                        refactoringProperties.getParallelism("wei"),
                         candidate -> {
                     var files = javaFiles.stream().map(JavaFile::clone).collect(Collectors.toCollection(ArrayList::new));
                     var refactorFiles = RefactorFiles.builder()

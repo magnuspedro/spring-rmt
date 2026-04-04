@@ -37,32 +37,4 @@ public class RefactoringProperties {
     public int getParallelism(String executorName) {
         return executors.getOrDefault(executorName, defaultParallelism);
     }
-
-    /**
-     * Legacy compatibility - detection methods manager has lower default parallelism.
-     */
-    public int getDetectionMethodsManagerParallelism() {
-        return getParallelism("detection-methods-manager");
-    }
-
-    /**
-     * Legacy compatibility - Cinneide executor parallelism.
-     */
-    public int getCinneideParallelism() {
-        return getParallelism("cinneide");
-    }
-
-    /**
-     * Legacy compatibility - Wei executor parallelism.
-     */
-    public int getWeiParallelism() {
-        return getParallelism("wei");
-    }
-
-    /**
-     * Legacy compatibility - Zafeiris executor parallelism.
-     */
-    public int getZafeirisParallelism() {
-        return getParallelism("zafeiris");
-    }
 }

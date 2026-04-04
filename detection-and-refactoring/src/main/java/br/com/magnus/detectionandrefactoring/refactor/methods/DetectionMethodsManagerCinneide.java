@@ -38,7 +38,7 @@ public class DetectionMethodsManagerCinneide implements DetectionMethodsManager 
         final var toRefactorList = DetectionMethodsManager.executeInParallel(
                         candidates,
                         cinneideRefactoringExecutor,
-                        refactoringProperties.getCinneideParallelism(),
+                        refactoringProperties.getParallelism("cinneide"),
                         candidate -> {
                     try {
                         final var files = project.getOriginalContent().stream()

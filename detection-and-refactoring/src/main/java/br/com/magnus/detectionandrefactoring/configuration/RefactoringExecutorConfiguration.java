@@ -31,7 +31,7 @@ public class RefactoringExecutorConfiguration {
     public ExecutorService detectionMethodsManagerExecutor() {
         return createBoundedExecutor(
                 "detection-methods-manager",
-                refactoringProperties.getDetectionMethodsManagerParallelism()
+                refactoringProperties.getParallelism("detection-methods-manager")
         );
     }
 
@@ -39,7 +39,7 @@ public class RefactoringExecutorConfiguration {
     public ExecutorService cinneideRefactoringExecutor() {
         return createBoundedExecutor(
                 "cinneide-refactoring",
-                refactoringProperties.getCinneideParallelism()
+                refactoringProperties.getParallelism("cinneide")
         );
     }
 
@@ -47,7 +47,7 @@ public class RefactoringExecutorConfiguration {
     public ExecutorService weiRefactoringExecutor() {
         return createBoundedExecutor(
                 "wei-refactoring",
-                refactoringProperties.getWeiParallelism()
+                refactoringProperties.getParallelism("wei")
         );
     }
 
@@ -55,7 +55,7 @@ public class RefactoringExecutorConfiguration {
     public ExecutorService zafeirisRefactoringExecutor() {
         return createBoundedExecutor(
                 "zafeiris-refactoring",
-                refactoringProperties.getZafeirisParallelism()
+                refactoringProperties.getParallelism("zafeiris")
         );
     }
 
