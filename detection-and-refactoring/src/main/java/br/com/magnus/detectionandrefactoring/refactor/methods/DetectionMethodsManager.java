@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Semaphore;
 import java.util.function.Function;
-
 
 public interface DetectionMethodsManager {
     List<RefactorFiles> refactor(Project project);
@@ -20,33 +20,62 @@ public interface DetectionMethodsManager {
         return candidates.isEmpty();
     }
 
+    /**
+     * Executes tasks in parallel with bounded concurrency.
+     * <p>
+     * All tasks are submitted immediately, but a semaphore ensures at most {@code parallelism}
+     * tasks execute concurrently. This provides true parallelism control unlike batch-based approaches.
+     *
+     * @param items      the items to process
+     * @param executor   the executor for running tasks
+     * @param parallelism the maximum number of concurrent tasks
+     * @param task       the function to apply to each item
+     * @param <T>        the input type
+     * @param <R>        the result type
+     * @return list of results in the same order as input items
+     */
     static <T, R> List<R> executeInParallel(List<T> items, Executor executor, int parallelism, Function<T, R> task) {
         if (items.isEmpty()) {
             return List.of();
         }
 
-        var boundedParallelism = Math.max(1, parallelism);
+        var concurrencyLimit = Math.max(1, parallelism);
+        var semaphore = new Semaphore(concurrencyLimit);
 
         try {
-            var results = new ArrayList<R>(items.size());
-            for (var start = 0; start < items.size(); start += boundedParallelism) {
-                var end = Math.min(start + boundedParallelism, items.size());
-                var tasks = items.subList(start, end).stream()
-                        .map(item -> CompletableFuture.supplyAsync(
-                                () -> JavaParserSingleton.callWithScopedParser(() -> task.apply(item)),
-                                executor))
-                        .toList();
+            var futures = items.stream()
+                    .map(item -> CompletableFuture.supplyAsync(() -> {
+                        acquirePermit(semaphore);
+                        try {
+                            return JavaParserSingleton.callWithScopedParser(() -> task.apply(item));
+                        } finally {
+                            semaphore.release();
+                        }
+                    }, executor))
+                    .toList();
 
-                results.addAll(tasks.stream()
-                        .map(CompletableFuture::join)
-                        .toList());
-            }
-            return new ArrayList<>(results);
-        } catch (CompletionException exception) {
-            if (exception.getCause() instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            throw new IllegalStateException("Parallel refactoring failed", exception.getCause());
+            return futures.stream()
+                    .map(CompletableFuture::join)
+                    .toList();
+        } catch (CompletionException e) {
+            throw unwrapCompletionException(e);
         }
+    }
+
+    private static void acquirePermit(Semaphore semaphore) {
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while waiting for execution permit", e);
+        }
+    }
+
+    private static RuntimeException unwrapCompletionException(CompletionException e) {
+        var cause = e.getCause();
+        if (cause instanceof RuntimeException runtimeException) {
+            return runtimeException;
+        }
+        return new IllegalStateException("Parallel execution failed", cause);
     }
 }
