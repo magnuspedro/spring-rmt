@@ -24,7 +24,6 @@ public class RefactoringExecutorConfiguration {
 
     private final RefactoringProperties refactoringProperties;
 
-    private static final int QUEUE_CAPACITY = 100;
     private static final long SHUTDOWN_TIMEOUT_SECONDS = 30;
 
     @Bean(destroyMethod = "shutdownExecutor")
@@ -65,8 +64,8 @@ public class RefactoringExecutorConfiguration {
      * The executor will:
      * <ul>
      *   <li>Use exactly {@code poolSize} threads</li>
-     *   <li>Queue up to {@code QUEUE_CAPACITY} tasks when all threads are busy</li>
-     *   <li>Reject tasks (throws RejectedExecutionException) when queue is full</li>
+     *   <li>Queue up to {@code queueCapacity} tasks when all threads are busy</li>
+     *   <li>Run rejected tasks in the caller's thread when queue is full (backpressure)</li>
      * </ul>
      *
      * @param namePrefix prefix for thread names
@@ -74,21 +73,15 @@ public class RefactoringExecutorConfiguration {
      * @return a configured ExecutorService
      */
     private ExecutorService createBoundedExecutor(String namePrefix, int poolSize) {
-        log.info("Creating executor '{}' with pool size: {}", namePrefix, poolSize);
+        int queueCapacity = refactoringProperties.getQueueCapacity();
+        log.info("Creating executor '{}' with pool size: {}, queue capacity: {}", namePrefix, poolSize, queueCapacity);
 
         return new ThreadPoolExecutor(
                 poolSize,
                 poolSize,
                 60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(QUEUE_CAPACITY),
-                new ThreadPoolExecutor.DiscardPolicy() {
-                    @Override
-                    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-                        log.warn("Task rejected by executor '{}': queue full (capacity: {})",
-                                namePrefix, QUEUE_CAPACITY);
-                        super.rejectedExecution(r, e);
-                    }
-                }
+                new LinkedBlockingQueue<>(queueCapacity),
+                new ThreadPoolExecutor.CallerRunsPolicy()
         ) {
             @Override
             public String toString() {

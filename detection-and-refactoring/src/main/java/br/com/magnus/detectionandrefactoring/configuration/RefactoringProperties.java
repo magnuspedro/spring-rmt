@@ -32,6 +32,13 @@ public class RefactoringProperties {
     private Map<String, Integer> executors = new HashMap<>();
 
     /**
+     * Queue capacity for executor task queues.
+     * When the queue is full, tasks run in the caller's thread (backpressure).
+     */
+    @DefaultValue("100")
+    private int queueCapacity = 100;
+
+    /**
      * Get parallelism for a specific executor, or default if not configured.
      */
     public int getParallelism(String executorName) {
