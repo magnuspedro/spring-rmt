@@ -22,10 +22,21 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RefactoringExecutorConfiguration {
 
+    /**
+     * Properties for refactoring configuration.
+     */
     private final RefactoringProperties refactoringProperties;
 
+    /**
+     * Seconds to wait for executor shutdown before forcing termination.
+     */
     private static final long SHUTDOWN_TIMEOUT_SECONDS = 30;
 
+    /**
+     * Creates executor for detection methods manager operations.
+     *
+     * @return configured ExecutorService
+     */
     @Bean(destroyMethod = "shutdownExecutor")
     public ExecutorService detectionMethodsManagerExecutor() {
         return createBoundedExecutor(
@@ -34,6 +45,11 @@ public class RefactoringExecutorConfiguration {
         );
     }
 
+    /**
+     * Creates executor for Cinneide pattern refactoring.
+     *
+     * @return configured ExecutorService
+     */
     @Bean(destroyMethod = "shutdownExecutor")
     public ExecutorService cinneideRefactoringExecutor() {
         return createBoundedExecutor(
@@ -42,6 +58,11 @@ public class RefactoringExecutorConfiguration {
         );
     }
 
+    /**
+     * Creates executor for Wei pattern refactoring.
+     *
+     * @return configured ExecutorService
+     */
     @Bean(destroyMethod = "shutdownExecutor")
     public ExecutorService weiRefactoringExecutor() {
         return createBoundedExecutor(
@@ -50,6 +71,11 @@ public class RefactoringExecutorConfiguration {
         );
     }
 
+    /**
+     * Creates executor for Zafeiris pattern refactoring.
+     *
+     * @return configured ExecutorService
+     */
     @Bean(destroyMethod = "shutdownExecutor")
     public ExecutorService zafeirisRefactoringExecutor() {
         return createBoundedExecutor(
