@@ -144,6 +144,8 @@ Terraform (`infra/main.tf`) provisions the S3 buckets and SQS queues in LocalSta
 
 ## Git Conventions
 
+- Main branch: `main`. Working branch: `develop`. Features branch from `develop`.
+
 ### Commit Pattern
 
 **Follow these rules for every change:**
@@ -190,8 +192,7 @@ refactoring
 
 ### Branch Workflow
 
-1. Main branch: `main`. Working branch: `develop`.
-2. Features branch from `develop`: `git checkout -b feature/short-description`
+1. Features branch from `develop`: `git checkout -b feature/short-description`
 3. Make atomic commits as you work
 4. Push and create PR when complete
 5. PR title should follow conventional commits
