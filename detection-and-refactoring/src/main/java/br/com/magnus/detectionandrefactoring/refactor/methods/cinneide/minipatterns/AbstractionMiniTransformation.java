@@ -7,16 +7,43 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.MethodDeclaration;
 
+/**
+ * Mini transformation for extracting an interface from a concrete class.
+ * <p>
+ * Creates a new interface containing the public methods of the concrete class.
+ * If the interface already exists, adds any missing public methods.
+ * The concrete class is then modified to implement the interface.
+ */
 public class AbstractionMiniTransformation implements MiniTransformation {
 
+    /**
+     * The name of the concrete class to extract interface from.
+     */
     private final String concreteClassName;
+
+    /**
+     * The name of the interface to create.
+     */
     private final String interfaceName;
 
+    /**
+     * Creates a new abstraction mini transformation.
+     *
+     * @param concreteClassName the concrete class name
+     * @param interfaceName      the interface name to create
+     */
     public AbstractionMiniTransformation(String concreteClassName, String interfaceName) {
         this.concreteClassName = concreteClassName;
         this.interfaceName = interfaceName;
     }
 
+    /**
+     * Applies the abstraction transformation.
+     * <p>
+     * Creates or updates an interface with the public methods from the concrete class.
+     *
+     * @param context the refactoring context
+     */
     @Override
     public void apply(CinneideContext context) {
         var concreteClass = context.classDeclaration(concreteClassName);
@@ -52,6 +79,12 @@ public class AbstractionMiniTransformation implements MiniTransformation {
         context.addClass(interfaceName, path, finalInterfaceCu);
     }
 
+    /**
+     * Converts a concrete method to an abstract method signature.
+     *
+     * @param method the method to convert
+     * @return the abstract method signature
+     */
     private MethodDeclaration toAbstractSignature(MethodDeclaration method) {
         var signature = new MethodDeclaration();
         signature.setName(method.getNameAsString());

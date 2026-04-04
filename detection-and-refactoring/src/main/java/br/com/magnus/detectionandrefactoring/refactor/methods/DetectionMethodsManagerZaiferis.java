@@ -1,6 +1,5 @@
 package br.com.magnus.detectionandrefactoring.refactor.methods;
 
-import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.projects.Project;
@@ -12,20 +11,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
-
+/**
+ * Detection methods manager for Zafeiris et al. 2016 extract method refactoring.
+ * <p>
+ * Detects and refactors extract method opportunities based on super method
+ * invocations as described by Zafeiris et al.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class DetectionMethodsManagerZaiferis implements DetectionMethodsManager {
 
+    /**
+     * Executor key for Zafeiris refactoring operations.
+     */
+    private static final String ZAFEIRIS_EXECUTOR_KEY = "zafeiris";
+
     private final ZafeirisEtAl2016 zafeirisEtAl2016;
     private final RefactoringProperties refactoringProperties;
+
     @Qualifier("zafeirisRefactoringExecutor")
     private final Executor zafeirisRefactoringExecutor;
 
@@ -34,49 +43,65 @@ public class DetectionMethodsManagerZaiferis implements DetectionMethodsManager 
         var candidates = zafeirisEtAl2016.extractCandidates(project.getOriginalContent());
 
         if (hasNoCandidates(candidates)) {
-            log.info("No candidates found for zafeiris");
+            log.info("No candidates found for Zafeiris");
             return List.of();
         }
-        var candidatesGroup = groupCandidates(candidates);
-        log.info("Candidates for zafeiris {}", candidatesGroup.keySet());
 
-        var refactoredFiles = this.refactor(project.getOriginalContent(), candidatesGroup);
+        var candidatesGroup = groupCandidatesByParentType(candidates);
+        log.info("Candidates for Zafeiris {}", candidatesGroup.keySet());
+
+        var refactoredFiles = executeRefactoring(project, candidatesGroup);
         log.info("Candidates Refactored with success");
         return refactoredFiles;
     }
 
-    private List<RefactorFiles> refactor(List<JavaFile> javaFiles, HashMap<String, List<RefactoringCandidate>> candidates) {
+    /**
+     * Groups candidates by their parent type.
+     * <p>
+     * Uses Stream groupingBy for cleaner, more efficient grouping.
+     *
+     * @param candidates the candidates to group
+     * @return map of parent type to list of candidates
+     */
+    private Map<String, List<RefactoringCandidate>> groupCandidatesByParentType(List<RefactoringCandidate> candidates) {
+        return candidates.stream()
+                .filter(ZafeirisEtAl2016Candidate.class::isInstance)
+                .map(ZafeirisEtAl2016Candidate.class::cast)
+                .collect(Collectors.groupingBy(
+                        ZafeirisEtAl2016Candidate::getParentType,
+                        Collectors.toList()));
+    }
+
+    /**
+     * Executes refactoring for all candidate groups in parallel.
+     *
+     * @param project           the project to refactor
+     * @param candidatesByGroup map of parent type to candidates
+     * @return list of refactored file groups
+     */
+    private List<RefactorFiles> executeRefactoring(Project project, Map<String, List<RefactoringCandidate>> candidatesByGroup) {
         return DetectionMethodsManager.executeInParallel(
-                        new ArrayList<>(candidates.entrySet()),
+                        candidatesByGroup.entrySet().stream().toList(),
                         zafeirisRefactoringExecutor,
-                        refactoringProperties.getParallelism("zafeiris"),
-                        entry -> {
-                    var files = javaFiles.stream().map(JavaFile::clone).collect(Collectors.toCollection(ArrayList::new));
-                    var refactorFiles = RefactorFiles.builder()
-                            .files(files)
-                            .candidates(entry.getValue())
-                            .build();
-                    zafeirisEtAl2016.refactor(refactorFiles);
-                    return refactorFiles;
-                })
+                        refactoringProperties.getParallelism(ZAFEIRIS_EXECUTOR_KEY),
+                        entry -> refactorCandidateGroup(project, entry))
                 .stream()
                 .toList();
     }
 
-    private HashMap<String, List<RefactoringCandidate>> groupCandidates(List<RefactoringCandidate> refactoringCandidates) {
-        var candidatesGroup = new HashMap<String, List<RefactoringCandidate>>();
-        for (var refactoringCandidate : refactoringCandidates) {
-            if (refactoringCandidate instanceof ZafeirisEtAl2016Candidate candidate) {
-                var parentType = candidate.getParentType();
-                if (candidatesGroup.containsKey(parentType)) {
-                    var group = candidatesGroup.get(parentType);
-                    group.add(candidate);
-                } else {
-                    candidatesGroup.put(parentType, new ArrayList<>(List.of(candidate)));
-                }
-            }
-        }
-        return candidatesGroup;
+    /**
+     * Refactors a group of candidates sharing the same parent type.
+     *
+     * @param project the project to refactor
+     * @param entry   map entry containing parent type and associated candidates
+     * @return refactored files
+     */
+    private RefactorFiles refactorCandidateGroup(Project project, Map.Entry<String, List<RefactoringCandidate>> entry) {
+        var refactorFiles = RefactorFiles.builder()
+                .files(RefactoringUtils.cloneProjectFiles(project))
+                .candidates(entry.getValue())
+                .build();
+        zafeirisEtAl2016.refactor(refactorFiles);
+        return refactorFiles;
     }
-
 }

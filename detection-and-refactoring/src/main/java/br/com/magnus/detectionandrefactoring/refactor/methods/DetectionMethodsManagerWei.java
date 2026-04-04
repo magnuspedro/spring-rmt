@@ -1,6 +1,5 @@
 package br.com.magnus.detectionandrefactoring.refactor.methods;
 
-import br.com.magnus.config.starter.file.JavaFile;
 import br.com.magnus.config.starter.members.RefactorFiles;
 import br.com.magnus.config.starter.members.candidates.RefactoringCandidate;
 import br.com.magnus.config.starter.projects.Project;
@@ -11,18 +10,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
+/**
+ * Detection methods manager for Wei et al. 2014 design patterns.
+ * <p>
+ * Detects and refactors Strategy and Factory patterns as described by Wei et al.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class DetectionMethodsManagerWei implements DetectionMethodsManager {
 
+    /**
+     * Executor key for Wei refactoring operations.
+     */
+    private static final String WEI_EXECUTOR_KEY = "wei";
+
     private final WeiEtAl2014 weiEtAl2014;
     private final RefactoringProperties refactoringProperties;
+
     @Qualifier("weiRefactoringExecutor")
     private final Executor weiRefactoringExecutor;
 
@@ -35,27 +43,39 @@ public class DetectionMethodsManagerWei implements DetectionMethodsManager {
             return List.of();
         }
 
-        log.info("Candidates for Wei {}", candidates.stream().map(RefactoringCandidate::getClassName).toList());
-        var refactoredFiles = this.refactor(project.getOriginalContent(), candidates);
+        log.info("Candidates for Wei {}", RefactoringUtils.extractClassNames(candidates));
+        var refactoredFiles = executeRefactoring(project, candidates);
         log.info("Candidates Refactored with success");
         return refactoredFiles;
     }
 
-    private List<RefactorFiles> refactor(List<JavaFile> javaFiles, List<RefactoringCandidate> candidates) {
+    /**
+     * Executes refactoring for all candidates in parallel.
+     *
+     * @param project    the project to refactor
+     * @param candidates the candidates to process
+     * @return list of refactored file groups
+     */
+    private List<RefactorFiles> executeRefactoring(Project project, List<RefactoringCandidate> candidates) {
         return DetectionMethodsManager.executeInParallel(
                         candidates,
                         weiRefactoringExecutor,
-                        refactoringProperties.getParallelism("wei"),
-                        candidate -> {
-                    var files = javaFiles.stream().map(JavaFile::clone).collect(Collectors.toCollection(ArrayList::new));
-                    var refactorFiles = RefactorFiles.builder()
-                            .files(files)
-                            .candidates(List.of(candidate))
-                            .build();
-                    weiEtAl2014.refactor(refactorFiles);
-                    return refactorFiles;
-                })
+                        refactoringProperties.getParallelism(WEI_EXECUTOR_KEY),
+                        candidate -> refactorCandidate(project, candidate))
                 .stream()
                 .toList();
+    }
+
+    /**
+     * Refactors a single candidate using the Wei algorithm.
+     *
+     * @param project   the project to refactor
+     * @param candidate the candidate to refactor
+     * @return refactored files
+     */
+    private RefactorFiles refactorCandidate(Project project, RefactoringCandidate candidate) {
+        var refactorFiles = RefactoringUtils.createRefactorFiles(project, candidate);
+        weiEtAl2014.refactor(refactorFiles);
+        return refactorFiles;
     }
 }

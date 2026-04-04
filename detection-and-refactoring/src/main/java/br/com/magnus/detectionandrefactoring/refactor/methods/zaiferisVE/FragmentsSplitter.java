@@ -4,184 +4,297 @@ import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.AstHan
 import br.com.magnus.detectionandrefactoring.refactor.dataExtractions.ast.NodeConverter;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.expr.AssignExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.Type;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
+/**
+ * Splits method body into fragments based on super call position.
+ * <p>
+ * The before fragment contains statements before the super call,
+ * and the after fragment contains statements after the super call.
+ * The super call statement itself is stored as the pivot node.
+ */
 @Slf4j
-@Getter
 @NoArgsConstructor
 public class FragmentsSplitter {
 
     private final List<Node> beforeFragment = new ArrayList<>();
-
-    private Node node = null;
-
+    private Node pivotNode;
     private final List<Node> afterFragment = new ArrayList<>();
 
+    /**
+     * Splits a method into fragments based on super call position.
+     *
+     * @param method the method to split
+     * @return FragmentsSplitter with populated fragments
+     * @throws IllegalArgumentException if method has no body
+     */
     public static FragmentsSplitter splitByMethod(MethodDeclaration method) {
         var fragment = new FragmentsSplitter();
-        final BlockStmt blockStmt = AstHandler.getBlockStatement(method)
+        var blockStmt = AstHandler.getBlockStatement(method)
                 .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
 
-        var hasSuper = false;
-        for (Node child : blockStmt.getChildNodes()) {
-
+        var hasPassedSuper = false;
+        for (var child : blockStmt.getChildNodes()) {
             if (AstHandler.childHasDirectSuperCall(child)) {
-                hasSuper = true;
-                fragment.node = child;
+                hasPassedSuper = true;
+                fragment.pivotNode = child;
                 continue;
             }
-
-            fragment.addToFragment(hasSuper, child);
+            fragment.addToFragment(hasPassedSuper, child);
         }
 
-        if (fragment.node == null) {
+        if (fragment.pivotNode == null) {
             log.warn("Fragment Splitter node is null, in method splitByMethod");
         }
         return fragment;
     }
 
+    /**
+     * Splits a method into fragments based on method call position.
+     *
+     * @param method      the method to split
+     * @param methodCall the method call to use as pivot
+     * @return FragmentsSplitter with populated fragments
+     * @throws IllegalArgumentException if method has no body
+     */
     public static FragmentsSplitter splitByMethodAndMethodCall(MethodDeclaration method, MethodCallExpr methodCall) {
         var fragment = new FragmentsSplitter();
-        final BlockStmt blockStmt = AstHandler.getBlockStatement(method)
+        var blockStmt = AstHandler.getBlockStatement(method)
                 .orElseThrow(() -> new IllegalArgumentException("Method has no body"));
 
-        boolean hasMethodCall = false;
-        for (Node child : blockStmt.getChildNodes()) {
-
+        var hasPassedMethodCall = false;
+        for (var child : blockStmt.getChildNodes()) {
             if (AstHandler.doesNodeContainMatchingMethodCall(child, methodCall)) {
-                hasMethodCall = true;
-                fragment.node = child;
+                hasPassedMethodCall = true;
+                fragment.pivotNode = child;
                 continue;
             }
-
-            fragment.addToFragment(hasMethodCall, child);
+            fragment.addToFragment(hasPassedMethodCall, child);
         }
 
-        if (fragment.node == null) {
+        if (fragment.pivotNode == null) {
             log.warn("Fragment Splitter node is null");
         }
         return fragment;
     }
 
-    private void addToFragment(boolean hasSuper, Node node) {
-        if (hasSuper) {
-            this.afterFragment.add(node);
-            return;
+    /**
+     * Adds a node to the appropriate fragment based on position.
+     *
+     * @param hasPassedPivot true if pivot node has been encountered
+     * @param node           the node to add
+     */
+    private void addToFragment(boolean hasPassedPivot, Node node) {
+        if (hasPassedPivot) {
+            afterFragment.add(node);
+        } else {
+            beforeFragment.add(node);
         }
-        this.beforeFragment.add(node);
     }
 
+    /**
+     * Returns an unmodifiable view of the before fragment.
+     *
+     * @return immutable list of nodes before the pivot
+     */
+    public List<Node> getBeforeFragment() {
+        return List.copyOf(beforeFragment);
+    }
+
+    /**
+     * Returns an unmodifiable view of the after fragment.
+     *
+     * @return immutable list of nodes after the pivot
+     */
+    public List<Node> getAfterFragment() {
+        return List.copyOf(afterFragment);
+    }
+
+    /**
+     * Returns the pivot node if present.
+     *
+     * @return Optional containing the node, or empty if not set
+     */
+    public Optional<Node> getNode() {
+        return Optional.ofNullable(pivotNode);
+    }
+
+    /**
+     * Checks if a specific pivot node was found.
+     *
+     * @return true if node is present
+     */
     public boolean hasSpecificNode() {
-        return this.node != null;
+        return pivotNode != null;
     }
 
+    /**
+     * Gets variables on before fragments that are referenced in method calls.
+     *
+     * @return list of variable declarations
+     */
     public List<VariableDeclarationExpr> getVariablesOnBeforeFragmentsMethodClass() {
-        final var variables = this.getBeforeFragment()
-                .stream()
-                .flatMap(n -> AstHandler.extractVariableDclrFromNode(n).stream())
+        var variables = beforeFragment.stream()
+                .flatMap(node -> AstHandler.extractVariableDclrFromNode(node).stream())
                 .toList();
 
-        final var methodCall = AstHandler.getMethodCallExpr(node).stream().findFirst();
+        var methodCall = AstHandler.getMethodCallExpr(pivotNode).stream().findFirst();
 
         if (methodCall.isEmpty()) {
-
-            log.info("Method call not found - {}", NodeConverter.toString(node));
-
+            log.info("Method call not found - {}", NodeConverter.toString(pivotNode));
             return List.of();
         }
 
-        final var referencedVariables = new ArrayList<VariableDeclarationExpr>();
+        var referencedVariables = new ArrayList<VariableDeclarationExpr>();
         for (var variable : variables) {
             if (AstHandler.variableIsPresentInMethodCall(variable, methodCall.get())) {
                 referencedVariables.add(variable);
                 continue;
             }
-
-            if (this.afterFragmentContainsVariable(variable)) {
+            if (afterFragmentContainsVariable(variable)) {
                 referencedVariables.add(variable);
             }
         }
         return referencedVariables;
     }
 
+    /**
+     * Extracts the super return variable from the pivot node.
+     *
+     * @return Optional containing SuperReturnVar if present
+     */
     public Optional<SuperReturnVar> getSuperReturnVariable() {
-        if (this.node == null || this.node.getChildNodes() == null || this.node.getChildNodes().isEmpty()) {
-            return Optional.empty();
-        }
+        return getNode()
+                .map(Node::getChildNodes)
+                .filter(children -> !children.isEmpty())
+                .flatMap(children -> children.getFirst()
+                        .map(this::extractSuperReturnVarFromChild));
+    }
 
-        if (this.node.getChildNodes().getFirst() instanceof VariableDeclarationExpr) {
-            return Optional.of(new SuperReturnVar((VariableDeclarationExpr) this.node.getChildNodes().getFirst()));
-        } else if (this.node.getChildNodes().getFirst() instanceof AssignExpr assignment) {
-            return Optional.of(new SuperReturnVar(assignment));
+    /**
+     * Extracts super return variable from a child node using pattern matching.
+     *
+     * @param child the child node
+     * @return Optional containing SuperReturnVar if found
+     */
+    private Optional<SuperReturnVar> extractSuperReturnVarFromChild(Node child) {
+        if (child instanceof VariableDeclarationExpr varDecl) {
+            return SuperReturnVar.fromVariableDeclaration(varDecl);
+        }
+        if (child instanceof AssignExpr assign) {
+            return SuperReturnVar.fromAssignment(assign, this);
         }
         return Optional.empty();
     }
 
-    private boolean afterFragmentContainsVariable(VariableDeclarationExpr var) {
-        return this.getAfterFragment().stream().anyMatch(n -> AstHandler.nodeHasSimpleName(AstHandler.getVariableName(var), n));
+    /**
+     * Checks if the after fragment contains a reference to the variable.
+     *
+     * @param variable the variable declaration
+     * @return true if variable is referenced in after fragment
+     */
+    private boolean afterFragmentContainsVariable(VariableDeclarationExpr variable) {
+        return afterFragment.stream()
+                .anyMatch(node -> AstHandler.nodeHasSimpleName(AstHandler.getVariableName(variable), node));
     }
 
+    /**
+     * Gets the type of a variable from its name expression.
+     *
+     * @param nameExpr the name expression
+     * @return the variable type
+     */
     private Type getTypeOfVar(NameExpr nameExpr) {
-
-        final Collection<VariableDeclarationExpr> declarations = Stream.of(this.beforeFragment.stream(), Stream.of(this.node), this.afterFragment.stream())
+        var declarations = List.of(beforeFragment.stream(), Optional.ofNullable(pivotNode).stream(), afterFragment.stream())
+                .stream()
                 .flatMap(s -> s)
-                .map(AstHandler::extractVariableDclrFromNode)
-                .flatMap(Collection::stream)
+                .flatMap(node -> AstHandler.extractVariableDclrFromNode(node).stream())
                 .toList();
 
         return declarations.stream()
                 .map(VariableDeclarationExpr::getVariables)
-                .flatMap(Collection::stream)
+                .flatMap(List::stream)
                 .filter(v -> v.getNameAsString().equals(nameExpr.getNameAsString()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Variable name is not the same"))
                 .getType();
     }
 
+    /**
+     * Returns before fragment as statements.
+     *
+     * @return list of statements
+     */
     public List<Statement> getBeforeStatements() {
-        return this.beforeFragment.stream()
+        return beforeFragment.stream()
                 .filter(Statement.class::isInstance)
                 .map(Statement.class::cast)
                 .toList();
     }
 
+    /**
+     * Returns after fragment as statements.
+     *
+     * @return list of statements
+     */
     public List<Statement> getAfterStatements() {
-        return this.afterFragment.stream()
+        return afterFragment.stream()
                 .filter(Statement.class::isInstance)
                 .map(Statement.class::cast)
                 .toList();
     }
 
-    @Getter
-    public class SuperReturnVar {
+    /**
+     * Represents a variable that captures the return value of a super call.
+     *
+     * @param type the type of the return variable
+     * @param name the name of the return variable
+     */
+    public record SuperReturnVar(Type type, SimpleName name) {
 
-        private final Type type;
-
-        private final SimpleName name;
-
-        public SuperReturnVar(VariableDeclarationExpr varDclrExpr) {
-            this.type = varDclrExpr.getVariable(0).getType();
-            this.name = varDclrExpr.getVariable(0).getName();
+        /**
+         * Extracts super return variable from a variable declaration expression.
+         *
+         * @param varDeclExpr the variable declaration expression
+         * @return Optional containing SuperReturnVar if valid
+         */
+        public static Optional<SuperReturnVar> fromVariableDeclaration(VariableDeclarationExpr varDeclExpr) {
+            return Optional.of(varDeclExpr)
+                    .filter(e -> !e.getVariables().isEmpty())
+                    .map(e -> new SuperReturnVar(
+                            e.getVariable(0).getType(),
+                            e.getVariable(0).getName()));
         }
 
-        public SuperReturnVar(AssignExpr assignExpr) {
-            final NameExpr nameExpr = assignExpr.getChildNodes().stream().filter(NameExpr.class::isInstance).map(NameExpr.class::cast).findFirst().get();
-
-            this.type = getTypeOfVar(nameExpr);
-            this.name = nameExpr.getName();
+        /**
+         * Extracts super return variable from an assignment expression.
+         *
+         * @param assignExpr the assignment expression
+         * @param splitter   the fragment splitter for type resolution
+         * @return Optional containing SuperReturnVar if found
+         */
+        public static Optional<SuperReturnVar> fromAssignment(AssignExpr assignExpr, FragmentsSplitter splitter) {
+            return assignExpr.getChildNodes().stream()
+                    .filter(NameExpr.class::isInstance)
+                    .map(NameExpr.class::cast)
+                    .findFirst()
+                    .map(nameExpr -> new SuperReturnVar(
+                            splitter.getTypeOfVar(nameExpr),
+                            nameExpr.getName()));
         }
-
     }
 }
