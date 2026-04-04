@@ -221,7 +221,8 @@ gh pr create --title "refactor(scope): brief description" --body "## Summary
 - **Do what has been asked; nothing more, nothing less.**
 - **NEVER create files unless absolutely necessary**
 - **ALWAYS prefer editing existing files**
-- **NEVER proactively create documentation files** — unless asked
+- **NEVER proactively create documentation files**
+- **ALWAYS keep memory in the current working directory and `memories/` folder**
 - **ALWAYS commit frequently with atomic changes**
 
 ## Self-Improvement Loop
