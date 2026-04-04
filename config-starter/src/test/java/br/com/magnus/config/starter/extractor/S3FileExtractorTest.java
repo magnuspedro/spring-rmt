@@ -185,6 +185,19 @@ class S3FileExtractorTest {
         assertEquals("", result.getFirst().getPath());
     }
 
+    @Test
+    @DisplayName("Should reject zip entries with path traversal")
+    void shouldRejectZipEntriesWithPathTraversal() {
+        var id = "id";
+        var bucket = "bucket";
+        when(this.s3ProjectRepository.download(bucket, id))
+                .thenReturn(createZipFile("../Test.java", clazz));
+
+        var exception = assertThrows(IllegalArgumentException.class, () -> this.fileExtractor.extract(bucket, id));
+
+        assertEquals("Invalid zip entry path", exception.getMessage());
+    }
+
     @SneakyThrows
     private InputStream createZipFile(String fileName, String string) {
         var bos = new ByteArrayOutputStream();

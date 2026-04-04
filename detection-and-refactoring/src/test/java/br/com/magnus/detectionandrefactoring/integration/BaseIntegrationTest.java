@@ -26,7 +26,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
         classes = {DetectionAndRefactoringApplication.class, TestRedisConfiguration.class}
 )
 @ActiveProfiles("integration")
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public abstract class BaseIntegrationTest {
 

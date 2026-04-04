@@ -4,6 +4,7 @@ import br.com.magnus.config.starter.projects.BaseProject;
 import br.com.magnus.config.starter.projects.Project;
 import br.com.magnus.projectsyncbff.refactor.ProjectResults;
 import br.com.magnus.projectsyncbff.refactor.RefactorProject;
+import br.com.magnus.projectsyncbff.validation.UploadValidator;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +29,12 @@ import java.util.List;
 public class RestfulController implements Serializable {
 
     private final RefactorProject refactorProject;
+    private final UploadValidator uploadValidator;
 
     @SneakyThrows
     @PostMapping(path = "/upload")
     public String registration(@NotNull @RequestParam("file") MultipartFile file) throws IOException {
+        uploadValidator.validate(file);
         var hash = MessageDigest.getInstance("SHA-256").digest(file.getBytes());
         var id = new BigInteger(1, hash).toString(16);
         log.info("Receiving project from front end original name: {},id: {}, size: {}", file.getOriginalFilename(), id, file.getSize());

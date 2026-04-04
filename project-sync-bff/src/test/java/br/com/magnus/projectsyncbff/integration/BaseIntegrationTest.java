@@ -27,7 +27,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 )
 @AutoConfigureMockMvc
 @ActiveProfiles("integration")
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 public abstract class BaseIntegrationTest {
 
     @Container

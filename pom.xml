@@ -31,7 +31,7 @@
         <spring.cloud-version>2025.1.1</spring.cloud-version>
         <spring-cloud-aws-dependencies.version>4.0.0</spring-cloud-aws-dependencies.version>
         <!-- Shared libraries -->
-        <javaparser-core.version>3.26.1</javaparser-core.version>
+        <javaparser-core.version>3.28.0</javaparser-core.version>
         <rqueue-spring-boot-starter.version>4.0.0-SNAP-RELEASE</rqueue-spring-boot-starter.version>
         <ck.version>0.7.0</ck.version>
         <console-tree-builder.version>2.0</console-tree-builder.version>

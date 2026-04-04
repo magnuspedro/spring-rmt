@@ -12,4 +12,5 @@ import org.springframework.context.annotation.Configuration;
 public class BucketProperties {
     private String projectBucket;
     private String downloaderBucket;
+    private int ttlDays = 1;
 }

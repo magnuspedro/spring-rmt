@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,10 +43,9 @@ class DepthOfInheritanceTreeMetricTest {
         when(original.getDepthOfInheritanceTree()).thenReturn(0);
         when(refactored.getDepthOfInheritanceTree()).thenReturn(2);
 
-        var result = assertThrows(ArithmeticException.class,
-                () -> metricCalculator.calculate(original, refactored));
+        var result = metricCalculator.calculate(original, refactored);
 
-        assertEquals("/ by zero", result.getMessage());
+        assertEquals(100, result.get(Metric.DEPTH_OF_INHERITANCE_TREE).intValue());
     }
 
     @Test

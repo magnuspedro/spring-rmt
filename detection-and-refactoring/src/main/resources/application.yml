@@ -19,7 +19,7 @@ spring:
 
 s3:
   project-bucket: projects
-  refactored-project-bucket: refactored-projects
+  downloader-bucket: refactored-projects
 
 rqueue:
   enabled: true
@@ -28,7 +28,17 @@ queue:
   detect-pattern: detect-pattern
   measure-pattern: measure-pattern
 
+refactoring:
+  # Default parallelism for all executors (can be overridden per-executor)
+  default-parallelism: ${REFACTORING_DEFAULT_PARALLELISM:8}
+
+  # Queue capacity for executor task queues (backpressure threshold)
+  queue-capacity: ${REFACTORING_QUEUE_CAPACITY:100}
+
+  # Executor-specific overrides
+  executors:
+    detection-methods-manager: ${REFACTORING_MANAGER_PARALLELISM:3}
+    # cinneide, wei, zafeiris use default (8)
+
 server:
   port: 8081
-
-

@@ -17,6 +17,27 @@ require_docker_compose() {
   fi
 }
 
+wait_for_localstack() {
+  require_cmd curl
+  local container="${LOCALSTACK_DOCKER_NAME-localstack_cloud}"
+  echo "==> Waiting for LocalStack to be healthy..."
+
+  local max_attempts=60
+  local attempt=0
+
+  while [ $attempt -lt $max_attempts ]; do
+    if docker inspect "$container" --format='{{.State.Health.Status}}' 2>/dev/null | grep -q "healthy"; then
+      echo "==> LocalStack is healthy"
+      return 0
+    fi
+    attempt=$((attempt + 1))
+    sleep 1
+  done
+
+  echo "ERROR: LocalStack did not become healthy in time"
+  return 1
+}
+
 usage() {
   cat <<EOF
 Usage: ./rmt.sh [command]
@@ -56,6 +77,8 @@ infra() {
   echo "==> Starting infrastructure..."
   docker compose -f "$SCRIPT_DIR/infra/local/docker-compose.yml" up -d
 
+  wait_for_localstack
+
   echo "==> Provisioning AWS resources..."
   tflocal -chdir="$SCRIPT_DIR/infra" apply -auto-approve
 }
@@ -66,6 +89,8 @@ infra_full() {
   require_cmd tflocal
   echo "==> Starting full environment..."
   docker compose -f "$SCRIPT_DIR/infra/local/docker-compose-full.yml" up -d
+
+  wait_for_localstack
 
   echo "==> Provisioning AWS resources..."
   tflocal -chdir="$SCRIPT_DIR/infra" apply -auto-approve

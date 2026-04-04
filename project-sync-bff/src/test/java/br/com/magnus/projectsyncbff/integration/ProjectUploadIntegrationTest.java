@@ -5,6 +5,7 @@ import br.com.magnus.config.starter.projects.CandidateInformation;
 import br.com.magnus.config.starter.projects.ProjectStatus;
 import br.com.magnus.config.starter.patterns.DesignPattern;
 import br.com.magnus.config.starter.members.detectors.methods.Reference;
+import br.com.magnus.projectsyncbff.refactor.ProjectSelectionPlanner;
 import br.com.magnus.projectsyncbff.repository.ProjectRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,6 +104,7 @@ class ProjectUploadIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("finished-project.zip"))
                 .andExpect(jsonPath("$.status").value("FINISHED"))
+                .andExpect(jsonPath("$.selection.downloadable").value(false))
                 .andExpect(jsonPath("$.candidatesInformation[0].id").value("candidate-1"))
                 .andExpect(jsonPath("$.candidatesInformation[0].designPattern").value("STRATEGY"));
     }
@@ -140,7 +142,7 @@ class ProjectUploadIntegrationTest extends BaseIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 ["%s"]
-                                """.formatted(candidateId)))
+                                """.formatted(ProjectSelectionPlanner.fileKey(candidateId, "src/main/java/example/MovieTicket.java"))))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -156,6 +158,56 @@ class ProjectUploadIntegrationTest extends BaseIntegrationTest {
             assertThat(zipContents.get("src/main/java/example/MovieTicket.java")).contains("return 2");
             assertThat(zipContents.get("src/main/java/example/Other.java")).contains("class Other");
         }
+
+        s3Client.close();
+    }
+
+    @Test
+    void shouldRejectDownloadWhenDependentFileIsMissing() throws Exception {
+        var projectId = UUID.randomUUID().toString();
+        var strategyCandidateId = UUID.randomUUID().toString();
+        var originalZip = ZipHelper.createZip(Map.of(
+                "src/main/java/example/PaymentStrategy.java", """
+                        package example;
+
+                        public interface PaymentStrategy {
+                        }
+                        """,
+                "src/main/java/example/Checkout.java", """
+                        package example;
+
+                        public class Checkout {
+                            private PaymentStrategy paymentStrategy;
+                        }
+                        """
+        ));
+
+        var s3Client = createS3Client();
+        s3Client.putObject(req -> req.bucket("projects").key(projectId), RequestBody.fromBytes(originalZip));
+
+        projectRepository.save(BaseProject.builder()
+                .id(projectId)
+                .name("project.zip")
+                .bucket("projects")
+                .status(new LinkedHashSet<>(List.of(ProjectStatus.FINISHED)))
+                .candidatesInformation(List.of(CandidateInformation.builder()
+                        .id(strategyCandidateId)
+                        .designPattern(DesignPattern.STRATEGY)
+                        .reference(Reference.builder().title("Wei et al.").year(2014).authors(List.of("Wei")).build())
+                        .filesChanged(new LinkedHashSet<>(List.of(
+                                "src/main/java/example/PaymentStrategy.java",
+                                "src/main/java/example/Checkout.java")))
+                        .build()))
+                .build());
+
+        mockMvc.perform(post("/rmt/api/v1/project/{id}/download", projectId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                ["%s"]
+                                """.formatted(ProjectSelectionPlanner.fileKey(strategyCandidateId, "src/main/java/example/Checkout.java"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Some dependent files are missing from the selection."))
+                .andExpect(jsonPath("$.missingCandidateIds[0]").value(ProjectSelectionPlanner.fileKey(strategyCandidateId, "src/main/java/example/PaymentStrategy.java")));
 
         s3Client.close();
     }

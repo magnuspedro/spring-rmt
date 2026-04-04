@@ -24,12 +24,33 @@ spring:
 s3:
   project-bucket: projects
   downloader-bucket: refactored-projects
+  ttl-days: 1
+  lifecycle:
+    auto-configure: true
 
 rqueue:
   enabled: true
 
 queue:
   detect-pattern: detect-pattern
+
+upload:
+  validation:
+    max-zip-entries: 500
+    max-entry-size: 524288000
+    allowed-extensions: [".java"]
+    allowed-content-types: ["application/zip", "application/x-zip-compressed", "application/octet-stream"]
+    text-based-extensions: [".java", ".xml", ".properties", ".yml", ".yaml", ".json", ".txt"]
+    suspicious-patterns:
+      - "Runtime.getRuntime().exec"
+      - "ProcessBuilder"
+      - "System.exit"
+      - "ScriptEngine"
+
+security:
+  rate-limit:
+    enabled: true
+    max-requests-per-minute: 10
 
 retry:
   max-attempts: 5

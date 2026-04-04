@@ -33,6 +33,7 @@ public class RefactorProjectImpl implements RefactorProject {
     private final SendProject sendProject;
     private final BucketProperties bucket;
     private final FileExtractor fileExtractor;
+    private final ProjectSelectionPlanner selectionPlanner;
 
     @Override
     public void process(Project project) {
@@ -63,6 +64,19 @@ public class RefactorProjectImpl implements RefactorProject {
                 .name(project.getName())
                 .candidatesInformation(project.getCandidatesInformation())
                 .status(status)
+                .selection(selectionPlanner.plan(project, List.of()))
+                .build();
+    }
+
+    @Override
+    public ProjectResults retrieve(String id, List<String> requestedFileKeys) {
+        var project = projectRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        var status = project.getStatus().stream().toList().getLast();
+        return ProjectResults.builder()
+                .name(project.getName())
+                .candidatesInformation(project.getCandidatesInformation())
+                .status(status)
+                .selection(selectionPlanner.plan(project, requestedFileKeys))
                 .build();
     }
 
@@ -81,19 +95,22 @@ public class RefactorProjectImpl implements RefactorProject {
                 .candidatesInformation(project.getCandidatesInformation())
                 .status(status.getLast())
                 .duration(new DecimalFormat("#.#####").format(duration))
+                .selection(selectionPlanner.plan(project, List.of()))
                 .build();
     }
 
     @SneakyThrows
     @Override
-    public String downloadProject(String projectId, List<String> candidatesIds) {
-        log.info("Downloading project: {}, candidates: {}", projectId, candidatesIds);
+    public String downloadProject(String projectId, List<String> selectedFileKeys) {
+        log.info("Downloading project: {}, files: {}", projectId, selectedFileKeys);
         var candidateFiles = new HashMap<String, JavaFile>();
         var project = projectRepository.findById(projectId).orElseThrow(IllegalArgumentException::new);
+        selectionPlanner.validateSelection(project, selectedFileKeys);
+        var selectedFilesByCandidate = selectionPlanner.groupSelectedFilesByCandidate(selectedFileKeys);
         var projectZip = s3ProjectRepository.download(project.getBucket(), project.getId());
         project.getCandidatesInformation().stream()
-                .filter(candidate -> candidatesIds.contains(candidate.getId()))
-                .map(candidate -> fileExtractor.extractRefactoredFiles(project.getBucket(), candidate.getId(), candidate.getFilesChanged().stream().toList()))
+                .filter(candidate -> selectedFilesByCandidate.containsKey(candidate.getId()))
+                .map(candidate -> fileExtractor.extractRefactoredFiles(project.getBucket(), candidate.getId(), selectedFilesByCandidate.get(candidate.getId())))
                 .flatMap(List::stream)
                 .forEach(javaFile -> candidateFiles.put(javaFile.getFullName(), javaFile));
 

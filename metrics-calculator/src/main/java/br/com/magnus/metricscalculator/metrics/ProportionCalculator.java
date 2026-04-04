@@ -6,11 +6,23 @@ import java.math.RoundingMode;
 public class ProportionCalculator {
 
 		public static BigDecimal calculateInverse(int original, int refactored) {
+			if (original == 0 && refactored == 0) {
+				return BigDecimal.ZERO;
+			}
+			if (refactored == 0) {
+				return BigDecimal.valueOf(100);
+			}
 			return BigDecimal.valueOf(original, 2).multiply(BigDecimal.valueOf(100))
 					.divide(BigDecimal.valueOf(refactored, 2), RoundingMode.HALF_EVEN)
 					.subtract(BigDecimal.valueOf(100));
 		}
 		public static BigDecimal calculateDirect(int original, int refactored) {
+			if (original == 0 && refactored == 0) {
+				return BigDecimal.ZERO;
+			}
+			if (original == 0) {
+				return BigDecimal.valueOf(100);
+			}
 			return BigDecimal.valueOf(refactored, 2).multiply(BigDecimal.valueOf(100))
 					.divide(BigDecimal.valueOf(original, 2), RoundingMode.HALF_EVEN)
 					.subtract(BigDecimal.valueOf(100));

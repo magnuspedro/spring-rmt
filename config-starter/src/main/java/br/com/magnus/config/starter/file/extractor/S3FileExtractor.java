@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +46,7 @@ public class S3FileExtractor implements FileExtractor {
         var zipInputStream = new ZipInputStream(compressedProject);
 
         while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+            validateZipEntry(zipEntry);
             Optional.of(zipEntry)
                     .filter(f -> f.getName().endsWith(EXTENSION))
                     .ifPresent(file -> javaFiles.add(JavaFile.builder()
@@ -72,6 +74,7 @@ public class S3FileExtractor implements FileExtractor {
         var zipInputStream = new ZipInputStream(compressedProject);
 
         while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+            validateZipEntry(zipEntry);
             Optional.of(zipEntry)
                     .filter(f -> candidateFiles.contains(f.getName()))
                     .ifPresent(file -> javaFiles.add(JavaFile.builder()
@@ -101,5 +104,12 @@ public class S3FileExtractor implements FileExtractor {
     @SneakyThrows
     private String getString(ZipInputStream zipInputStream) {
         return new String(zipInputStream.readAllBytes());
+    }
+
+    private void validateZipEntry(ZipEntry zipEntry) {
+        var normalizedPath = Path.of(zipEntry.getName()).normalize();
+        if (normalizedPath.isAbsolute() || normalizedPath.startsWith("..")) {
+            throw new IllegalArgumentException("Invalid zip entry path");
+        }
     }
 }

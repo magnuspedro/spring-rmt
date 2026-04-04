@@ -12,7 +12,6 @@ import java.math.BigInteger;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,8 +58,8 @@ class CyclomaticComplexityMetricTest {
         when(original.getCyclomaticComplexity()).thenReturn(10);
         when(refactored.getCyclomaticComplexity()).thenReturn(0);
 
-        var result = assertThrows(ArithmeticException.class, () -> metricCalculator.calculate(original, refactored));
+        Map<Metric, BigDecimal> result = metricCalculator.calculate(original, refactored);
 
-        assertEquals("/ by zero", result.getMessage());
+        assertEquals(BigInteger.valueOf(100), result.get(Metric.CYCLOMATIC_COMPLEXITY).toBigInteger());
     }
 }

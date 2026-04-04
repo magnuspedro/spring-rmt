@@ -5,6 +5,7 @@ import io.awspring.cloud.s3.ObjectMetadata;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -28,6 +29,9 @@ public class BaseProject {
     private List<CandidateInformation> candidatesInformation = new ArrayList<>();
     @Builder.Default
     private Set<ProjectStatus> status = new LinkedHashSet<>();
+    @TimeToLive
+    @Builder.Default
+    private Long timeToLive = 86400L;
     private Long createdAt;
     private Long updatedAt;
 

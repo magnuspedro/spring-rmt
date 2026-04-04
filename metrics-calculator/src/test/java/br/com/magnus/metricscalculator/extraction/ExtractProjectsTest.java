@@ -12,7 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -123,5 +125,18 @@ class ExtractProjectsTest {
                 () -> extractProjects.extractProject("id", "bucket"));
 
         assertEquals("Invalid file path", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Loads project files without creating directories")
+    void shouldLoadProjectFiles() {
+        var files = List.of(JavaFile.builder()
+                .name("Test.java")
+                .originalClass("public class Test {}")
+                .path("test/")
+                .build());
+        when(fileExtractor.extract("bucket", "id")).thenReturn(files);
+
+        assertThat(extractProjects.loadProjectFiles("id", "bucket")).containsExactlyElementsOf(files);
     }
 }
