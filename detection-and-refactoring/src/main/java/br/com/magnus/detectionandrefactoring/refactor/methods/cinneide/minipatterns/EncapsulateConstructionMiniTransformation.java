@@ -16,18 +16,50 @@ import com.github.javaparser.ast.type.UnknownType;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Mini transformation for encapsulating object creation.
+ * <p>
+ * Replaces direct object creation expressions with factory method calls.
+ * Creates factory methods if they don't already exist.
+ * This is the core of the Factory Method refactoring pattern.
+ */
 public class EncapsulateConstructionMiniTransformation implements MiniTransformation {
 
+    /**
+     * The name of the creator class.
+     */
     private final String creatorClassName;
+
+    /**
+     * The name of the product class being created.
+     */
     private final String productClassName;
+
+    /**
+     * The name of the factory method to create/use.
+     */
     private final String createMethodName;
 
+    /**
+     * Creates a new encapsulate construction mini transformation.
+     *
+     * @param creatorClassName  the creator class name
+     * @param productClassName   the product class name
+     * @param createMethodName  the factory method name
+     */
     public EncapsulateConstructionMiniTransformation(String creatorClassName, String productClassName, String createMethodName) {
         this.creatorClassName = creatorClassName;
         this.productClassName = productClassName;
         this.createMethodName = createMethodName;
     }
 
+    /**
+     * Applies the encapsulate construction transformation.
+     * <p>
+     * Replaces direct object creation with factory method calls.
+     *
+     * @param context the refactoring context
+     */
     @Override
     public void apply(CinneideContext context) {
         var creatorClass = context.classDeclaration(creatorClassName);
@@ -44,6 +76,14 @@ public class EncapsulateConstructionMiniTransformation implements MiniTransforma
         }
     }
 
+    /**
+     * Ensures a factory method exists for the given object creation.
+     * <p>
+     * Creates the method if it doesn't already exist.
+     *
+     * @param creatorClass the creator class
+     * @param creation     the object creation expression
+     */
     private void ensureCreatorMethod(com.github.javaparser.ast.body.ClassOrInterfaceDeclaration creatorClass, ObjectCreationExpr creation) {
         var argTypes = creation.getArguments().stream().map(this::inferType).toList();
         var exists = AstHandler.getMethods(creatorClass).stream()
@@ -65,11 +105,18 @@ public class EncapsulateConstructionMiniTransformation implements MiniTransforma
         method.setBody(new BlockStmt().addStatement(new ReturnStmt(objectCreation)));
     }
 
+    /**
+     * Checks if two parameter type lists are equivalent.
+     *
+     * @param parameters the method parameters
+     * @param argTypes   the argument types
+     * @return true if types match
+     */
     private boolean sameParamTypes(List<Parameter> parameters, List<Type> argTypes) {
         if (parameters.size() != argTypes.size()) {
             return false;
         }
-        for (int i = 0; i < parameters.size(); i++) {
+        for (var i = 0; i < parameters.size(); i++) {
             if (!parameters.get(i).getType().equals(argTypes.get(i))) {
                 return false;
             }
@@ -77,6 +124,14 @@ public class EncapsulateConstructionMiniTransformation implements MiniTransforma
         return true;
     }
 
+    /**
+     * Infers the type of an expression.
+     * <p>
+     * Handles literals, names, and method calls.
+     *
+     * @param expression the expression to infer type from
+     * @return the inferred type
+     */
     private Type inferType(Expression expression) {
         if (expression.isIntegerLiteralExpr()) return PrimitiveType.intType();
         if (expression.isLongLiteralExpr()) return PrimitiveType.longType();

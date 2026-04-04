@@ -16,18 +16,51 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Mini transformation for creating a wrapper class.
+ * <p>
+ * Creates a wrapper (decorator) class that implements an interface
+ * and delegates all calls to a wrapped receiver object.
+ * Updates client classes to use the wrapper instead of direct implementations.
+ */
 public class WrapperMiniTransformation implements MiniTransformation {
 
+    /**
+     * The names of client classes to update.
+     */
     private final Set<String> clientClassNames;
+
+    /**
+     * The interface name to implement.
+     */
     private final String interfaceName;
+
+    /**
+     * The name of the wrapper class to create.
+     */
     private final String wrapperClassName;
 
+    /**
+     * Creates a new wrapper mini transformation.
+     *
+     * @param clientClassNames the client class names to update
+     * @param interfaceName     the interface to implement
+     * @param wrapperClassName  the wrapper class name to create
+     */
     public WrapperMiniTransformation(Set<String> clientClassNames, String interfaceName, String wrapperClassName) {
         this.clientClassNames = clientClassNames;
         this.interfaceName = interfaceName;
         this.wrapperClassName = wrapperClassName;
     }
 
+    /**
+     * Applies the wrapper transformation.
+     * <p>
+     * Creates a wrapper class that delegates to a receiver,
+     * and updates client classes to use the wrapper.
+     *
+     * @param context the refactoring context
+     */
     @Override
     public void apply(CinneideContext context) {
         var interfaceFile = context.classFile(interfaceName);
@@ -76,6 +109,12 @@ public class WrapperMiniTransformation implements MiniTransformation {
         }
     }
 
+    /**
+     * Creates a delegating method for the wrapper.
+     *
+     * @param interfaceMethod the interface method to delegate
+     * @return the delegating method
+     */
     private MethodDeclaration delegateMethod(MethodDeclaration interfaceMethod) {
         var method = new MethodDeclaration();
         method.setName(interfaceMethod.getNameAsString());

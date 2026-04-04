@@ -9,14 +9,44 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
 import java.util.Set;
 
+/**
+ * Abstract base for access modifier transformations.
+ * <p>
+ * Handles common logic for changing visibility of members and replacing
+ * concrete class references with interface references.
+ */
 public class AbstractAccessMiniTransformation implements MiniTransformation {
 
+    /**
+     * The context class name.
+     */
     private final String contextClassName;
+
+    /**
+     * The concrete class name to replace.
+     */
     private final String concreteClassName;
+
+    /**
+     * The interface name to use as replacement.
+     */
     private final String interfaceName;
+
+    /**
+     * Method names to skip during transformation.
+     */
     private final Set<String> skipMethodNames;
 
-    public AbstractAccessMiniTransformation(String contextClassName, String concreteClassName, String interfaceName, Set<String> skipMethodNames) {
+    /**
+     * Creates a new access mini transformation.
+     *
+     * @param contextClassName  the context class name
+     * @param concreteClassName  the concrete class name
+     * @param interfaceName      the interface name
+     * @param skipMethodNames    method names to skip
+     */
+    public AbstractAccessMiniTransformation(String contextClassName, String concreteClassName,
+                                           String interfaceName, Set<String> skipMethodNames) {
         this.contextClassName = contextClassName;
         this.concreteClassName = concreteClassName;
         this.interfaceName = interfaceName;
@@ -31,19 +61,23 @@ public class AbstractAccessMiniTransformation implements MiniTransformation {
 
         contextClass.findAll(MethodDeclaration.class).stream()
                 .filter(method -> !skipMethodNames.contains(method.getNameAsString()))
-                .forEach(method -> {
-                    if (method.getType().isClassOrInterfaceType()
-                            && method.getType().asClassOrInterfaceType().getNameAsString().equals(concreteClassName)) {
-                        method.setType(new ClassOrInterfaceType(interfaceName));
-                    }
-                    method.findAll(Parameter.class).forEach(this::replaceTypeIfConcrete);
-                });
+                .forEach(this::replaceTypeIfConcrete);
     }
 
+    /**
+     * Replaces type if it matches the concrete class.
+     *
+     * @param fieldDeclaration the field declaration
+     */
     private void replaceTypeIfConcrete(FieldDeclaration fieldDeclaration) {
         fieldDeclaration.getVariables().forEach(this::replaceTypeIfConcrete);
     }
 
+    /**
+     * Replaces type if it matches the concrete class.
+     *
+     * @param parameter the parameter
+     */
     private void replaceTypeIfConcrete(Parameter parameter) {
         if (parameter.getType().isClassOrInterfaceType()
                 && parameter.getType().asClassOrInterfaceType().getNameAsString().equals(concreteClassName)) {
@@ -51,6 +85,24 @@ public class AbstractAccessMiniTransformation implements MiniTransformation {
         }
     }
 
+    /**
+     * Replaces type if it matches the concrete class.
+     *
+     * @param methodDeclaration the method declaration
+     */
+    private void replaceTypeIfConcrete(MethodDeclaration methodDeclaration) {
+        if (methodDeclaration.getType().isClassOrInterfaceType()
+                && methodDeclaration.getType().asClassOrInterfaceType().getNameAsString().equals(concreteClassName)) {
+            methodDeclaration.setType(new ClassOrInterfaceType(interfaceName));
+        }
+        methodDeclaration.findAll(Parameter.class).forEach(this::replaceTypeIfConcrete);
+    }
+
+    /**
+     * Replaces type if it matches the concrete class.
+     *
+     * @param variableDeclarator the variable declarator
+     */
     private void replaceTypeIfConcrete(VariableDeclarator variableDeclarator) {
         if (variableDeclarator.getType().isClassOrInterfaceType()
                 && variableDeclarator.getType().asClassOrInterfaceType().getNameAsString().equals(concreteClassName)) {
