@@ -29,14 +29,13 @@ queue:
   measure-pattern: measure-pattern
 
 refactoring:
-  detection-methods-manager:
-    parallelism: ${REFACTORING_MANAGER_PARALLELISM:3}
-  cinneide:
-    parallelism: ${CINNEIDE_REFACTORING_PARALLELISM:8}
-  wei:
-    parallelism: ${WEI_REFACTORING_PARALLELISM:8}
-  zafeiris:
-    parallelism: ${ZAFEIRIS_REFACTORING_PARALLELISM:8}
+  # Default parallelism for all executors (can be overridden per-executor)
+  default-parallelism: ${REFACTORING_DEFAULT_PARALLELISM:8}
+
+  # Executor-specific overrides
+  executors:
+    detection-methods-manager: ${REFACTORING_MANAGER_PARALLELISM:3}
+    # cinneide, wei, zafeiris use default (8)
 
 server:
   port: 8081

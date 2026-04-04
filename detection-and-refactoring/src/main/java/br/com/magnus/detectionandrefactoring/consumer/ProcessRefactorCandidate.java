@@ -41,7 +41,7 @@ public class ProcessRefactorCandidate {
             project.addAllRefactorFiles(DetectionMethodsManager.executeInParallel(
                             detectionMethodsManager,
                             detectionMethodsManagerExecutor,
-                            refactoringProperties.getDetectionMethodsManager().getParallelism(),
+                            refactoringProperties.getDetectionMethodsManagerParallelism(),
                             method -> method.refactor(project))
                     .stream()
                     .flatMap(List::stream)
