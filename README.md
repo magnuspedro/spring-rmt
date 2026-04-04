@@ -27,6 +27,57 @@ Implemented in `detection-and-refactoring` as AST transformations:
 - `metrics-calculator`: CK metrics and quality attribute calculation
 - `config-starter`: shared models and infrastructure configuration
 
+## Detection & Refactoring Architecture
+
+### Algorithm Structure
+
+```
+DetectionMethodsManagerWei  (Strategy + Factory Method — Wei et al. 2014)
+  └─ WeiEtAl2014
+       ├─ WeiEtAl2014StrategyVerifier   → WeiEtAl2014StrategyCandidate
+       ├─ WeiEtAl2014FactoryVerifier    → WeiEtAl2014FactoryCandidate
+       ├─ WeiEtAl2014StrategyExecutor
+       └─ WeiEtAl2014FactoryExecutor
+
+DetectionMethodsManagerZaiferis  (Template Method — Zafeiris et al. 2016)
+  └─ ZafeirisEtAl2016
+       ├─ ZafeirisEtAl2016Verifier
+       │    ├─ SuperInvocationPreconditions
+       │    ├─ ExtractMethodPreconditions
+       │    └─ SiblingPreconditions
+       └─ ZafeirisEtAl2016Executor
+            └─ FragmentsSplitter
+```
+
+### AST Handler Architecture
+
+The AST operations are organized into focused handlers following the Single Responsibility Principle:
+
+```
+AstHandler (deprecated facade)
+├── AstMethodHandler     → method operations
+├── AstNodeHandler       → generic node operations
+├── AstVariableHandler   → variable operations
+├── AstSuperCallHandler  → super call operations
+├── AstStatementHandler  → statement operations
+├── AstTypeHandler       → type operations
+└── AstMethodHelper      → static utilities
+```
+
+This architecture enables:
+- **Single Responsibility** — each handler handles one type of AST operation
+- **Easier Testing** — focused handlers are easier to unit test
+- **Better Discoverability** — finding the right method is simpler
+- **Maintainability** — changes are isolated to specific handlers
+
+### Refactoring Utilities
+
+Common operations are centralized in `RefactoringUtils`:
+- `cloneProjectFiles()` — deep copy for isolated refactoring
+- `createRefactorFiles()` — builder wrapper
+- `hasChanges()` — change detection
+- `extractClassNames()` — name extraction
+
 ## Flow
 
 1. A ZIP file is uploaded through `project-sync-bff`
